@@ -1,0 +1,17 @@
+    13  12:46   snmpwalk -v2c -c public 132.65.2.11
+    14  12:46   snmpwalk -v2c -c public 132.65.2.11 .
+    15  12:46   snmpwalk -v2c -c public 132.65.2.11 .
+    16  12:46   snmpwalk -v2c public 132.65.2.11 .
+    17  12:47   snmpwalk -c public 132.65.2.11 .
+    18  12:47   snmpwalk -v2c -c public 132.65.2.11 .
+    19  12:48   snmpget -v2c -c public 132.65.2.11 unitVoltage
+    20  12:48   snmpget -v2c -c public 132.65.2.11 .unitVoltage
+    21  12:48   snmpwalk -v2c -c public 132.65.2.11 . | grep unit
+    22  12:51   snmpwalk -v2c -c public 132.65.2.11 iso.3.6.1.4.1.13742.4.1.13.1.1.6.48.1.1
+    23  12:51   snmpwalk -v2c -c public 132.65.2.11 iso.3.6.1.4.1.13742.4.1.13.1.1.6.48.1
+    24  12:51   snmpwalk -v2c -c public 132.65.2.11 iso.3.6.1.4.1.13742.4.1.13.1.1.6.48
+    25  12:51   snmpwalk -v2c -c public 132.65.2.11 iso.3.6.1.4.1.13742.4.1.13.1.1.6
+    26  12:51   snmpwalk -v2c -c public 132.65.2.11 iso.3.6.1.4.1.13742.4.1.13.1.1
+    27  12:51   snmpwalk -v2c -c public 132.65.2.11 . | grep -v Gauge32
+    28  12:53   snmpget -v2c -c public 132.65.2.11 iso.3.6.1.2.1.1.9.1.3.5
+    29  12:53   snmpget -v2c -c public 132.65.2.11 iso.3.6.1.2.1.1.9.1.3.5

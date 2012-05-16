@@ -25,3 +25,9 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+etc/outlets/pdu1.ini
+etc/servers/server1.ini
+etc/servers/server2.ini
+etc/servers/server3.ini
+etc/servers/server4.ini
+etc/config.ini
