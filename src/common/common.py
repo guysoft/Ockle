@@ -13,14 +13,14 @@ import json
 
 def loadConfig():
     ''' Get the config file and folder
-    @return: a turple with a config parser to config.ini and the etc folder'''
+    @return: a tuple with a config parser to config.ini and the etc folder'''
     config = SafeConfigParser()
     ETC_DIR= appendProjectPath("etc")
     config.read(os.path.join(ETC_DIR,"config.ini"))
     return config,ETC_DIR
 
 def appendProjectPath(path):
-    ''' Appends the project path to a realive path
+    ''' Appends the project path to a relative path
     @param path: the internal path
     @return: the relative path 
     '''
