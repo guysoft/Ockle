@@ -1,0 +1,7 @@
+How to set up
+-------------
+1. Copy config.ini.example to config.ini
+
+How to run
+----------
+python src/MainDaemon.py
