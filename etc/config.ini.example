@@ -1,0 +1,14 @@
+[main]
+PLUGIN_DIR=plugins
+SERVER_DIR=servers
+#SERVER_DIR=dummyservers
+OUTLET_DIR=outlets
+
+[plugins]
+pluginList=["SocketListener","PowerTester","AutoControl"]
+
+
+[plugins.SocketListener]
+LISTENER_PORT = 8088
+MAX_CONNECTIONS = 5
+MAX_RCV_SIZE =1024
