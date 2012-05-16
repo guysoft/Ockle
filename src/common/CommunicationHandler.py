@@ -4,7 +4,7 @@ Handle communication massages from a listner plugin
 
 Created on May 16, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from CommunicationMessage import MessageServerSend
 from CommunicationMessage import MessageAttr

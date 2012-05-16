@@ -3,7 +3,7 @@
 The basic plugin that that all other plugins extend
 
 Created on Apr 26, 2012
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from threading import Thread
 

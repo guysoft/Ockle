@@ -5,7 +5,7 @@ Test if we can ping a hostname
 
 Created on Apr 25, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 import subprocess
 import os

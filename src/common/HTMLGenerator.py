@@ -4,7 +4,7 @@ Turn datatypes to HTML
 
 Created on May 9, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 class HTMLGenerator(object):
     '''

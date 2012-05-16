@@ -4,7 +4,7 @@ Exceptions from the network tree data structure
 
 Created on May 16, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from common.Exceptions import Error
 

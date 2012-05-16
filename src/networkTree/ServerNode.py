@@ -5,7 +5,7 @@ or a service with the list of outlets to its servers that run it
 
 Created on Mar 14, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 class ServerNode():
     '''

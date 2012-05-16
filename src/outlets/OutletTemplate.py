@@ -3,7 +3,7 @@
 Template for an outlet object that all other outlets extend
 Created on Mar 7, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 class OutletTemplate(object):
     '''

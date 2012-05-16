@@ -5,7 +5,7 @@ Lets Ockle talk to a webserver or client using a network socket
 
 Created on May 02, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 import os.path,sys
 p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','common')

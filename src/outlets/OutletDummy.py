@@ -4,7 +4,7 @@ A dummy outlet, useful for testing
 
 Created on Mar 7, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from OutletTemplate import OutletTemplate
 class Dummy(OutletTemplate):

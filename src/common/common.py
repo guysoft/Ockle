@@ -5,7 +5,7 @@ Moved here to avoid code repetition
 
 Created on May 10, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from ConfigParser import SafeConfigParser
 import os.path, sys

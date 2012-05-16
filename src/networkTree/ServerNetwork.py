@@ -5,7 +5,7 @@ Holds either a DAG of servers with outlets, or a DAG of services (depends how yo
 
 Created on Mar 14, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 import networkTree.Exceptions as Exceptions
 import time

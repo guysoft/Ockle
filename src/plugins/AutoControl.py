@@ -4,7 +4,7 @@ A plugin to automatically start up and manage the servers
 
 Created on May 16, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 import os.path,sys
 p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','common')

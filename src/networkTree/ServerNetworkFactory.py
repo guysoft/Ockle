@@ -5,7 +5,7 @@ Goes over the ini files in etc and builds the server network
 
 Created on May 10, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from ConfigParser import SafeConfigParser
 import os

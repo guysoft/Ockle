@@ -4,7 +4,7 @@ Turn dicts to xml and back
 
 Created on May 8, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 Adapted from code by Ben Lackey http://nonplatonic.com/ben.php?title=python_xml_to_dict_bow_to_my_recursive_g
 """
 import xml.dom.minidom

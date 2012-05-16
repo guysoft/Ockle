@@ -4,7 +4,7 @@ Common exceptions in the project
 
 Created on Mar 14, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 class Error(Exception):
     '''Base class for exceptions in this module.'''

@@ -4,7 +4,7 @@ A Raritan Dominion PX DPXR8A-16 PDU Outlet implementation
 
 Created on Mar 7, 2012
 
-@author: Guy Sheffer <guysoft at mail.huji.ac.il>
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 # GETNEXT Command Generator
 from pysnmp.entity import engine, config
