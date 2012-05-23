@@ -11,6 +11,17 @@ from ConfigParser import SafeConfigParser
 import os.path, sys
 import json
 
+class OpState:
+    '''
+    Operation state enum, that all other operation states enums extend
+    '''
+    OK=0
+    failedToStart=1
+    failedToStop=2
+    SwitcingOn = 3
+    SwitchingOff = 4
+    
+
 def loadConfig():
     ''' Get the config file and folder
     @return: a tuple with a config parser to config.ini and the etc folder'''

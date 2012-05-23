@@ -23,10 +23,9 @@ def ping(ip):
     else:
         return True
 
-class PingTester(TemplateTester):
-    def __init__(self,daemon,hostname):
-        self.daemon = daemon
-        self.hostname = hostname
+class Ping(TemplateTester):
+    def __init__(self,testerConfigDict,testerParams):
+        self.hostname = testerParams["hostname"]
         return
     
     def test(self):

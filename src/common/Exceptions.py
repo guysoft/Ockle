@@ -21,7 +21,16 @@ class OutletTypeNotFound(Error):
     '''
     def __init__(self, iniFile,type):
         self.debug("Outlet type '" + type + "' specified in " + iniFile + " does not exist")
-            
+class TesterTypeNotFound(Error):
+    '''Exception raised when a tester type was not found
+
+    Attributes:
+        @param iniFile : Path to ini file contains the declaration
+        @param type: the type of tester declared
+    '''
+    def __init__(self, iniFile,type):
+        self.debug("Tester type '" + type + "' specified in " + iniFile + " does not exist")
+                    
 class MultipleDeclerationInConfig(Error):
     '''Exception raised for multiple declaration in same config file,
 

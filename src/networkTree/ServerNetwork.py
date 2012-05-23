@@ -15,6 +15,8 @@ from pygraph.classes.digraph import digraph
 from pygraph.algorithms.searching import breadth_first_search
 from pygraph.readwrite.dot import write
 
+from outlets.OutletTemplate import OutletOpState
+
 
 from pygraph.algorithms.cycles import find_cycle
 from pygraph.algorithms.sorting import topological_sorting
@@ -83,8 +85,27 @@ class ServerNetwork():
         return servers
     
     def getSortedNodeListIndex(self):
-        '''
-        returns a list of the node names topologically sorted
+        ''' returns a list of the node names topologically sorted
+        @return: a list of the node names topologically sorted
         '''
         return topological_sorting(self.graph)
+    
+    def getRoot(self):
+        ''' Gets the root server of the tree
+        @return: the root server
+        '''
+        return self.getSortedNodeList()[0]
+    
+    def isReadyToTurnOn(self,server):
+        ''' Check if a server dependencies are met and tests are met, and could be turned on
+        @param serverName: the server's name 
+        '''
+        parrentServersName = self.servers.getDependencies(server)
+        for parrentServerName in parrentServersName:
+            failedOutlets = parrentServerName.getNotOutletsState(OutletOpState.OK)
+            failedTests = parrentServerName.getFailedTests()
+            if not self.isReadyToTurnOn(parrentServerName) or failedOutlets or failedTests:
+                return False
+        return True
+    
         

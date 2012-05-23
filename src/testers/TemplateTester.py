@@ -7,8 +7,7 @@ Created on Apr 25, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 class TemplateTester(object):
-    def __init__(self,hostname):
-        self.hostname = hostname
+    def __init__(self,testerConfigDict,testerParams):
         return
     
     def test(self):
