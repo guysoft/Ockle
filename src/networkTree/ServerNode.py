@@ -7,7 +7,12 @@ Created on Mar 14, 2012
 
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
+import time
 from common.common import OpState
+from common.common import loadConfig
+
+config,ETC_DIR = loadConfig()
+MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
 
 class ServerNodeOpState(OpState):
     init=-1# Did not start yet
@@ -22,7 +27,7 @@ class ServerNode():
     def getName(self):
         return self.name
     
-    def __init__(self,name,outlets=[],tests=[]):
+    def __init__(self,name,outlets=[],testers=[]):
         '''Constructor
         
         @param name: node name (string)
@@ -31,7 +36,7 @@ class ServerNode():
         '''
         self.setName(name)
         self.outlets = outlets
-        self.tests = tests
+        self.testers = testers
         
     def getOutlet(self,number):
         ''' Get an outlet from the outlet list
@@ -74,16 +79,26 @@ class ServerNode():
         '''
         failedTests = []
         return failedTests
-        
-    def turnOnTry(self):
-        ''' Try to turn on server, if already on then don't do nothing
-        @return: True if succeeded, false if not
-        '''
-        #TODO check if we want exceptions or other return types on failure
-        self.setOutletsState(True)
-        return
+    
+    def getTesters(self):
+        return self.testers
     
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
+        nonWorkingOutlets = self.getNotOutletsState(OpState.OK)
+        
+        for outlet in nonWorkingOutlets:
+            outletFailList = self.setOutletsState(True)
+        
+        time.sleep(MAX_STARTUP_TIME)
+        #STOPED HERE
+        '''
+        for tester in self.getTesters():
+            if not tester.run():
+                tester.setState(FAILED)
+            else:
+                tester.setState(OK)
+        '''
+        return
         
