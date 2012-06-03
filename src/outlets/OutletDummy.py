@@ -24,7 +24,7 @@ class Dummy(OutletTemplate):
     def setState(self,state):
         self._setOutletState(state)
         self.updateState()
-        return
+        return True
     
     def getState(self):
         return self.state

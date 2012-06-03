@@ -10,6 +10,7 @@ Created on Apr 25, 2012
 import subprocess
 import os
 from TemplateTester import TemplateTester
+from TemplateTester import TestState
 
 def ping(ip):
     '''
@@ -32,4 +33,9 @@ class Ping(TemplateTester):
         '''
         Runs the test
         '''
-        return ping(self.hostname)
+        state = ping(self.hostname)
+        if state:
+            TestState.SUCCEEDED
+        else:
+            TestState.FAILED
+        return state

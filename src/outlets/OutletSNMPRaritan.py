@@ -100,6 +100,11 @@ class Raritan(OutletTemplate):
     def setState(self,state):
         self._setOutletState(state)
         self.updateState()
+        #TODO: make this more robust?
+        if self.getState() == state:
+            return True
+        else:
+            return False
     
     def _snmpSet(self,OID,Value):
         '''

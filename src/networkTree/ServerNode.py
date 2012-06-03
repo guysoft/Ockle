@@ -10,12 +10,13 @@ Created on Mar 14, 2012
 import time
 from common.common import OpState
 from common.common import loadConfig
+from outlets.OutletTemplate import OutletOpState
 
 config,ETC_DIR = loadConfig()
 MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
 
 class ServerNodeOpState(OpState):
-    init=-1# Did not start yet
+    INIT=-1# Did not start yet
 
 class ServerNode():
     '''
@@ -35,8 +36,19 @@ class ServerNode():
         @param tests: a list of test classes
         '''
         self.setName(name)
-        self.outlets = outlets
-        self.testers = testers
+        self.outlets = outlets #list of outlets types for the server
+        self.testers = testers #list of testers to make sure server is preforming right
+        self.setOutletsState(OutletOpState.INIT) #server state
+        self.setOpState(ServerNodeOpState.INIT)
+        return
+    
+    def setState(self,state):
+        '''
+        Set server state
+        @param state: server state type
+        '''
+        self.state = state
+        return
         
     def getOutlet(self,number):
         ''' Get an outlet from the outlet list
@@ -83,22 +95,45 @@ class ServerNode():
     def getTesters(self):
         return self.testers
     
+    def setOpState(self,state):
+        ''' Set the oprating state of the server
+        '''
+        self.state = state
+        return
+    def getOpState(self):
+        return self.state
+    
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
+        self.setOpState(ServerNodeOpState.SwitcingOn)
+        
+        self.setOutletsState(ServerNodeOpState.SwitcingOn)
         nonWorkingOutlets = self.getNotOutletsState(OpState.OK)
         
-        for outlet in nonWorkingOutlets:
-            outletFailList = self.setOutletsState(True)
+        outletsFailList=[]
+        #STOPED HERE!
+        '''
+        while OUTLETS_STILL_STARTING:
+            for outlet in nonWorkingOutlets:
+                if not outlet.setState(True): #TODO this should fork 
+                    outletsFailList.append(outlet)
+                    self.setOutletState(OpState.failedToStart)
+                else:
+                    self.setOutletState(OpState.OK)
+                    
+            time.sleep(MAX_STARTUP_TIME)
         
-        time.sleep(MAX_STARTUP_TIME)
-        #STOPED HERE
-        '''
         for tester in self.getTesters():
-            if not tester.run():
-                tester.setState(FAILED)
+            if tester.run():
+                TESTER SET OK AND MARK AS DONE
             else:
-                tester.setState(OK)
-        '''
+                APPEND TO FAIL LIST AND MARK AS FAIL
+            
+        if outletsFailList or testersFailedList:
+            self.setOpState(ServerNodeOpState.failedToStart)
+        else:
+            self.setOpState(ServerNodeOpState.OK)
+        '''  
         return
         

@@ -16,7 +16,7 @@ from pygraph.algorithms.searching import breadth_first_search
 from pygraph.readwrite.dot import write
 
 from outlets.OutletTemplate import OutletOpState
-
+from ServerNode import ServerNodeOpState
 
 from pygraph.algorithms.cycles import find_cycle
 from pygraph.algorithms.sorting import topological_sorting
@@ -108,4 +108,13 @@ class ServerNetwork():
                 return False
         return True
     
+    def turningOn(self):
+        '''
+        @return: true if we have any servers that are in intermediate states
+        '''
+        nodeList = self.getSortedNodeList()
+        for server in nodeList:
+            if server.getOpState() in [ServerNodeOpState.INIT,ServerNodeOpState.SwitcingOn,ServerNodeOpState.SwitchingOff]:
+                return True
+        return False
         

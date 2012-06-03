@@ -7,7 +7,7 @@ Created on Mar 7, 2012
 """
 from common.common import OpState
 class OutletOpState(OpState):
-    init=-1# Did not start yet
+    INIT=-1# Did not start yet
 
     
 class OutletTemplate(object):
@@ -23,6 +23,10 @@ class OutletTemplate(object):
         return
     
     def setState(self,state):
+        ''' To be Implemented in the child
+        @param state: The state of the outlet to set
+        @return: True if the setting was successful 
+        '''
         return
     
     def getState(self):
