@@ -100,13 +100,21 @@ class ServerNetwork():
         ''' Check if a server dependencies are met and tests are met, and could be turned on
         @param serverName: the server's name 
         '''
-        parrentServersName = self.servers.getDependencies(server)
+        parrentServersName = self.getDependencies(server)
         for parrentServerName in parrentServersName:
             failedOutlets = parrentServerName.getNotOutletsState(OutletOpState.OK)
             failedTests = parrentServerName.getFailedTests()
             if not self.isReadyToTurnOn(parrentServerName) or failedOutlets or failedTests:
                 return False
         return True
+    
+    def getDependencies(self,server):
+        '''
+        Get a list of servers a given server is dependent on (only one level)
+        @param server: the server name
+        '''
+        #TODO implement
+        return
     
     def turningOn(self):
         '''
