@@ -28,6 +28,9 @@ Functions for reading and writing graphs in Dot language.
 @sort: read, read_hypergraph, write, write_hypergraph
 """
 
+"""
+NOTE: Modified attribute handling
+"""
 
 # Imports
 from pygraph.classes.digraph import digraph
@@ -135,12 +138,21 @@ def write(G, weighted=False):
     else:
         raise InvalidGraphType("Expected graph or digraph, got %s" %  repr(G) )
     
+    '''
+    Modified here the handling of attributes, because the original one assumed there was a list,
+     and we have only one
+    '''
+    
     for node in G.nodes():
         attr_list = {}
+        '''
         for attr in G.node_attributes(node):
             attr_list[str(attr[0])] = str(attr[1])
-        
-        newNode = pydot.Node(str(node), **attr_list)
+        ''' 
+        attributes={}
+        serverNode = G.node_attributes(node)
+        attributes["outlets"]=serverNode.getOutlets()
+        newNode = pydot.Node(str(node),{"name": serverNode.getName(), "type": "node", "attributes": attributes})
         
         dotG.add_node(newNode)
         

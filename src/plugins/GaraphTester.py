@@ -20,7 +20,6 @@ class GraphTester(ModuleTemplate):
     
     def run(self):
         self.debug("\n")
-        print "yay"
         #print self.mainDaemon.servers.graph
         print pygraph.readwrite.dot.write(self.mainDaemon.servers.graph,True)
         
