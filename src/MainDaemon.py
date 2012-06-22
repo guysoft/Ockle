@@ -48,7 +48,6 @@ class MainDaemon():
         
         #Communication handling system
         self.communicationHandler =CommunicationHandler()
-        
         #plugin init
         self.plugins = []
         plugins = load(PLUGIN_DIR,subclasses=ModuleTemplate)

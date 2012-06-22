@@ -12,8 +12,8 @@ class Dummy(OutletTemplate):
     This class is an instance of an outlet within the pdu, you must spesify a number
     '''
     def __init__(self,outletConfigDict={},outletParams={}):
-        #TODO: fix declaration
-        #super(Dummy).__init__(outletConfigDict,outletParams)
+        OutletTemplate.__init__(self,outletConfigDict,outletParams)
+        #TODO: doublecheck
         self.state = False
         return
     

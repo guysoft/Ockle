@@ -102,8 +102,9 @@ class ServerNetwork():
         '''
         parrentServersName = self.getDependencies(server)
         for parrentServerName in parrentServersName:
-            failedOutlets = parrentServerName.getNotOutletsState(OutletOpState.OK)
-            failedTests = parrentServerName.getFailedTests()
+            serverNode = self.graph.node_attributes(parrentServerName)
+            failedOutlets = serverNode.getNotOutletsState(OutletOpState.OK)
+            failedTests = serverNode.getFailedTests()
             if not self.isReadyToTurnOn(parrentServerName) or failedOutlets or failedTests:
                 return False
         return True
@@ -113,8 +114,7 @@ class ServerNetwork():
         Get a list of servers a given server is dependent on (only one level)
         @param server: the server name
         '''
-        #TODO implement
-        return
+        return self.graph.reverse().neighbors(server)
     
     def turningOn(self):
         '''

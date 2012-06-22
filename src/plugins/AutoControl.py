@@ -53,7 +53,7 @@ class AutoControl(ModuleTemplate):
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
                     
-            time.sleep(self.WAIT_TIME)
+            time.sleep(float(self.WAIT_TIME))
 
 if __name__ == "__main__":
     a = AutoControl(None)
