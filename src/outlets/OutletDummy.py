@@ -7,6 +7,9 @@ Created on Mar 7, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from OutletTemplate import OutletTemplate
+import time
+import random
+
 class Dummy(OutletTemplate):
     '''
     This class is an instance of an outlet within the pdu, you must spesify a number
@@ -23,6 +26,7 @@ class Dummy(OutletTemplate):
     
     def setState(self,state):
         self._setOutletState(state)
+        time.sleep(random.uniform(0, 3))
         self.updateState()
         return True
     

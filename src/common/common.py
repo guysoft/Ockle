@@ -21,6 +21,15 @@ class OpState:
     SwitcingOn = 3
     SwitchingOff = 4
     
+COLOR_DICT={
+            -1:"black",
+            OpState.OK:"green",
+           OpState.failedToStart:"red",
+           OpState.failedToStop:"yellow",
+           OpState.SwitcingOn:"grey",
+           OpState.SwitchingOff:"blue",
+           }
+    
 
 def loadConfig():
     ''' Get the config file and folder

@@ -39,6 +39,8 @@ from pygraph.classes.graph import graph
 from pygraph.classes.hypergraph import hypergraph
 import pydot
 
+import common.common as common
+
 # Values
 colors = ['aquamarine4', 'blue4', 'brown4', 'cornflowerblue', 'cyan4',
             'darkgreen', 'darkorange3', 'darkorchid4', 'darkseagreen4', 'darkslategray',
@@ -86,11 +88,12 @@ def read(string):
             G.add_node(each_edge.get_destination())
         
         # See if there's a weight
+        '''
         if 'weight' in each_edge.get_attributes().keys():
             _wt = each_edge.get_attributes()['weight']
         else:
             _wt = 1
-        
+        '''
         # See if there is a label
         if 'label' in each_edge.get_attributes().keys():
             _label = each_edge.get_attributes()['label']
@@ -151,7 +154,8 @@ def write(G, weighted=False):
         ''' 
         attributes={}
         serverNode = G.node_attributes(node)
-        attributes["outlets"]=serverNode.getOutlets()
+        #attributes["outlets"]=serverNode.getOutlets()
+        attributes["color"]= common.COLOR_DICT[serverNode.getOpState()]
         newNode = pydot.Node(str(node),{"name": serverNode.getName(), "type": "node", "attributes": attributes})
         
         dotG.add_node(newNode)
