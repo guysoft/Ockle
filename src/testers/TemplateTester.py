@@ -7,7 +7,7 @@ Created on Apr 25, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 
-class TestState():
+class TesterOpState():
     INIT=-1# Did not start yet
     SUCCEEDED=0
     FAILED=1
@@ -15,7 +15,7 @@ class TestState():
 
 class TemplateTester(object):
     def __init__(self,testerConfigDict,testerParams):
-        self.state = TestState.INIT
+        self.opState = TesterOpState.INIT
         return
     
     def test(self):
@@ -23,3 +23,8 @@ class TemplateTester(object):
         Runs the test
         '''
         return
+    
+    def setOpState(self,state):
+        self.opState=state
+    def getOpState(self):
+        return self.opState

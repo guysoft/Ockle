@@ -135,17 +135,17 @@ class ServerNetworkFactory(object):
         testerParams = turpleList2Dict(serverConfig.items(tester))
         
         #get tester type so we can pull its config data
-        testerConfig=serverConfig.get(tester, "tester")
+        testerConfig=serverConfig.get(tester, "type")
         TESTER_DIR = config.get('main', 'TESTER_DIR') 
         testerConfigPath = os.path.join(ETC_DIR,TESTER_DIR,testerConfig + ".ini")
         testerConfig = SafeConfigParser()
         
-        #Crate the outlet with server params and outlet config 
+        #Create the tester with server params and tester config 
         testerConfig.read(testerConfigPath)
         testerConfigDict={}
         for section in testerConfig.sections(): 
             testerConfigDict[section] = turpleList2Dict(testerConfig.items('tester'))
-        TemplateTester(1,1)
+                        
         #Find from type the kind of tester
         testers = load(TESTER_DIR,subclasses=TemplateTester)
         testerType = testerConfigDict['tester']['type']

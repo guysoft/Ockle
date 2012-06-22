@@ -43,10 +43,10 @@ class AutoControl(ModuleTemplate):
     
     def turnOnSequence(self):
         first = True
-        while not first or self.mainDaemon.servers.turningOn():#go in the loop and stay until we don't have any servers that are in intermediate states
+        while first or self.mainDaemon.servers.turningOn():#go in the loop and stay until we don't have any servers that are in intermediate states
             first = False
             for server in self.mainDaemon.servers.getSortedNodeList():
-                if server.state == ServerNodeOpState.OK:
+                if server.getOpState() == ServerNodeOpState.OK:
                         pass
                 elif self.mainDaemon.servers.isReadyToTurnOn(server.getName()):
                     server.turnOn()# should be threaded

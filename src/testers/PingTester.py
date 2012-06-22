@@ -10,7 +10,7 @@ Created on Apr 25, 2012
 import subprocess
 import os
 from TemplateTester import TemplateTester
-from TemplateTester import TestState
+from TemplateTester import TesterOpState
 
 def ping(ip):
     '''
@@ -18,14 +18,15 @@ def ping(ip):
     '''
     ping = subprocess.Popen(["ping", "-c", "2", "-w", "1", ip], shell=None,stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
     ping.wait()
-    if ping.returncode != 1:
+    if ping.returncode != 0:
         #print ping.returncode, "ERROR: failed to ping host. Please check."
         return False
     else:
         return True
 
 class Ping(TemplateTester):
-    def __init__(self,testerConfigDict,testerParams):
+    def __init__(self,testerConfigDict={},testerParams={}):
+        TemplateTester.__init__(self, testerConfigDict, testerParams)
         self.hostname = testerParams["hostname"]
         return
     
@@ -35,7 +36,7 @@ class Ping(TemplateTester):
         '''
         state = ping(self.hostname)
         if state:
-            TestState.SUCCEEDED
+            self.setOpState(TesterOpState.SUCCEEDED)
         else:
-            TestState.FAILED
+            self.setOpState(TesterOpState.FAILED)
         return state

@@ -11,6 +11,7 @@ import time
 from common.common import OpState
 from common.common import loadConfig
 from outlets.OutletTemplate import OutletOpState
+from testers.TemplateTester import TesterOpState
 
 config,ETC_DIR = loadConfig()
 MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
@@ -103,18 +104,26 @@ class ServerNode():
     def getOpState(self):
         return self.state
     
+    def outletsStillStarting(self):
+        '''
+        Return true if any outlet is still on SwitcingOn OpState
+        '''
+        for outlet in self.getOutlets():
+            if outlet.getOpState() == OutletOpState.SwitcingOn:
+                return True
+        return False
+    
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
         self.setOpState(ServerNodeOpState.SwitcingOn)
-        
         self.setOutletsState(ServerNodeOpState.SwitcingOn)
-        nonWorkingOutlets = self.getNotOutletsState(OpState.OK)
         
+        
+        nonWorkingOutlets = self.getNotOutletsState(OpState.OK)
         outletsFailList=[]
-        #STOPED HERE!
-        '''
-        while OUTLETS_STILL_STARTING:
+       
+        while self.outletsStillStarting():
             for outlet in nonWorkingOutlets:
                 if not outlet.setState(True): #TODO this should fork 
                     outletsFailList.append(outlet)
@@ -122,18 +131,17 @@ class ServerNode():
                 else:
                     self.setOutletState(OpState.OK)
                     
-            time.sleep(MAX_STARTUP_TIME)
+            time.sleep(float(MAX_STARTUP_TIME))
         
+        testersFailedList = []
         for tester in self.getTesters():
-            if tester.run():
-                TESTER SET OK AND MARK AS DONE
-            else:
-                APPEND TO FAIL LIST AND MARK AS FAIL
-            
+            tester.test()
+            if tester.getOpState() == TesterOpState.FAILED:
+                testersFailedList.append(tester)
         if outletsFailList or testersFailedList:
             self.setOpState(ServerNodeOpState.failedToStart)
         else:
             self.setOpState(ServerNodeOpState.OK)
-        '''  
+            
         return
         

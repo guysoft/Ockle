@@ -100,12 +100,17 @@ class ServerNetwork():
         ''' Check if a server dependencies are met and tests are met, and could be turned on
         @param serverName: the server's name 
         '''
+        
         parrentServersName = self.getDependencies(server)
         for parrentServerName in parrentServersName:
             serverNode = self.graph.node_attributes(parrentServerName)
-            failedOutlets = serverNode.getNotOutletsState(OutletOpState.OK)
-            failedTests = serverNode.getFailedTests()
-            if not self.isReadyToTurnOn(parrentServerName) or failedOutlets or failedTests:
+            #failedOutlets = serverNode.getNotOutletsState(OutletOpState.OK)
+            if serverNode.getOpState() != ServerNodeOpState.OK:
+                return False
+            #failedTests = serverNode.getFailedTests()
+            #if not self.isReadyToTurnOn(parrentServerName) or failedOutlets or failedTests:
+            #    return False
+            if not self.isReadyToTurnOn(parrentServerName):
                 return False
         return True
     
