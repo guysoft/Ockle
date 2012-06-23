@@ -8,15 +8,13 @@ Created on Mar 7, 2012
 """
 from OutletTemplate import OutletTemplate
 import time
-import random
 
 class Dummy(OutletTemplate):
     '''
-    This class is an instance of an outlet within the pdu, you must spesify a number
+    This class is an instance of an outlet within the pdu, you must specify a number
     '''
     def __init__(self,outletConfigDict={},outletParams={}):
         OutletTemplate.__init__(self,outletConfigDict,outletParams)
-        #TODO: doublecheck
         self.state = False
         return
     
@@ -26,7 +24,7 @@ class Dummy(OutletTemplate):
     
     def setState(self,state):
         self._setOutletState(state)
-        time.sleep(random.uniform(0, 3))
+        #time.sleep(0.3)
         self.updateState()
         return True
     

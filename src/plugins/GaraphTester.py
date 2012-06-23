@@ -12,6 +12,7 @@ sys.path.insert(0, p)
 import time
 from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
+
 import pygraphviz as pgv
 import time
 
@@ -20,8 +21,12 @@ class GraphTester(ModuleTemplate):
         ModuleTemplate.__init__(self,MainDaemon)
         return
     
+    def getDotGraph(self,dataDict):
+        return {"Dot" : pygraph.readwrite.dot.write(self.mainDaemon.servers.graph,False)}
+    
     def run(self):
         self.debug("\n")
+        self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
         
         while True:
             #print self.mainDaemon.servers.graph
@@ -31,9 +36,9 @@ class GraphTester(ModuleTemplate):
             f.close()
             
             gv = pgv.AGraph("/tmp/graph_viz.dot",weights=False)
-            print dot
             gv.layout(prog='dot')
             gv.draw('/tmp/file.png')
+            gv.draw('/tmp/file.xdot')
             time.sleep(5)
         return
 

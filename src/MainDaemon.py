@@ -13,11 +13,11 @@ from daemon import Daemon
 
 from networkTree.ServerNetwork import *
 
-from common.CommunicationHandler import CommunicationHandler
-
 from straight.plugin import load
 from plugins.ModuleTemplate import ModuleTemplate
 from networkTree.ServerNetworkFactory import ServerNetworkFactory
+
+from common.CommunicationHandler import CommunicationHandler
 
 config,ETC_DIR = loadConfig()
 
@@ -44,10 +44,11 @@ class MainDaemon():
         self.servers.allOff()
         #servers.initiateStartup()
         
+        #Communication handling system
+        self.communicationHandler =CommunicationHandler(self)
+        
         self.running= True
         
-        #Communication handling system
-        self.communicationHandler =CommunicationHandler()
         #plugin init
         self.plugins = []
         plugins = load(PLUGIN_DIR,subclasses=ModuleTemplate)

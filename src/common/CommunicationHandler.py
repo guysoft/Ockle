@@ -7,22 +7,49 @@ Created on May 16, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from CommunicationMessage import MessageServerSend
-from CommunicationMessage import MessageAttr
+from CommunicationMessage import MessageServerError
 
 class CommunicationHandler(object):
-    def __init__(self):
-        self.commandList=[]
+    def __init__(self,mainDaemon):
+        '''
+        Iinitiate an instance of a communication handler system.
+        @param mainDaemon: The main Daemon
+        @param listenerPlugin: The plugin that listens for incoming connections (Mostly used to display related debug message)
+        '''
+        self.mainDaemon = mainDaemon
+        #Command dictionary. holds a command name and the function it runs
+        self.commandDict={}
+        
+        self.AddCommandToList("listcommands", lambda dataDict: self.listCommands(dataDict))
         return
     
-    def handleMessage(self,mainDaemon,message):
-        print message.__class__.__name__
-        returnValue = MessageServerSend(MessageAttr.editServer,{"yay":"yay"})
-        print returnValue.toxml()
-        return returnValue
-    
-    def registerCommandList(self,message):
-        '''Used by plugins to add an ability to handle a message to the server
-        @todo: actually write this
+    def listCommands(self,dataDict):
         '''
-        self.commandList.append(message)
+        A command to list all available commands on the communication server
+        '''
+        return MessageServerSend("listcommands",self.commandDict)
+    
+    def handleMessage(self,message):
+        '''
+        Receives a message class type, and returns the appropriate response
+        @param message: The message class we received
+        @return: A message class response 
+        '''
+        #print message.__class__.__name__
+        command = message.getCommand()
+        if not command in self.commandDict:
+            return MessageServerError(command)#TODO: return an unkown command Error message
+        handleFunction = self.commandDict[command]
+        returnValue = handleFunction(message.getDataDict())
+        
+        returnMessage = MessageServerSend(command,returnValue)
+        print returnMessage.toxml()
+        return returnMessage
+    
+    def AddCommandToList(self,command,function):
+        '''Used by plugins to add an ability to handle a message on the server
+        @param command: The command to be called
+        @param function: a callback to a function that receives a dict of the data to process 
+        '''
+        self.commandDict[command] = function
         return

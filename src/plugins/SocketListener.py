@@ -23,6 +23,7 @@ class SocketListener(ModuleTemplate):
         self.LISTENER_PORT = self.getConfigInt('LISTENER_PORT')
         self.MAX_CONNECTIONS = self.getConfigInt('MAX_CONNECTIONS')
         self.MAX_RCV_SIZE = self.getConfigInt('MAX_RCV_SIZE')
+        
         return
     
     def run(self):
@@ -47,9 +48,10 @@ class SocketListener(ModuleTemplate):
             self.debug(data)
             if data:
                 
-                message= Message()
-                message = message.parse(data)
-                client.send(self.mainDaemon.communicationHandler.handleMessage(self.mainDaemon,message).toxml())
+                message= Message(data,self)
+                #TODO add here for debug what message we got
+                message = message.parse(data,self)
+                client.send(self.mainDaemon.communicationHandler.handleMessage(message).toxml())
                 client.close()
             '''
             client.close() 
