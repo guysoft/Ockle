@@ -1,6 +1,27 @@
+Set up python envirement
+-------------------------
+1. apt-get install libxslt1-dev libxml2-dev
+
+2. Run the following commands to get a python envirement with the correct versions of things:
+
+python2.7 /usr/bin/virtualenv ~/pythonenv
+~/pythonenv/bin/easy_install pyramid==1.2.7
+mkdir ~/pythonenv/downloads/
+cd ~/pythonenv/downloads/
+svn checkout http://networkx.lanl.gov/svn/pygraphviz/trunk pygraphviz
+
+3. edit the setup.py file ~/pythonenv/downloads/pygraphviz/setup.py
+and add replace the following lines:
+library_path='/usr/lib/graphviz/'
+include_path='/usr/include/graphviz/'
+
+~/pythonenv/bin/python setup.py install 
+
+
 How to set up
 -------------
 1. Copy config.ini.example to config.ini
+
 
 How to run
 ----------
