@@ -1,4 +1,4 @@
-Set up python envirement
+Set up python environment
 -------------------------
 1. apt-get install libxslt1-dev libxml2-dev
 
