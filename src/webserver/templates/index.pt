@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+This file is part of Canviz. See http://www.canviz.org/
+$Id: new.html.in 256 2009-01-08 11:14:07Z ryandesign.com $
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta name="MSSmartTagsPreventParsing" content="true" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Ockle - Server Power Network View</title>
+	<link rel="stylesheet" type="text/css" href="/static/canviz/styles_inner.css" />
+	<!--[if IE]><script type="text/javascript" src="/static/canviz/excanvas/excanvas.js"></script><![endif]-->
+	<script type="text/javascript" src="/static/canviz/prototype/prototype.js"></script>
+	<script type="text/javascript" src="/static/canviz/path/path.js"></script>
+	<script type="text/javascript" src="/static/canviz/canviz.js"></script>
+	<script type="text/javascript" src="/static/canviz/scripts_common.js"></script>
+	<script type="text/javascript">
+	document.observe('dom:loaded', function() {
+	var graph_in_xdot='${structure: xdottree}';
+	if (graph_in_xdot != "Error connecting to Ockle server"){
+		graphRender=new Canviz('canviz');
+		graphRender.parse(graph_in_xdot);
+	}
+	else{
+	alert("fail to connect");
+	}
+});
+	</script>
+</head>
+<body>
+
+<h2>Server Network</h2>
+
+	<div id="canviz"></div>
+
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+<p id="click_output"></p>
+
+<div id="debug_output"></div>
+
+</body>
+</html>
