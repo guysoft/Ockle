@@ -4,6 +4,11 @@ from pyramid.config import Configurator
 
 def main():
     config = Configurator()
+    
+    #Add server view
+    config.add_route('tree', '/server/{serverName}')
+    #config.add_view(showTree, route_name='tree')
+    
     config.scan("views")
     config.add_static_view('static', 'static/',
                            cache_max_age=86400)

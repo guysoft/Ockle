@@ -17,12 +17,19 @@ ETC_DIR= os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),'..',"etc")
 print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
+OCKLE_SERVER_HOSTNAME="127.0.0.1"
+MAX_RECIVE=10000
 
-def getServerTree():
+def getDataFromServer(command,paramsDict):
+    ''' Send a command to the Ockle server, and return the responce dict 
+    @param command: The command to send
+    @param paramsDict: the dictionary that is sent with command arguments
+    @return: A dict with the responce data, None if we failed to connect
+    '''
     returnValue=""
     try:
         #a = MessageClientSend(MessageAttr.listServers,{"yay":"yay"})
-        a = MessageClientSend("dotgraph",{"yay":"yay"})
+        a = MessageClientSend(command,paramsDict)
         #create an INET, STREAMing socket
         s = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM)
@@ -30,10 +37,10 @@ def getServerTree():
         # - the normal http port
         print "trying to connect"
         #print a.toxml()
-        s.connect(("127.0.0.1", PORT))
+        s.connect((OCKLE_SERVER_HOSTNAME, PORT))
         s.send(a.toxml())
         #TODO find a way to determine the size of the transport
-        data = s.recv (10000)
+        data = s.recv (MAX_RECIVE)
         if data:
             messageGen = Message()
             print data
@@ -42,6 +49,19 @@ def getServerTree():
             reply.getCommand()
             returnValue= html.fromstring(reply.getDataDict()["Dot"][0]).text
     except:
-        returnValue="Error connecting to Ockle server"
+        returnValue=None
         s.close()
     return returnValue
+
+def getServerTree():
+    ''' Get a server tree status from the Ockle server, and return a dict ready
+    to be parsed by a pyramid view '''
+    response = getDataFromServer("dotgraph",{"yay":"yay"})
+    if response == None:
+        return "Error connecting to Ockle server"
+    else:
+        return html.fromstring(response).text 
+
+def getServerView(serverName):
+    return
+    

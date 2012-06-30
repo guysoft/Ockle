@@ -1,6 +1,7 @@
 #pyramid stuff
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
+from pyramid.response import Response
 
 #ockle stuff
 from ockle_client.ClientCalls import getServerTree
@@ -8,6 +9,9 @@ from ockle_client.ClientCalls import getServerTree
 #graphviz
 import pygraphviz as pgv
 
+@view_config(route_name='tree')
+def myview(request):
+    return Response('OK' + request.matchdict['serverName'])
 
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")
