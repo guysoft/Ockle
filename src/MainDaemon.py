@@ -7,8 +7,10 @@ Created on Apr 25, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 import json
+import codecs
 
 from common.common import loadConfig
+from common.common import appendProjectPath
 from daemon import Daemon
 
 from networkTree.ServerNetwork import *
@@ -22,13 +24,17 @@ from common.CommunicationHandler import CommunicationHandler
 config,ETC_DIR = loadConfig()
 
 PLUGIN_DIR =config.get('main', 'PLUGIN_DIR')
+LOG_FILE_PATH = appendProjectPath(config.get('main', 'LOG_FILE_PATH'))
 #pluginList=["webserver"]
 pluginList= json.loads(config.get("plugins","pluginList"))
 
 
 class MainDaemon():
     def debug(self,message):
+        self.f = codecs.open(LOG_FILE_PATH,'a')
         print "DEBUG: " + str(message)
+        self.f.write((time.strftime("%Y/%m/%d %H:%M:%S ", time.localtime()) + str(message.encode("utf-8")) + "\n"));
+        self.f.close()
         return
         
     def __init__(self):
