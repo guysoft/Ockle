@@ -37,3 +37,4 @@ class Dummy(OutletTemplate):
     def _getOuteletState(self):
         return self.state
         
+        

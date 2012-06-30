@@ -30,7 +30,7 @@ print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
 
-#@view_config(renderer="hello.pt")
+@view_config(renderer="hello.pt")
 def showTree(request):
     return {"tutorial": "Little Dummy"}
     returnValue=""

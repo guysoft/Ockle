@@ -130,4 +130,12 @@ class ServerNetwork():
             if server.getOpState() in [ServerNodeOpState.INIT,ServerNodeOpState.SwitcingOn,ServerNodeOpState.SwitchingOff]:
                 return True
         return False
+    
+    def getServernode(self,serverName):
+        ''' Get a server node by name
+        @param serverName: The name of the server node
+        @return: The server node
+        '''
+        print serverName
+        return self.graph.node_attributes(serverName)
         

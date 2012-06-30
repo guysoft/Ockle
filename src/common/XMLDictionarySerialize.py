@@ -27,6 +27,7 @@ def dict2xml(dictionary, name="dictionary"):
         items.appendChild(node)
     return items
 
+#TODO: there seems to be a bug here that a single field is returned as a single element in a list. Not sure why
 def element2dict(parent):
     '''
     Takes a dom element, and turns it in to a dict

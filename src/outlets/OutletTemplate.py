@@ -43,4 +43,8 @@ class OutletTemplate(object):
     def getOpState(self):
         return self.OutletOpState
     
-        
+    def getOutletType(self):
+        ''' Returns the type name of the outlet
+        @return: The outlet type name
+        '''
+        return self.__class__.__name__

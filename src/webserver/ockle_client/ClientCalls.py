@@ -47,7 +47,7 @@ def getDataFromServer(command,paramsDict):
             reply = messageGen.parse(data)
             
             reply.getCommand()
-            returnValue= html.fromstring(reply.getDataDict()["Dot"][0]).text
+            returnValue= reply.getDataDict()
     except:
         returnValue=None
         s.close()
@@ -60,8 +60,14 @@ def getServerTree():
     if response == None:
         return "Error connecting to Ockle server"
     else:
-        return html.fromstring(response).text 
+        return html.fromstring(response["Dot"][0]).text 
 
 def getServerView(serverName):
+    
+    response = getDataFromServer("ServerView",{"server":serverName})
+    if response == None:
+        return "Error connecting to Ockle server - Can't get server Info"
+    else:
+        return html.fromstring(str(response)).text 
     return
     

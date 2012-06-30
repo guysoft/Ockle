@@ -5,13 +5,14 @@ from pyramid.response import Response
 
 #ockle stuff
 from ockle_client.ClientCalls import getServerTree
+from ockle_client.ClientCalls import getServerView
 
 #graphviz
 import pygraphviz as pgv
 
 @view_config(route_name='tree')
 def myview(request):
-    return Response('OK' + request.matchdict['serverName'])
+    return Response(str(getServerView(request.matchdict['serverName'])))
 
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")
@@ -27,7 +28,8 @@ def index_view(request):
     
     gv = pgv.AGraph(string=dot,weights=False)
     #TODO: fix this ugly escape character, ie add a javascript variable wrapper
-    gv.node_attr.update(href="javascript:void(click_node(\\'\\\N\\'))")
+    #gv.node_attr.update(href="javascript:void(click_node(\\'\\\N\\'))")
+    gv.node_attr.update(href="server/\\\N")
     gv.layout(prog='dot')
     
     return {"layout": site_layout(),

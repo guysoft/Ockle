@@ -23,14 +23,10 @@ class ConnectionClient(object):
     '''
     classdocs
     '''
-
-
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def getServerTree(self):
+        returnValue=None
         #a = MessageClientSend(MessageAttr.listServers,{"yay":"yay"})
-        a = MessageClientSend("dotgraph",{"yay":"yay"})
+        a = MessageClientSend("ServerView",{"server":"server1"})
         #create an INET, STREAMing socket
         s = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM)
@@ -46,9 +42,17 @@ class ConnectionClient(object):
             reply = messageGen.parse(data)
             
             reply.getCommand()
-            print html.fromstring(reply.getDataDict()["Dot"][0]).text
+            
+            returnValue= reply.getDataDict()
             
         s.close()
+        return returnValue
+    
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        print self.getServerTree()
         
         
 if __name__ == "__main__":

@@ -9,6 +9,17 @@ python2.7 /usr/bin/virtualenv ~/pythonenv
 mkdir ~/pythonenv/downloads/
 cd ~/pythonenv/downloads/
 svn checkout http://networkx.lanl.gov/svn/pygraphviz/trunk pygraphviz
+~/pythonenv/bin/easy_install waitress
+~/pythonenv/bin/easy_install WebError
+~/pythonenv/bin/easy_install pyramid-handlers
+~/pythonenv/bin/easy_install pyramid-beaker
+~/pythonenv/bin/easy_install Akhet
+~/pythonenv/bin/easy_install pyramid_debugtoolbar
+~/pythonenv/bin/easy_install psycopg2
+~/pythonenv/bin/easy_install Crypto
+~/pythonenv/bin/easy_install pycrypto
+
+
 
 3. edit the setup.py file ~/pythonenv/downloads/pygraphviz/setup.py
 and add replace the following lines:
