@@ -17,6 +17,7 @@ class OutletTemplate(object):
     '''
     def __init__(self,outletConfigDict={},outletParams={}):
         self.OutletOpState = OutletOpState.OK #outlets are innocent until proven guilty
+        self.data={} #data information from the port
         return
     
     def _setOutletState(self,state):
@@ -48,3 +49,10 @@ class OutletTemplate(object):
         @return: The outlet type name
         '''
         return self.__class__.__name__
+    
+    def getData(self):
+        self.updateData()
+        return self.data
+    
+    def updateData(self):
+        return

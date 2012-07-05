@@ -34,7 +34,7 @@ class MainDaemon():
         self.f = codecs.open(LOG_FILE_PATH,'a')
         print "DEBUG: " + str(message)
         self.f.write((time.strftime("%Y/%m/%d %H:%M:%S ", time.localtime()) + str(message.encode("utf-8")) + "\n"));
-        self.f.close()
+        #self.f.close()
         return
         
     def __init__(self):
@@ -45,7 +45,7 @@ class MainDaemon():
         #Handle the serverTree
         #Daemon.__init__(self, pidfile, stdin, stdout, stderr)
         
-        factory = ServerNetworkFactory()
+        factory = ServerNetworkFactory(self)
         self.servers=factory.buildNetwork(ETC_DIR)
         self.servers.allOff()
         #servers.initiateStartup()

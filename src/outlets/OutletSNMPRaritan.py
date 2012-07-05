@@ -51,9 +51,12 @@ class Raritan(OutletTemplate):
         self.ReadCommunity = outletConfigDict['outlet']["read_community"]
         self.WriteCommunity = outletConfigDict['outlet']["write_community"]
         self.updateState()
+        
+        #init data Parameters
+        self.updateData()
         return
     
-    def _snmptGet(self,value):
+    def _snmpGet(self,value):
         '''
         SNMP get call
         '''
@@ -150,5 +153,9 @@ class Raritan(OutletTemplate):
         Get the state of an outlet in the PDU
         returns 0 for off, 1 for on
         '''
-        oid,val= self._snmptGet((1,3,6,1,4,1,13742,4,1,2,2,1,3,self.outletNumber))
+        oid,val= self._snmpGet((1,3,6,1,4,1,13742,4,1,2,2,1,3,self.outletNumber))
         return int2bool(val)
+    
+    def updateData(self):
+        self.data["current"] = self._snmpGet((1,3,6,1,4,1,13742,4,1,2,2,1,4,int(self.outletNumber)))[1]
+        return self.data

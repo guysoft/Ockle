@@ -26,11 +26,13 @@ config,ETC_DIR = loadConfig()
 class ServerNetworkFactory(object):
     '''
     A class to take the config file folder and turn it in to a server network
+    @param MainDaemon: the singletron, only used for debug output
     '''
-    def __init__(self):
+    def __init__(self,MainDaemon):
         '''
         Constructor
         '''
+        self.mainDaemon = MainDaemon
         return
     def buildNetwork(self,config_path):
         config,ETC_DIR = loadConfig()
@@ -40,6 +42,7 @@ class ServerNetworkFactory(object):
         #build servers
         SERVER_DIR = config.get('main', 'SERVER_DIR')
         serverConfigPath = os.path.join(ETC_DIR,SERVER_DIR)
+        self.mainDaemon.debug("Loading:"+str(serverConfigPath))
         serverConfigFileList = os.listdir(serverConfigPath)
         for serverConfigFile in serverConfigFileList:
             serverConfigFile = os.path.join(serverConfigPath,serverConfigFile)
@@ -110,6 +113,7 @@ class ServerNetworkFactory(object):
         #Create the outlet with server params and outlet config 
         outletConfig.read(outletConfigPath)
         outletConfigDict={}
+        self.mainDaemon.debug("Loading:"+str(outletConfigPath))
         for section in outletConfig.sections(): 
             outletConfigDict[section] = turpleList2Dict(outletConfig.items('outlet'))
         

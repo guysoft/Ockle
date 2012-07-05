@@ -31,6 +31,7 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlets[outletIndex] ={} 
             outlets[outletIndex]["type"] = outlet.getOutletType()
             outlets[outletIndex]["OpState"] = outlet.getOpState()
+            outlets[outletIndex]["data"] = outlet.getData()
             i=i+1
             
         return {"Name" :  server.getName(),
