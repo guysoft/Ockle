@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<div metal:use-macro="layout">
+    <div metal:fill-slot="content">
+        <p>Bla bla Ockle</p>
+    </div>
+</div>

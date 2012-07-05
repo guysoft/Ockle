@@ -3,11 +3,10 @@ from wsgiref.simple_server import make_server
 from pyramid.config import Configurator
 
 def main():
-    config = Configurator()
+    config = Configurator(settings = {'pyramid.reload_templates':True})
     
     #Add server view
-    config.add_route('tree', '/server/{serverName}')
-    #config.add_view(showTree, route_name='tree')
+    config.add_route('serverView', '/server/{serverName}')
     
     config.scan("views")
     config.add_static_view('static', 'static/',

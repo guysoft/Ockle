@@ -1,38 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       metal:define-macro="layout">
+
 <head>
-    <title>Ockle - ${page_title}</title>
-	<meta name="MSSmartTagsPreventParsing" content="true" />
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="/static/canviz/styles_inner.css" />
-	<!--[if IE]><script type="text/javascript" src="/static/canviz/excanvas/excanvas.js"></script><![endif]-->
-	<script type="text/javascript" src="/static/canviz/prototype/prototype.js"></script>
-	<script type="text/javascript" src="/static/canviz/path/path.js"></script>
-	<script type="text/javascript" src="/static/canviz/canviz.js"></script>
-	<script type="text/javascript" src="/static/canviz/scripts_common.js"></script>
-	<script type="text/javascript">
-	document.observe('dom:loaded', function() {
-	var graph_in_xdot='${structure: xdottree}';
-	if (graph_in_xdot != "Error connecting to Ockle server"){
-		graphRender=new Canviz('canviz');
-		graphRender.parse(graph_in_xdot);
-	}
-	else{
-	alert("fail to connect");
-	}
-});
-	</script>
+	<title>Ockle - ${page_title}</title>
+	<div metal:define-slot="head_content"></div>
 </head>
-<body>
+<body background="red">
 <ul>
     <li><a href="/">Home</a></li>
-    <li><a href="/about.html">About Projector</a></li>
-    <li><a href="/acme">ACME, Inc.</a></li>
-    <li><a href="/people">People</a></li>
+    <li><a href="/about.html">About Ockle</a></li>
 </ul>
 <h1>${page_title}</h1>
 <div metal:define-slot="content"></div>
