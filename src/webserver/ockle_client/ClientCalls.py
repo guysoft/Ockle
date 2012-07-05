@@ -68,6 +68,7 @@ def getServerView(serverName):
     if response == None:
         return "Error connecting to Ockle server - Can't get server Info"
     else:
-        return html.fromstring(str(response)).text 
+        #return html.fromstring(str(response)).text 
+        return response
     return
     

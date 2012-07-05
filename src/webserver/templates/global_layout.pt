@@ -5,7 +5,27 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       metal:define-macro="layout">
 <head>
-    <title>Projector - ${page_title}</title>
+    <title>Ockle - ${page_title}</title>
+	<meta name="MSSmartTagsPreventParsing" content="true" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="/static/canviz/styles_inner.css" />
+	<!--[if IE]><script type="text/javascript" src="/static/canviz/excanvas/excanvas.js"></script><![endif]-->
+	<script type="text/javascript" src="/static/canviz/prototype/prototype.js"></script>
+	<script type="text/javascript" src="/static/canviz/path/path.js"></script>
+	<script type="text/javascript" src="/static/canviz/canviz.js"></script>
+	<script type="text/javascript" src="/static/canviz/scripts_common.js"></script>
+	<script type="text/javascript">
+	document.observe('dom:loaded', function() {
+	var graph_in_xdot='${structure: xdottree}';
+	if (graph_in_xdot != "Error connecting to Ockle server"){
+		graphRender=new Canviz('canviz');
+		graphRender.parse(graph_in_xdot);
+	}
+	else{
+	alert("fail to connect");
+	}
+});
+	</script>
 </head>
 <body>
 <ul>
@@ -15,7 +35,6 @@
     <li><a href="/people">People</a></li>
 </ul>
 <h1>${page_title}</h1>
-<div metal:define-slot="content">
-</div>
+<div metal:define-slot="content"></div>
 </body>
 </html>

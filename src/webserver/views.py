@@ -10,9 +10,14 @@ from ockle_client.ClientCalls import getServerView
 #graphviz
 import pygraphviz as pgv
 
-@view_config(route_name='tree')
+@view_config(route_name='serverView',renderer="templates/server_info.pt")
 def myview(request):
-    return Response(str(getServerView(request.matchdict['serverName'])))
+    serverName = request.matchdict['serverName'];
+    return {"layout": site_layout(),
+            "xdottree" : "",
+            "server_dict" : str(getServerView(request.matchdict['serverName'])),
+            "page_title" : "Server View: " + str(serverName)}
+    #return Response(str(getServerView(request.matchdict['serverName'])))
 
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")
@@ -30,10 +35,11 @@ def index_view(request):
     #TODO: fix this ugly escape character, ie add a javascript variable wrapper
     #gv.node_attr.update(href="javascript:void(click_node(\\'\\\N\\'))")
     gv.node_attr.update(href="server/\\\N")
+    gv.node_attr.update(title="server/\\\N")
     gv.layout(prog='dot')
     
     return {"layout": site_layout(),
-            "page_title": "Home",
+            "page_title": "Server Network View",
             "xdottree" : gv.draw(format="xdot").replace('\n','\\n\\\n')}
 
 
