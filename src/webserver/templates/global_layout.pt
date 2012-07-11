@@ -6,13 +6,31 @@
 <head>
 	<title>Ockle - ${page_title}</title>
 	<div metal:define-slot="head_content"></div>
+	<link href="/static/menubar/css/styles.css" rel="stylesheet" type="text/css" />
+	<link rel="icon" type="image/png" href="/static/favicon.png" />
 </head>
-<body background="red">
-<ul>
-    <li><a href="/">Home</a></li>
-    <li><a href="/about.html">About Ockle</a></li>
-</ul>
+<body>
+	<div id="page-wrap">
+		<ul id="main-nav">
+		    <li><a class="current" href="/">Home</a></li>
+		    <li><a class="about" href="/about.html">About Ockle</a></li>
+		    
+		    			<li class="portfolio"><a href="portfolio.html">Portfolio</a></li>
+			<li class="services"><a href="services.html">Services</a></li>
+			<li class="contact"><a href="contact.html">Contact</a></li>
+		</ul>
+		<div class="clear"></div>
+		<div id="featured">
+			<div id="featured-content">
+				<h1>Blue is a wonderful Colour</h1>
+
+
+
 <h1>${page_title}</h1>
 <div metal:define-slot="content"></div>
+
+			</div>
+		</div>
+	</div>
 </body>
 </html>
