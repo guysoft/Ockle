@@ -36,7 +36,8 @@ class CoreCommunicationCommands(ModuleTemplate):
             
         return {"Name" :  server.getName(),
                 "OpState" : server.getOpState(),
-                "outlets" : outlets
+                "outlets" : outlets,
+                "StartAttempts" : server.getStartAttempts()
                 }
     
     def run(self):
