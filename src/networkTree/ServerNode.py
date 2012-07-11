@@ -15,6 +15,7 @@ from testers.TemplateTester import TesterOpState
 
 config,ETC_DIR = loadConfig()
 MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
+MAX_ATTEMPTS = int(config.get('servers', 'MAX_ATTEMPTS'))
 
 class ServerNodeOpState(OpState):
     INIT=-1# Did not start yet
@@ -41,6 +42,9 @@ class ServerNode():
         self.testers = testers #list of testers to make sure server is preforming right
         self.setOutletsState(OutletOpState.INIT) #server state
         self.setOpState(ServerNodeOpState.INIT)
+        self.startAttempts = 0 #reset startup attempts
+        #TODO add shutdown attempts when implementing shutdown
+        
         return
     
     def setState(self,state):
@@ -97,7 +101,7 @@ class ServerNode():
         return self.testers
     
     def setOpState(self,state):
-        ''' Set the oprating state of the server
+        ''' Set the operating state of the server
         '''
         self.state = state
         return
@@ -113,12 +117,25 @@ class ServerNode():
                 return True
         return False
     
+    def incrementStartAttempt(self):
+        ''' Increment the startup attempt counter
+        @return: Number of startup attempts
+        '''
+        self.startAttempts = self.startAttempts + 1
+        return self.startAttempts
+    
+    def getStartAttempts(self):
+        ''' Get number of startup attempts
+        @return: Number of startup attempts
+        '''
+        return self.startAttempts    
+    
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
         self.setOpState(ServerNodeOpState.SwitcingOn)
         self.setOutletsState(ServerNodeOpState.SwitcingOn)
-        
+        self.incrementStartAttempt()
         
         nonWorkingOutlets = self.getNotOutletsState(OpState.OK)
         outletsFailList=[]
@@ -139,7 +156,11 @@ class ServerNode():
             if tester.getOpState() == TesterOpState.FAILED:
                 testersFailedList.append(tester)
         if outletsFailList or testersFailedList:
-            self.setOpState(ServerNodeOpState.failedToStart)
+            #if we failed to start
+            if MAX_ATTEMPTS != 0 and self.getStartAttempts() >= MAX_ATTEMPTS :
+                self.setOpState(ServerNodeOpState.permanentlyFailedToStart)
+            else:
+                self.setOpState(ServerNodeOpState.failedToStart)
         else:
             self.setOpState(ServerNodeOpState.OK)
             

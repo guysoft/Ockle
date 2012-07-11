@@ -100,7 +100,9 @@ class ServerNetwork():
         ''' Check if a server dependencies are met and tests are met, and could be turned on
         @param serverName: the server's name 
         '''
-        
+        serverInstance = self.graph.node_attributes(server)
+        if serverInstance.getOpState() == ServerNodeOpState.permanentlyFailedToStart:
+            return False
         parrentServersName = self.getDependencies(server)
         for parrentServerName in parrentServersName:
             serverNode = self.graph.node_attributes(parrentServerName)

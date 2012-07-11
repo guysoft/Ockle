@@ -20,7 +20,20 @@ class AutoControl(ModuleTemplate):
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         self.WAIT_TIME = self.getConfigVar("WAIT_TIME")
+        
+        self.setEnabled(True) 
         return
+    
+    def setEnabled(self,state):
+        ''' Set if the Auto control is turned on
+        '''
+        self.enabled=state
+        
+    def isEnabled(self):
+        ''' Get if auto control is enabled
+        @return: True if auto control is enabled
+        '''
+        return self.enabled
     
     def run(self):
         self.turnOnSequence()
@@ -43,10 +56,10 @@ class AutoControl(ModuleTemplate):
     
     def turnOnSequence(self):
         first = True
-        while first or self.mainDaemon.servers.turningOn():#go in the loop and stay until we don't have any servers that are in intermediate states
+        while (first or self.mainDaemon.servers.turningOn()) and self.isEnabled():#go in the loop and stay until we don't have any servers that are in intermediate states
             first = False
             for server in self.mainDaemon.servers.getSortedNodeList():
-                if server.getOpState() == ServerNodeOpState.OK:
+                if server.getOpState() == ServerNodeOpState.OK or server.getOpState() == ServerNodeOpState.permanentlyFailedToStart:
                         pass
                 elif self.mainDaemon.servers.isReadyToTurnOn(server.getName()):
                     server.turnOn()# should be threaded

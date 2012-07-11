@@ -20,14 +20,16 @@ class OpState:
     failedToStop=2
     SwitcingOn = 3
     SwitchingOff = 4
+    permanentlyFailedToStart=5
     
 COLOR_DICT={
             -1:"black",
             OpState.OK:"green",
-           OpState.failedToStart:"red",
+           OpState.failedToStart:"orange",
            OpState.failedToStop:"yellow",
            OpState.SwitcingOn:"grey",
            OpState.SwitchingOff:"blue",
+           OpState.permanentlyFailedToStart:"red",
            }
     
 
@@ -39,7 +41,7 @@ def loadConfig():
     config.read(os.path.join(ETC_DIR,"config.ini"))
     return config,ETC_DIR
 
-def appendProjectPath(path):
+def appendProjectPath(path=""):
     ''' Appends the project path to a relative path
     @param path: the internal path
     @return: the relative path 
