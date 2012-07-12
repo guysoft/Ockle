@@ -18,6 +18,7 @@ svn checkout http://networkx.lanl.gov/svn/pygraphviz/trunk pygraphviz
 ~/pythonenv/bin/easy_install psycopg2
 ~/pythonenv/bin/easy_install Crypto
 ~/pythonenv/bin/easy_install pycrypto
+~/pythonenv/bin/easy_install SQLAlchemy
 
 
 

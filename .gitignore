@@ -32,4 +32,5 @@ etc/servers/server3.ini
 etc/servers/server4.ini
 etc/config.ini
 log.txt
+logger.db
 new_developments

@@ -128,7 +128,19 @@ class ServerNode():
         ''' Get number of startup attempts
         @return: Number of startup attempts
         '''
-        return self.startAttempts    
+        return self.startAttempts
+    
+    def getOutletsDataDict(self):
+        ''' Returns a dict that holds all the outlets and their data dict.
+        This gets sent to the logger
+        @return: A dict with each outlet name, and a dict of its data
+        '''
+        returnValue = {}
+        outletNumber=1
+        for outlet in self.getOutlets():
+            returnValue["outlet" + str(outletNumber)] = outlet.getData()
+            outletNumber = outletNumber + 1
+        return returnValue
     
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
