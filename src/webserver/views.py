@@ -6,6 +6,7 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
+from ockle_client.ClientCalls import getServerStatistics
 from common.common import OpState
 
 #graphviz
@@ -33,11 +34,14 @@ def serverPage(request):
             serverDict["Switch"]="off"
     else:
         serverDict={}
-     
+    
+    serverLog = getServerStatistics(serverName,1,2)
+    print serverLog
     return {"layout": site_layout(),
             "xdottree" : "",
             "server_dict" : serverDict,
-            "page_title" : "Server View: " + str(serverName)}
+            "page_title" : "Server View: " + str(serverName),
+            "ServerLog" : serverLog}
     #return Response(str(getServerView(request.matchdict['serverName'])))
 
 def site_layout():

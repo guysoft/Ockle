@@ -53,11 +53,14 @@ class SocketListener(ModuleTemplate):
                 message= Message(data,self)
                 #TODO add here for debug what message we got
                 message = message.parse(data,self)
-                try:
-                    client.send(self.mainDaemon.communicationHandler.handleMessage(message).toxml())
-                except:
-                    self.debug("Got a bad message class, returning error")
-                    client.send(MessageServerError().toxml())
+                #try:
+                xml = self.mainDaemon.communicationHandler.handleMessage(message).toxml()
+                self.debug("Sending XML:" + str(xml))
+                #client.send(xml)
+                client.sendall(xml)
+                #except:
+                #    self.debug("Got a bad message class, returning error")
+                #    client.send(MessageServerError().toxml())
                 client.close()
             '''
             client.close() 

@@ -71,6 +71,9 @@ class Logger(ModuleTemplate):
         return
     
     def run(self):
+        #communication command binding
+        self.mainDaemon.communicationHandler.AddCommandToList("ServerLog",lambda dataDict: self.ConnectionHandlerServerLog(dataDict))
+        
         while True:
             self.appendToLog()
             self.debug("Appended server data to log")
@@ -103,19 +106,47 @@ class Logger(ModuleTemplate):
         ''' Get the data information from the log between a given timeframe
         @return: A table with the results
         '''
-        '''
+        
         connection = self.engine.connect()
         if server==None:
-            sql = "SELECT * FROM " + self.Log.__tablename__ + "WHERE time>=? AND time<=?"
+            sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=?"
             variables = (fromTime,toTime)
         else:
-            sql = "SELECT * FROM " + self.Log.__tablename__ + "WHERE time>=? AND time<=? AND server=?"
+            sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=? AND server=?"
+            print sql
             variables = (fromTime,toTime,server)
             
         result = connection.execute(sql,variables)
+        returnValue = result.fetchall()
         connection.close()
+        
+        return returnValue
+    
+    def ConnectionHandlerServerLog(self,dataDict):
         '''
-        return result
+        Connection handler command to get the server log
+        @param dataDict: The data dict 
+        '''
+        
+        #check if to return all servers, or a specific one
+        if not dataDict.has_key("fromTime") or not dataDict.has_key("toTime"):
+            self.debug("Got invalid ServerLog request")
+            return {}
+        
+        result = {}
+        if dataDict.has_key("server"):
+            result = self.getDBInfo(dataDict["server"][0], dataDict["fromTime"][0], dataDict["toTime"][0])
+        else:
+            result = self.getDBInfo(None, dataDict["fromTime"][0], dataDict["toTime"][0])
+        
+        #Convert RowProxy type to dict
+        returnValue = {}
+        i=0
+        for row in result:
+            returnValue[str(i)] = row
+            i=i+1
+            
+        return returnValue
 
 if __name__ == "__main__":
     a = Logger(None)

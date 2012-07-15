@@ -18,7 +18,7 @@ print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
 OCKLE_SERVER_HOSTNAME="127.0.0.1"
-MAX_RECIVE=100000
+MAX_RECIVE=2000000
 
 def getDataFromServer(command,paramsDict):
     ''' Send a command to the Ockle server, and return the responce dict 
@@ -76,6 +76,13 @@ def getServerView(serverName):
 def getServerStatistics(server,fromtime,totime):
     #from datetime import date
     #date.fromtimestamp(time.time())
+    
+    #return html.fromstring(str(response)).text 
+    response = getDataFromServer("ServerLog",{"server":server, "fromTime" : "1342355321.28", "toTime" : "2342355321.28"})
+    if response == None:
+        return "Error connecting to Ockle server - Can't get server Info"
+    else:
+        return response
     return
 
     
