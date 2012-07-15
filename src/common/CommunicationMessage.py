@@ -116,6 +116,20 @@ class MessageServerError(Message):
     '''
     Server returns an error message
     '''
+    def toxml(self):
+        ''' Returns the element as serialized xml'''
+        doc,MessageType = Message.toxmlElement(self)
+        
+        # Create the main <MessageAttr> element
+        maincard = doc.createElement("MessageAttr")
+        maincard.setAttribute("Error", str(self.messageAttr))
+        MessageType.appendChild(maincard)
+        
+        # Make the <data> element which is a serialized dict
+        dataDict =XMLDictionarySerialize.dict2xml(self.data,"data")
+        
+        maincard.appendChild(dataDict)
+        return doc.toxml("UTF-8")
     
     
 class MessageClientSend(Message):
