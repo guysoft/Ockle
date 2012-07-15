@@ -17,6 +17,8 @@ import socket
 
 from plugins.ModuleTemplate import ModuleTemplate
 
+from common.CommunicationMessage import MessageServerError
+
 class SocketListener(ModuleTemplate):
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
@@ -51,7 +53,11 @@ class SocketListener(ModuleTemplate):
                 message= Message(data,self)
                 #TODO add here for debug what message we got
                 message = message.parse(data,self)
-                client.send(self.mainDaemon.communicationHandler.handleMessage(message).toxml())
+                try:
+                    client.send(self.mainDaemon.communicationHandler.handleMessage(message).toxml())
+                except:
+                    self.debug("Got a bad message class, returning error")
+                    client.send(MessageServerError().toxml())
                 client.close()
             '''
             client.close() 
