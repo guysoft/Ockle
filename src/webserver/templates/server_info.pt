@@ -1,28 +1,105 @@
 <div metal:use-macro="layout">
 	<div metal:fill-slot="head_content">
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
-	<script src="/static/switches/iphone-style-checkboxes.js" type="text/javascript" charset="utf-8"></script>
-	<link rel="stylesheet" href="/static/switches/style.css" type="text/css"/>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js" type="text/javascript"></script>
 
-  <script type="text/javascript" charset="utf-8">
-    $(window).load(function() {
-      $('.on_off :checkbox').iphoneStyle();
-      $('.disabled :checkbox').iphoneStyle();
-      $('.css_sized_container :checkbox').iphoneStyle({ resizeContainer: false, resizeHandle: false });
-      $('.long_tiny :checkbox').iphoneStyle({ checkedLabel: 'Very Long Text', uncheckedLabel: 'Tiny' });
-      
-      var onchange_checkbox = ($('.onchange :checkbox')).iphoneStyle({
-        onChange: function(elem, value) { 
-          $('span#status').html(value.toString());
-        }
-      });
-      
-      setInterval(function() {
-        onchange_checkbox.prop('checked', !onchange_checkbox.is(':checked')).iphoneStyle("refresh");
-        return
-      }, 2500);
-    });
-  </script>
+
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<style type="text/css">
+	.iCheckbox_container {
+		height:27px;
+		width:94px;
+		position: relative;
+		overflow: hidden;
+	}
+	.iCheckbox_switch {
+		height:27px;
+		width:94px;
+		background-image:url(/static/iPhoneCheckbox/images/iphone_switch.png); /* your actual slider image */
+		background-repeat:none;
+		background-position:0px;
+	}
+	.iCheckbox_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
+	}
+	.iCheckbox_two_container {
+		height:27px;
+		width:94px;
+		position: relative;
+		overflow: hidden;
+	}
+	.iCheckbox_two_switch {
+		height:27px;
+		width:94px;
+		background-image:url(/static/iPhoneCheckbox/images/iphone_switch.png); /* your actual slider image */
+		background-repeat:none;
+		background-position:0px;
+	}
+	.iCheckbox_two_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
+	}
+	/*
+	* below are styles to just pretty up the demo page... they have nothing to do with iCheckbox.
+	*/
+	.body_conts{
+		width:800px;
+		margin:0px;
+		margin-left:auto;
+		margin-right:auto;
+		font-family:Arial, Helvetica, sans-serif;
+		font-size:12px;
+	}
+	.magic_pink {
+		background-color: #FF00FF;
+		padding: 5px;
+		margin:0px;
+	}
+	</style>
+	
+	
+	<script src="/static/iPhoneCheckbox/jquery.iphone-switch.js" type="text/javascript"></script>
+
+	<script src="/static/iPhoneCheckbox/jquery.iCheckbox.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	// mimic console log for IE - must be careful what to log
+	if ( typeof(console) == 'undefined' ) {
+		var console = {};
+	}
+	if ( typeof(console.log) !== 'function' ) {
+		console['log'] = function ( msg ) {
+			alert(msg);
+		}
+	}
+
+	// init the checkboxes at dom ready
+	$(document).ready( function () {
+		/*
+		* first example - defaults
+		*/
+		$('#checkOne').iCheckbox();
+		$('#checkOne').change(function(e){
+			if ( $('#checkOne').attr('checked') == true ) {
+				console.log('checkbox one checked: '+$(e.target).attr('checked'));
+			}
+		});
+		/*
+		* second example - custom
+		*/
+		var checkTwoOpts = {
+			switch_container_src: '/static/iPhoneCheckbox/images/iphone_switch_container.gif',
+			class_container: 'iCheckbox_two_container',
+			class_switch: 'iCheckbox_two_switch',
+			class_checkbox: 'iCheckbox_two_checkbox',
+			switch_speed: 200,
+			switch_swing: -53,
+			checkbox_hide: false
+			};
+		var initial_state = "${server_dict['Switch']}";
+		$('#checkTwo').iCheckbox(initial_state, checkTwoOpts );
+		$('#checkTwo').change(function(e){
+			if ( $('#checkOne').attr('checked') == true ) {
+				console.log('checkbox two checked: '+$(e.target).attr('checked'));
+			}
+		});
+	});
+	</script>
 	</div>
 
 
@@ -35,12 +112,16 @@
 		   <td><p tal:replace="serverVar"></p></td>
 		      <td><p tal:replace="server_dict[serverVar]"></p></td>
 		   </tr>
-		   
-		   <tr class="on_off">
+	<tr>
       <td>
-        <input type="checkbox" id="onchange""/>
+      Status: <input type="checkbox" id="checkTwo" disabled="true"/>
       </td>
     </tr>
 		</table>
+		
    </div>
+
+   
+   
+   
 </div>

@@ -17,16 +17,20 @@ def serverPage(request):
     
     serverDict = getServerView(serverName)
     if type(serverDict) == dict:
-        '''
+        
+
         for key in serverDict.iterkeys():
-            serverDict[key] = serverDict[key][0]
-        '''
+            try:
+                serverDict[key] = serverDict[key][0]
+            except:
+                pass
         
         serverDict["Switch"]=""
-        if serverDict["OpState"] ==  OpState.OK or serverDict["OpState"] == OpState.SwitchingOff:
-            serverDict["Switch"]="On"
+        if serverDict["OpState"] ==  str(OpState.OK) or serverDict["OpState"] == str(OpState.SwitchingOff):
+            serverDict["Switch"]="on"
         else:
-            serverDict["Switch"]="Off"
+            print serverDict["OpState"]
+            serverDict["Switch"]="off"
     else:
         serverDict={}
      
