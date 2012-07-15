@@ -26,7 +26,7 @@ class ConnectionClient(object):
     def getServerTree(self):
         returnValue=None
         #a = MessageClientSend(MessageAttr.listServers,{"yay":"yay"})
-        a = MessageClientSend("ServerView",{"server":"server1"})
+        a = MessageClientSend("ServerLog",{"server":"server1","fromTime" : "1342355321.28", "toTime" : "2342355321.28"})
         #create an INET, STREAMing socket
         s = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM)
@@ -37,8 +37,10 @@ class ConnectionClient(object):
         s.connect(("127.0.0.1", PORT))
         s.send(a.toxml())
         data = s.recv (1024)
+        
         if data:
             messageGen = Message()
+            print data
             reply = messageGen.parse(data)
             
             reply.getCommand()
