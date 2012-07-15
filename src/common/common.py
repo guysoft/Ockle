@@ -16,11 +16,12 @@ class OpState:
     Operation state enum, that all other operation states enums extend
     '''
     OK=0
-    failedToStart=1
-    failedToStop=2
-    SwitcingOn = 3
-    SwitchingOff = 4
-    permanentlyFailedToStart=5
+    OFF=1
+    failedToStart=2
+    failedToStop=3
+    SwitcingOn = 4
+    SwitchingOff = 5
+    permanentlyFailedToStart=6
     
 COLOR_DICT={
             -1:"black",
