@@ -1,8 +1,8 @@
 Set up python environment
 -------------------------
-1. apt-get install libxslt1-dev libxml2-dev
+1. apt-get install libxslt1-dev libxml2-dev libgraphviz-dev
 
-2. Run the following commands to get a python envirement with the correct versions of things:
+2. Run the following commands to get a python environment with the correct versions of things:
 
 python2.7 /usr/bin/virtualenv ~/pythonenv
 ~/pythonenv/bin/easy_install pyramid==1.2.7
@@ -13,10 +13,10 @@ svn checkout http://networkx.lanl.gov/svn/pygraphviz/trunk pygraphviz
 ~/pythonenv/bin/easy_install WebError
 ~/pythonenv/bin/easy_install pyramid-handlers
 ~/pythonenv/bin/easy_install pyramid-beaker
-~/pythonenv/bin/easy_install Akhet
+#~/pythonenv/bin/easy_install Akhet
 ~/pythonenv/bin/easy_install pyramid_debugtoolbar
 ~/pythonenv/bin/easy_install psycopg2
-~/pythonenv/bin/easy_install Crypto
+#~/pythonenv/bin/easy_install Crypto
 ~/pythonenv/bin/easy_install pycrypto
 ~/pythonenv/bin/easy_install SQLAlchemy
 
