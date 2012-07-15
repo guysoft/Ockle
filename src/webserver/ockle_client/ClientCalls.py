@@ -18,7 +18,7 @@ print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
 OCKLE_SERVER_HOSTNAME="127.0.0.1"
-MAX_RECIVE=10000
+MAX_RECIVE=100000
 
 def getDataFromServer(command,paramsDict):
     ''' Send a command to the Ockle server, and return the responce dict 
@@ -36,13 +36,14 @@ def getDataFromServer(command,paramsDict):
         #now connect to the web server on port 80
         # - the normal http port
         print "trying to connect"
-        #print a.toxml()
+        print a.toxml()
         s.connect((OCKLE_SERVER_HOSTNAME, PORT))
         s.send(a.toxml())
         #TODO find a way to determine the size of the transport
         data = s.recv (MAX_RECIVE)
         if data:
             messageGen = Message()
+            print "got the following data"
             print data
             reply = messageGen.parse(data)
             
@@ -71,4 +72,10 @@ def getServerView(serverName):
         #return html.fromstring(str(response)).text 
         return response
     return
+
+def getServerStatistics(server,fromtime,totime):
+    #from datetime import date
+    #date.fromtimestamp(time.time())
+    return
+
     

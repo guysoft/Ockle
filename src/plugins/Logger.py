@@ -98,6 +98,24 @@ class Logger(ModuleTemplate):
         retult = connection.execute("DELETE FROM " + self.Log.__tablename__)
         connection.close()
         return retult
+    
+    def getDBInfo(self,server,fromTime,toTime):
+        ''' Get the data information from the log between a given timeframe
+        @return: A table with the results
+        '''
+        '''
+        connection = self.engine.connect()
+        if server==None:
+            sql = "SELECT * FROM " + self.Log.__tablename__ + "WHERE time>=? AND time<=?"
+            variables = (fromTime,toTime)
+        else:
+            sql = "SELECT * FROM " + self.Log.__tablename__ + "WHERE time>=? AND time<=? AND server=?"
+            variables = (fromTime,toTime,server)
+            
+        result = connection.execute(sql,variables)
+        connection.close()
+        '''
+        return result
 
 if __name__ == "__main__":
     a = Logger(None)
