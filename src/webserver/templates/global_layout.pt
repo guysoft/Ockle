@@ -2,35 +2,24 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       metal:define-macro="layout">
+<link rel="icon" type="image/png" href="/static/favicon.png" />
+<link href="/static/mainmenu/layout.css" rel="stylesheet" type="text/css" />
+<link href="/static/mainmenu/menu.css" rel="stylesheet" type="text/css" />
+
 
 <head>
-	<title>Ockle - ${page_title}</title>
-	<div metal:define-slot="head_content"></div>
-	<link href="/static/menubar/css/styles.css" rel="stylesheet" type="text/css" />
-	<link rel="icon" type="image/png" href="/static/favicon.png" />
+<title>Ockle - ${page_title}</title>
+<div metal:define-slot="head_content"></div>
 </head>
-<body>
-	<div id="page-wrap">
-		<ul id="main-nav">
-		    <li><a class="current" href="/">Home</a></li>
-		    <li><a class="about" href="/about.html">About Ockle</a></li>
-		    
-		    			<li class="portfolio"><a href="portfolio.html">Portfolio</a></li>
-			<li class="services"><a href="services.html">Services</a></li>
-			<li class="contact"><a href="contact.html">Contact</a></li>
-		</ul>
-		<div class="clear"></div>
-		<div id="featured">
-			<div id="featured-content">
-				<h1>Blue is a wonderful Colour</h1>
-
-
-
+<body style="width: 98%;">
+<ul id="nav">
+    <li><a class="hsubs" href="/">Home</a></li>
+    <li><a class="hsubs" href="/about.html">About Ockle</a></li>
+    <div id="lavalamp"></div>
+</ul>
+<div id="wrapper">
 <h1>${page_title}</h1>
 <div metal:define-slot="content"></div>
-
-			</div>
-		</div>
-	</div>
+</div>
 </body>
 </html>

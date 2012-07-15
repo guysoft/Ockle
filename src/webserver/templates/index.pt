@@ -22,14 +22,9 @@
 });
 	</script>
  </div>
-
     <div metal:fill-slot="content">
         <h2>Server Network</h2>
-
 	<div id="canviz"></div>
-
-<p id="click_output"></p>
-
 <div id="debug_output"></div>
     </div>
 </div>

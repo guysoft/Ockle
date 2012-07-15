@@ -6,16 +6,33 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
+from common.common import OpState
 
 #graphviz
 import pygraphviz as pgv
 
 @view_config(route_name='serverView',renderer="templates/server_info.pt")
-def myview(request):
+def serverPage(request):
     serverName = request.matchdict['serverName'];
+    
+    serverDict = getServerView(serverName)
+    if type(serverDict) == dict:
+        '''
+        for key in serverDict.iterkeys():
+            serverDict[key] = serverDict[key][0]
+        '''
+        
+        serverDict["Switch"]=""
+        if serverDict["OpState"] ==  OpState.OK or serverDict["OpState"] == OpState.SwitchingOff:
+            serverDict["Switch"]="On"
+        else:
+            serverDict["Switch"]="Off"
+    else:
+        serverDict={}
+     
     return {"layout": site_layout(),
             "xdottree" : "",
-            "server_dict" : str(getServerView(request.matchdict['serverName'])),
+            "server_dict" : serverDict,
             "page_title" : "Server View: " + str(serverName)}
     #return Response(str(getServerView(request.matchdict['serverName'])))
 
@@ -36,6 +53,13 @@ def index_view(request):
     #gv.node_attr.update(href="javascript:void(click_node(\\'\\\N\\'))")
     gv.node_attr.update(href="server/\\\N")
     gv.node_attr.update(title="server/\\\N")
+    gv.node_attr.update(style="filled")
+    gv.node_attr.update(fillcolor="#dbdbdb")
+    gv.node_attr.update(name="bla")
+    
+    for node in gv.nodes():
+        print node.get_name()
+    
     gv.layout(prog='dot')
     
     return {"layout": site_layout(),
@@ -47,20 +71,6 @@ def index_view(request):
 def about_view(request):
     return {"layout": site_layout(),
             "page_title": "About"}
-
-
-@view_config(renderer="templates/company.pt", name="acme")
-def company_view(request):
-    return {"layout": site_layout(),
-            "page_title": COMPANY + " Projects",
-            "company": COMPANY,
-            "projects": PROJECTS}
-
-
-@view_config(renderer="templates/people.pt", name="people")
-def people_view(request):
-    return {"layout": site_layout(),
-            "page_title": "People", "company": COMPANY, "people": PEOPLE}
 
 # Dummy data
 COMPANY = "ACME, Inc."
