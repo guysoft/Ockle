@@ -3,10 +3,6 @@
  * $Id: styles_inner.css 256 2009-01-08 11:14:07Z ryandesign.com $
  */
 
-body {
-	padding: 1em;
-}
-
 pre {
 	border: 1px solid black;
 	padding: 1em;
