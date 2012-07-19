@@ -157,5 +157,5 @@ class Raritan(OutletTemplate):
         return int2bool(val)
     
     def updateData(self):
-        self.data["current"] = self._snmpGet((1,3,6,1,4,1,13742,4,1,2,2,1,4,int(self.outletNumber)))[1]
+        self.data["current"] = int(self._snmpGet((1,3,6,1,4,1,13742,4,1,2,2,1,4,int(self.outletNumber)))[1])
         return self.data
