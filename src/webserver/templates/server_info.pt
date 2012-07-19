@@ -102,9 +102,9 @@
 	</script>
 
 	<script language="javascript" type="text/javascript" src="/static/jqplot/jquery.jqplot.js"></script>
-	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.highlighter.min.js"></script>
-	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.cursor.min.js"></script>
-	<script type="text/javascript" src="/static/jqplot/plugins/qplot.dateAxisRenderer.min.js"></script>
+	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.highlighter.js"></script>
+	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.cursor.js"></script>
+	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
 	</div>
 
 
