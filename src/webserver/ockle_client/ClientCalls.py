@@ -5,6 +5,12 @@ Created on Apr 25, 2012
 
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
+
+import os.path,sys
+p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','..')
+print p
+sys.path.insert(0, p)
+
 import socket
 from ConfigParser import SafeConfigParser
 from lxml import html
