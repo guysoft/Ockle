@@ -6,11 +6,13 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
-from ockle_client.ClientCalls import getServerStatistics
+from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 
 #graphviz
 import pygraphviz as pgv
+
+import time
 
 @view_config(route_name='serverView',renderer="templates/server_info.pt")
 def serverPage(request):
@@ -34,14 +36,14 @@ def serverPage(request):
             serverDict["Switch"]="off"
     else:
         serverDict={}
+        serverDict["Switch"]="off"
     
-    serverLog = getServerStatistics(serverName,1,2)
-    print serverLog
+    serverLog = getServerStatistics(serverName,time.time() - 5,time.time()+1)
     return {"layout": site_layout(),
             "xdottree" : "",
             "server_dict" : serverDict,
             "page_title" : "Server View: " + str(serverName),
-            "ServerLog" : serverLog}
+            "ServerLog" : str(serverLog)}
     #return Response(str(getServerView(request.matchdict['serverName'])))
 
 def site_layout():
