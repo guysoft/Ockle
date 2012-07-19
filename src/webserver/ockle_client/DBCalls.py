@@ -92,7 +92,7 @@ class Reader():
         returnValue = {}
         i=0
         for row in result:
-            returnValue[str(i)] = row
+            returnValue[str(i)] = dict(row)
             i=i+1
             
         return returnValue
@@ -103,15 +103,12 @@ def getDataFromDB(sql):
     return request
 
 READER = Reader()
-def getServerStatistics(server,fromtime,totime):
-    #from datetime import date
-    #date.fromtimestamp(time.time())
-    
+def getServerStatistics(server,fromtime,totime):   
     #return html.fromstring(str(response)).text 
     #response = getDBInfo(server,fromtime,totime)
     response = READER.ConnectionHandlerServerLog({"server":server, "fromTime" : "1", "toTime" : "2342355321.28"})
     if response == None:
-        return "Error connecting to Ockle DB server - Can't get server Info"
+        return {}#error
     else:
         return response
     return
