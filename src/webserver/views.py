@@ -16,8 +16,44 @@ import time
 from datetime import datetime
 import json
 
+PLOT_STEP=3600
+
 @view_config(route_name='serverView',renderer="templates/server_info.pt")
 def serverPage(request):
+    ''' Server View page 
+    '''
+    def unix2javascript(time):
+        ''' Convert a unix timestamp to a javascript timestamp
+        @param time: Unix timestamp
+        @return: Javascript timestamp
+        '''
+        return time*1000.0
+    
+    def javascript2unix(time):
+        ''' Convert a javascript timestamp to a unix timestamp
+        @param time: Javascript timestamp
+        @return: Unix timestamp
+        '''
+        return time/1000
+    
+    def getMinMaxListofLists(l,key):
+        ''' Get the min and max of a list of lists, takes a list and the key value
+        @param l: a list of lists, or list of dicts
+        @param key: the key number of the list
+        @return: tuple of the min and max values
+        '''
+        try:
+            Min = l[0][key]
+            Max = l[0][key]
+        except KeyError:
+            return 0 
+        for element in l:
+            if Max < element[key]:
+                Max = element[key]
+            if Min > element[key]:
+                Min =  element[key]
+        return Min,Max
+    
     serverName = request.matchdict['serverName'];
     
     serverDict = getServerView(serverName)
@@ -39,24 +75,36 @@ def serverPage(request):
     else:
         serverDict={}
         serverDict["Switch"]="off"
-    '''
-    dataLog=[['23-May-08', 578.55], ['20-Jun-08', 566.5], ['25-Jul-08', 480.88], ['22-Aug-08', 509.84],
-                  ['26-Sep-08', 454.13], ['24-Oct-08', 379.75], ['21-Nov-08', 303], ['26-Dec-08', 308.56],
-                  ['23-Jan-09', 299.14], ['20-Feb-09', 346.51], ['20-Mar-09', 325.99], ['24-Apr-09', 386.15]]
-    '''
+        
     dataLog=[]
-    serverLog = getServerStatistics(serverName,time.time() - 5,time.time()+1)
+    serverLog = getServerStatistics(serverName,time.time() - 60*60*3,time.time()+1)
+    
     for key in serverLog.keys():
+        dataDict = json.loads(serverLog[key]["dataDict"])
         dataPointTime=serverLog[key]["time"]
-        dataPoint=serverLog[key]["time"]
+        
+        dataPoint=0 #init before assignment
+        if dataDict.has_key("outlet1"):
+            if dataDict["outlet1"].has_key("CPU"):
+                dataPoint=dataDict["outlet1"]["CPU"]
+        #dataPoint=serverLog[key]["time"]
         print "yay"
-        dataLog.append([datetime.fromtimestamp(float(dataPointTime)).strftime('%H:%M:%S'),float(dataPoint)])
+        #dataLog.append([datetime.fromtimestamp(float(dataPointTime)).strftime('%H:%M:%S'),float(dataPoint)])
+        dataLog.append([unix2javascript(float(dataPointTime)),float(dataPoint)])
+    minTime,maxTime = getMinMaxListofLists(dataLog,0)
+    
+    minTime=  javascript2unix(minTime)
+    maxTime = javascript2unix(maxTime)
+    ticks=[]
+    for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
+        ticks.append([datetime.fromtimestamp(timestamp).strftime("%H:%M")])
     return {"layout": site_layout(),
             "xdottree" : "",
             "server_dict" : serverDict,
             "page_title" : "Server View: " + str(serverName),
             "ServerLog" : str(serverLog),
-            "dataLog" : str(dataLog)}
+            "dataLog" : str(dataLog),
+            "ticks" : str(ticks)}
     #return Response(str(getServerView(request.matchdict['serverName'])))
 
 def site_layout():

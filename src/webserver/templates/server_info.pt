@@ -102,9 +102,11 @@
 	</script>
 
 	<script language="javascript" type="text/javascript" src="/static/jqplot/jquery.jqplot.js"></script>
-	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.highlighter.js"></script>
-	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.cursor.js"></script>
-	<script type="text/javascript" src="/static/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.highlighter.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.cursor.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
 	</div>
 
 
@@ -131,28 +133,41 @@
 			  //    ['26-Sep-08', 454.13], ['24-Oct-08', 379.75], ['21-Nov-08', 303], ['26-Dec-08', 308.56],
 			  //    ['23-Jan-09', 299.14], ['20-Feb-09', 346.51], ['20-Mar-09', 325.99], ['24-Apr-09', 386.15]];
 			  var line1=${structure: dataLog};
+			  //var line1=[['22:35:30', 1342726530.2], ['23:35:20', 1342726520.05]];
 			  var plot1 = $.jqplot('logChart', [line1], {
 			      title:'Data Point Highlighting',
+			      series:[{showMarker:false,
+			    	  lineWidth: 1}],
+			      
 			      axes:{
 			        xaxis:{
 			          renderer:$.jqplot.DateAxisRenderer,
+			          tickInterval:'1800000', //number of millisecons in an hour
+			           //ticks: [['00:00','00:00'],['00:30','00:30'], ['01:00','01:00']],
+			           ticks: ${structure: ticks},
+			           //min: '00:00',
+			           //max: '01:00',
+			           
+			           tickRenderer:$.jqplot.CanvasAxisTickRenderer,
+		                tickOptions: {
+		                  angle: -30
+		                },
 			          tickOptions:{
-			            formatString:'%H:%M:%S %Y'
+			            formatString:'%H:%M',
+				            showTicks: true,
+				            show: true,
 			          }
 			        },
 			        yaxis:{
-			          tickOptions:{
-			            formatString:'%.2f'
-			            }
 			        }
 			      },
 			      highlighter: {
 			        show: true,
-			        sizeAdjust: 7.5
 			      },
 			      cursor: {
 			        show: true,
-			        zoom: true
+			        zoom: true,
+			        clickReset: false
 			      }
 			  });
 			 });

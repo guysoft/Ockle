@@ -106,7 +106,7 @@ READER = Reader()
 def getServerStatistics(server,fromtime,totime):   
     #return html.fromstring(str(response)).text 
     #response = getDBInfo(server,fromtime,totime)
-    response = READER.ConnectionHandlerServerLog({"server":server, "fromTime" : "1", "toTime" : "2342355321.28"})
+    response = READER.ConnectionHandlerServerLog({"server":server, "fromTime" : str(fromtime), "toTime" : str(totime)})
     if response == None:
         return {}#error
     else:
