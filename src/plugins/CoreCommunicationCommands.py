@@ -22,7 +22,14 @@ class CoreCommunicationCommands(ModuleTemplate):
         return {"Dot" :  dot}
     
     def getServerInfo(self,dataDict):
-        server = self.mainDaemon.servers.getServernode(dataDict["server"][0])
+        ''' Get the data dict of a server
+        @param dataDict: The data dict from the communication call, should contain the key "server"
+        @return: the server information, empty dict if invalid request
+        '''
+        try:
+            server = self.mainDaemon.servers.getServernode(dataDict["server"][0])
+        except:
+            return {} #no server found
         server.getName()
         outlets={}
         i=0;
