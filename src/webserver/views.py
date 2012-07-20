@@ -8,6 +8,10 @@ from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
+from common.common import slicedict
+from common.common import trimOneObjectListsFromDict
+from plugins.Log import DATA_NAME_TO_UNITS
+from plugins.Log import DATA_NAME_TO_UNITS_NAME
 
 #graphviz
 import pygraphviz as pgv
@@ -16,7 +20,9 @@ import time
 from datetime import datetime
 import json
 
-PLOT_STEP=3600
+#plot settings
+PLOT_STEP=3600 #What is the step length of the graph
+STATISTICS_WINDOW=60*60*3#How far back should the log show
 
 @view_config(route_name='serverView',renderer="templates/server_info.pt")
 def serverPage(request):
@@ -54,18 +60,14 @@ def serverPage(request):
                 Min =  element[key]
         return Min,Max
     
-    serverName = request.matchdict['serverName'];
-    
+    serverName = request.matchdict['serverName']
     serverDict = getServerView(serverName)
+    
+    #Trim lists from dict
     if type(serverDict) == dict:
+        serverDict=trimOneObjectListsFromDict(serverDict)
         
-
-        for key in serverDict.iterkeys():
-            try:
-                serverDict[key] = serverDict[key][0]
-            except:
-                pass
-        
+        #Set the on/of switch
         serverDict["Switch"]=""
         if serverDict["OpState"] ==  str(OpState.OK) or serverDict["OpState"] == str(OpState.SwitchingOff):
             serverDict["Switch"]="on"
@@ -73,39 +75,76 @@ def serverPage(request):
             print serverDict["OpState"]
             serverDict["Switch"]="off"
     else:
+        #return an empty dict if we encountered some error
         serverDict={}
         serverDict["Switch"]="off"
-        
+    
+    ## Build data for the statistics display ##
     dataLog=[]
-    serverLog = getServerStatistics(serverName,time.time() - 60*60*3,time.time()+1)
+    serverLog = getServerStatistics(serverName,time.time() - STATISTICS_WINDOW,time.time()+1)
     
-    for key in serverLog.keys():
-        dataDict = json.loads(serverLog[key]["dataDict"])
-        dataPointTime=serverLog[key]["time"]
-        
-        dataPoint=0 #init before assignment
-        if dataDict.has_key("outlet1"):
-            if dataDict["outlet1"].has_key("CPU"):
-                dataPoint=dataDict["outlet1"]["CPU"]
-        #dataPoint=serverLog[key]["time"]
-        #print "yay"
-        #dataLog.append([datetime.fromtimestamp(float(dataPointTime)).strftime('%H:%M:%S'),float(dataPoint)])
-        dataLog.append([unix2javascript(float(dataPointTime)),float(dataPoint)])
-    minTime,maxTime = getMinMaxListofLists(dataLog,0)
+    #get the first data entry
+    dataEntry = serverLog[serverLog.keys()[0]]
+    dataDictHead=json.loads(dataEntry["dataDict"])#parse the dict from the db string
     
-    minTime=  javascript2unix(minTime)
-    maxTime = javascript2unix(maxTime)
-    ticks=[]
-    for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
-        ticks.append([datetime.fromtimestamp(timestamp).strftime("%H:%M")])
+    #list of variables we are going to fill, generating the plots
+    #plotsTicks=[]
+    plotTitle=[]
+    plotXLabel="Time [Hr:Min]"
+    plotYFormat=[]
+    plotYLabel=[]
+    plotsData=[]
+    minTick=[]
+    maxTick=[]
+    plotNumber=0
+    for outletKey in slicedict(dataDictHead,"outlet").keys():
+        for dataKey in dataDictHead[outletKey].keys():
+            #Init all the plot labels and lists
+            #TODO time pulling can be done at O(n) not O(n^2)
+            plotTitle.insert(plotNumber, dataKey + " graph for " + outletKey)
+            plotYLabel.insert(plotNumber, dataKey + " " + DATA_NAME_TO_UNITS_NAME[dataKey])
+            plotYFormat.insert(plotNumber, DATA_NAME_TO_UNITS[dataKey])
+            plotsData.insert(plotNumber, [])
+            #plotsTicks.insert(plotNumber, [])
+            
+            #Retrieve data for this plot
+            for key in serverLog.keys(): #now we scan all keys
+                #parse the database entry
+                dataDict = json.loads(serverLog[key]["dataDict"])
+                
+                #save data point
+                dataPointTime=serverLog[key]["time"]
+                dataPoint=dataDict[outletKey][dataKey]
+                
+                plotsData[plotNumber].append([unix2javascript(float(dataPointTime)),float(dataPoint)])
+            
+            #Build ticks
+            minTime,maxTime = getMinMaxListofLists(plotsData[plotNumber],0)
+            
+            minTime=  javascript2unix(minTime)
+            maxTime = javascript2unix(maxTime)
+            
+            minTick.insert(plotNumber,datetime.fromtimestamp(minTime).strftime("%Y-%m-%d %H:%M"))
+            maxTick.insert(plotNumber,datetime.fromtimestamp(maxTime).strftime("%Y-%m-%d %H:%M"))
+            #for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
+            #    plotsTicks[plotNumber].append(datetime.fromtimestamp(timestamp).strftime("%d %H:%M"))
+            
+            plotNumber=plotNumber+1
+            
     return {"layout": site_layout(),
             "xdottree" : "",
             "server_dict" : serverDict,
             "page_title" : "Server View: " + str(serverName),
             "ServerLog" : str(serverLog),
-            "dataLog" : str(dataLog),
-            "ticks" : str(ticks)}
-    #return Response(str(getServerView(request.matchdict['serverName'])))
+            
+            "plotTitle"   : plotTitle,
+            "plotYLabel" : plotYLabel,
+            "plotYFormat" : plotYFormat,
+            "plotsData"   : plotsData,
+            #"plotsTicks"  : plotsTicks,
+            "plotXLabel"  : plotXLabel,
+            "minTick" : minTick,
+            "maxTick" : maxTick}
 
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")

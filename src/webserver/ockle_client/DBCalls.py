@@ -7,7 +7,6 @@ Created on Jul 18, 2012
 """
 
 from ConfigParser import SafeConfigParser
-from common.common import appendProjectPath
 
 from sqlalchemy import  create_engine
 
@@ -41,7 +40,7 @@ class Reader():
             variables = (fromTime,toTime)
         else:
             sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=? AND server=?"
-            print sql
+            #print sql
             variables = (fromTime,toTime,server)
             
         result = connection.execute(sql,variables)

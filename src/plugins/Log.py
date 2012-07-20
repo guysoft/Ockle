@@ -12,6 +12,12 @@ from sqlalchemy import  create_engine
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
+#Convert from the db the data to its units
+DATA_NAME_TO_UNITS={ "CPU" : "%d\%",
+                      "current" : "%d mA"}
+DATA_NAME_TO_UNITS_NAME={ "CPU" : "Percentage [%]",
+                      "current" : "current [mA]"}
+
 Base = declarative_base()
 
 #Database declaration

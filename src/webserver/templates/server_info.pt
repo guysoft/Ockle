@@ -101,12 +101,15 @@
 	});
 	</script>
 
+
+	<link rel="stylesheet" type="text/css" href="/static/jqplot/jquery.jqplot.css" />
 	<script language="javascript" type="text/javascript" src="/static/jqplot/jquery.jqplot.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.highlighter.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.cursor.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/jqplot/plugins/jqplot.canvasAxisLabelRenderer.js"></script>
 	</div>
 
 
@@ -126,39 +129,41 @@
     </tr>
 		</table>
 		
-		
-		<script language="javascript" type="text/javascript">
+		<script language="javascript" type="text/javascript" tal:repeat="plotVar plotTitle">
 		$(document).ready(function(){
-			  //var line1=[['23-May-08', 578.55], ['20-Jun-08', 566.5], ['25-Jul-08', 480.88], ['22-Aug-08', 509.84],
-			  //    ['26-Sep-08', 454.13], ['24-Oct-08', 379.75], ['21-Nov-08', 303], ['26-Dec-08', 308.56],
-			  //    ['23-Jan-09', 299.14], ['20-Feb-09', 346.51], ['20-Mar-09', 325.99], ['24-Apr-09', 386.15]];
-			  var line1=${structure: dataLog};
+			  var line1=${structure: plotsData[repeat.plotVar.number-1]};
 			  //var line1=[['22:35:30', 1342726530.2], ['23:35:20', 1342726520.05]];
-			  var plot1 = $.jqplot('logChart', [line1], {
-			      title:'Data Point Highlighting',
+			  var plot1 = $.jqplot('PlotNumber${repeat.plotVar.number}', [line1], {
+			      title:'${plotVar}',
 			      series:[{showMarker:false,
 			    	  lineWidth: 1}],
 			      
+		          axesDefaults: {
+		              labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+		            },			    	  
 			      axes:{
 			        xaxis:{
 			          renderer:$.jqplot.DateAxisRenderer,
-			          tickInterval:'1800000', //number of millisecons in an hour
+			          tickInterval:'30 minutes', //number of millisecons in an hour
 			           //ticks: [['00:00','00:00'],['00:30','00:30'], ['01:00','01:00']],
-			           ticks: ${structure: ticks},
-			           //min: '00:00',
-			           //max: '01:00',
-			           
-			           tickRenderer:$.jqplot.CanvasAxisTickRenderer,
-		                tickOptions: {
-		                  angle: -30
-		                },
+			           //min: '2012-07-20 23:00',
+			           //max: '2012-07-21 01:00',
+			           min: '${structure: minTick[repeat.plotVar.number-1]}',
+			           max: '${structure: maxTick[repeat.plotVar.number-1]}',
+			          tickRenderer:$.jqplot.CanvasAxisTickRenderer,
 			          tickOptions:{
-			            formatString:'%H:%M',
+			        	  	formatString:'%d %H:%M',
 				            showTicks: true,
 				            show: true,
-			          }
+			          },
+			          label: "${plotXLabel}"
 			        },
 			        yaxis:{
+			        	tickRenderer:$.jqplot.CanvasAxisTickRenderer,
+			        	label: "${plotYLabel[repeat.plotVar.number-1]}",
+			        	tickOptions:{
+			        		formatString: "${plotYFormat[repeat.plotVar.number-1]}"
+			        	}
 			        }
 			      },
 			      highlighter: {
@@ -173,8 +178,16 @@
 			 });
 		
 		</script>
-		<div id="logChart" style="height:400px; width:600px;"></div>
-		${ServerLog}
+		
+		<table>
+				<tr tal:repeat="serverVar plotTitle">
+		   		<td>
+		   		<div id="PlotNumber${repeat.serverVar.number}" style="height:400px; width:600px;"></div>
+		   		</td>
+		   		</tr>
+		</table>
+		
+		
    </div>	
    
 </div>

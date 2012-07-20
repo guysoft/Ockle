@@ -63,3 +63,26 @@ def turpleList2Dict(tupleList):
             data = json.loads(data)
         returnDict[key]=data
     return returnDict
+
+def trimOneObjectListsFromDict(d):
+    ''' There is some strange bug in the xml dict recovery,
+    Some strings return as lists with a single element,
+    This is a workaround
+    @param d: A dict containing some single element lists
+    @return: The dict with the lists removed and replaced by the element
+    '''
+    for key in d.iterkeys():
+        try:
+            d[key] = d[key][0]
+        except:
+            pass
+    return d
+
+def slicedict(d, s):
+    ''' Slice a dict according to a prefix in the key 
+    @param d: a dict
+    @param s: The prefix
+    @return: The sliced dict
+    '''
+    return {k:v for k,v in d.iteritems() if k.startswith(s)}
+
