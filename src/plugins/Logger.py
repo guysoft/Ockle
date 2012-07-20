@@ -9,10 +9,10 @@ Created on Jul 5, 2012
 import os.path,sys
 import time
 from sqlalchemy import  create_engine
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+#Import database structure
+from plugins.Log import Base
+from plugins.Log import Log
 
 p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','common')
 sys.path.insert(0, p)
@@ -41,29 +41,6 @@ class Logger(ModuleTemplate):
     def InitDB(self):
         ''' Subroutine to make sure the DB is good to go
         '''
-        Base = declarative_base()
-        
-        #Database declaration
-        class Log(Base):
-            '''This is the SQLiteAlchemy database structure, in the declarative form
-            '''
-            __tablename__ = 'log'
-            
-            id = Column(Integer, primary_key=True)
-            server = Column(String)
-            dataDict = Column(String)
-            time = Column(String)
-            
-            def __init__(self, server, dataDict, time):
-                self.server = server
-                self.dataDict = json.dumps(dataDict)
-                self.time = time
-            
-            def __repr__(self):
-                return "<LogEntry('%s','%s', '%s')>" % (self.server, self.time, self.dataDict)
-                Base.metadata.create_all(self.engine)
-                return
-        
         Base.metadata.create_all(self.engine)
         
         #With this the DB structure is available across the logger module

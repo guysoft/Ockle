@@ -88,7 +88,7 @@ def serverPage(request):
             if dataDict["outlet1"].has_key("CPU"):
                 dataPoint=dataDict["outlet1"]["CPU"]
         #dataPoint=serverLog[key]["time"]
-        print "yay"
+        #print "yay"
         #dataLog.append([datetime.fromtimestamp(float(dataPointTime)).strftime('%H:%M:%S'),float(dataPoint)])
         dataLog.append([unix2javascript(float(dataPointTime)),float(dataPoint)])
     minTime,maxTime = getMinMaxListofLists(dataLog,0)

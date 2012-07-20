@@ -10,8 +10,7 @@ from ConfigParser import SafeConfigParser
 from common.common import appendProjectPath
 
 from sqlalchemy import  create_engine
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+
 import json
 
 config = SafeConfigParser()
@@ -21,28 +20,8 @@ config.read(os.path.join(ETC_DIR,"config.ini"))
 LOG_DB = config.get('plugins.Logger', 'LOG_DB')
 LOG_DB = LOG_DB.replace("%HOME%", os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])).replace("/src", "/")))
 
-
-#Database declaration
-Base = declarative_base()
-class Log(Base):
-    '''This is the SQLiteAlchemy database structure, in the declarative form
-    '''
-    __tablename__ = 'log'
-    
-    id = Column(Integer, primary_key=True)
-    server = Column(String)
-    dataDict = Column(String)
-    time = Column(String)
-    
-    def __init__(self, server, dataDict, time):
-        self.server = server
-        self.dataDict = json.dumps(dataDict)
-        self.time = time
-    
-    def __repr__(self):
-        return "<LogEntry('%s','%s', '%s')>" % (self.server, self.time, self.dataDict)
-        Base.metadata.create_all(self.engine)
-        return
+#Import database structure
+from plugins.Log import Log
 
 class Reader():
     def __init__(self):
