@@ -15,10 +15,17 @@ class OutletTemplate(object):
     @param outletConfigDict: a dictionary with the params specified in the ini config file, sections. Its a dict of sections with a dict of variables
     @param outletParams: A dictionary of the server-specific params specified in the outlet section on the server config file
     '''
-    def __init__(self,outletConfigDict={},outletParams={}):
+    def __init__(self,name,outletConfigDict={},outletParams={}):
         self.OutletOpState = OutletOpState.OK #outlets are innocent until proven guilty
         self.data={} #data information from the port
+        self.setName(name)
         return
+    
+    def getName(self):
+        return self.name
+    
+    def setName(self,name):
+        self.name = name
     
     def _setOutletState(self,state):
         return

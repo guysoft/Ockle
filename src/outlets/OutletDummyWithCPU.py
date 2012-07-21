@@ -47,8 +47,8 @@ class DummyWithCPU(Dummy):
     '''
     This class is an instance of an outlet within the pdu, you must specify a number
     '''
-    def __init__(self,outletConfigDict={},outletParams={}):
-        Dummy.__init__(self,outletConfigDict,outletParams)
+    def __init__(self,name,outletConfigDict={},outletParams={}):
+        Dummy.__init__(self,name,outletConfigDict,outletParams)
         self.cpu = CPUsage()
         self.data["CPU"]=0
         return

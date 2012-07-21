@@ -99,37 +99,39 @@ def serverPage(request):
     plotNumber=0
     for outletKey in slicedict(dataDictHead,"outlet").keys():
         for dataKey in dataDictHead[outletKey].keys():
-            #Init all the plot labels and lists
-            #TODO time pulling can be done at O(n) not O(n^2)
-            plotTitle.insert(plotNumber, dataKey + " graph for " + outletKey)
-            plotYLabel.insert(plotNumber, dataKey + " " + DATA_NAME_TO_UNITS_NAME[dataKey])
-            plotYFormat.insert(plotNumber, DATA_NAME_TO_UNITS[dataKey])
-            plotsData.insert(plotNumber, [])
-            #plotsTicks.insert(plotNumber, [])
-            
-            #Retrieve data for this plot
-            for key in serverLog.keys(): #now we scan all keys
-                #parse the database entry
-                dataDict = json.loads(serverLog[key]["dataDict"])
+            if dataKey != "name":
+                #Init all the plot labels and lists
+                #TODO time pulling can be done at O(n) not O(n^2)
+                print dataDictHead
+                plotTitle.insert(plotNumber, dataKey + " graph for " + dataDictHead[outletKey]["name"])
+                plotYLabel.insert(plotNumber, dataKey + " " + DATA_NAME_TO_UNITS_NAME[dataKey])
+                plotYFormat.insert(plotNumber, DATA_NAME_TO_UNITS[dataKey])
+                plotsData.insert(plotNumber, [])
+                #plotsTicks.insert(plotNumber, [])
                 
-                #save data point
-                dataPointTime=serverLog[key]["time"]
-                dataPoint=dataDict[outletKey][dataKey]
+                #Retrieve data for this plot
+                for key in serverLog.keys(): #now we scan all keys
+                    #parse the database entry
+                    dataDict = json.loads(serverLog[key]["dataDict"])
+                    
+                    #save data point
+                    dataPointTime=serverLog[key]["time"]
+                    dataPoint=dataDict[outletKey][dataKey]
+                    
+                    plotsData[plotNumber].append([unix2javascript(float(dataPointTime)),float(dataPoint)])
                 
-                plotsData[plotNumber].append([unix2javascript(float(dataPointTime)),float(dataPoint)])
-            
-            #Build ticks
-            minTime,maxTime = getMinMaxListofLists(plotsData[plotNumber],0)
-            
-            minTime=  javascript2unix(minTime)
-            maxTime = javascript2unix(maxTime)
-            
-            minTick.insert(plotNumber,datetime.fromtimestamp(minTime).strftime("%Y-%m-%d %H:%M"))
-            maxTick.insert(plotNumber,datetime.fromtimestamp(maxTime).strftime("%Y-%m-%d %H:%M"))
-            #for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
-            #    plotsTicks[plotNumber].append(datetime.fromtimestamp(timestamp).strftime("%d %H:%M"))
-            
-            plotNumber=plotNumber+1
+                #Build ticks
+                minTime,maxTime = getMinMaxListofLists(plotsData[plotNumber],0)
+                
+                minTime=  javascript2unix(minTime)
+                maxTime = javascript2unix(maxTime)
+                
+                minTick.insert(plotNumber,datetime.fromtimestamp(minTime).strftime("%Y-%m-%d %H:%M"))
+                maxTick.insert(plotNumber,datetime.fromtimestamp(maxTime).strftime("%Y-%m-%d %H:%M"))
+                #for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
+                #    plotsTicks[plotNumber].append(datetime.fromtimestamp(timestamp).strftime("%d %H:%M"))
+                
+                plotNumber=plotNumber+1
             
     return {"layout": site_layout(),
             "xdottree" : "",

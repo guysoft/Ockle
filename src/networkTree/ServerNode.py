@@ -139,6 +139,7 @@ class ServerNode():
         outletNumber=1
         for outlet in self.getOutlets():
             returnValue["outlet" + str(outletNumber)] = outlet.getData()
+            returnValue["outlet" + str(outletNumber)]["name"] = outlet.getName()
             outletNumber = outletNumber + 1
         return returnValue
     

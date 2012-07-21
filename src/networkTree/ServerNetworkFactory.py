@@ -120,9 +120,9 @@ class ServerNetworkFactory(object):
         #Find from type the kind of outlet
         outlets = load(OUTLET_DIR,subclasses=OutletTemplate)
         outletType = outletConfigDict['outlet']['type']
-        for outlet in outlets:
-            if outlet.__name__ == outletType:
-                return outlet(outletConfigDict,outletParams)
+        for outletClass in outlets:
+            if outletClass.__name__ == outletType:
+                return outletClass(outlet,outletConfigDict,outletParams)
         raise OutletTypeNotFound(outletConfigPath,outletType)
     
     

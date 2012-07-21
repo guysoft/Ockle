@@ -36,9 +36,9 @@ class Raritan(OutletTemplate):
     '''
     This class is an instance of an outlet within the pdu, you must spesify a number
     '''
-    def __init__(self,outletConfigDict,outletParams):
+    def __init__(self,name,outletConfigDict,outletParams):
         print outletConfigDict,outletParams
-        OutletTemplate.__init__(self,outletConfigDict,outletParams)
+        OutletTemplate.__init__(self,name,outletConfigDict,outletParams)
         #mibSources = mibBuilder.getMibSources() + (
         #    builder.DirMibSource(os.path.dirname(sys.argv[0])),
         #    )

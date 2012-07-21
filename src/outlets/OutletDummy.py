@@ -13,8 +13,8 @@ class Dummy(OutletTemplate):
     '''
     This class is an instance of an outlet within the pdu, you must specify a number
     '''
-    def __init__(self,outletConfigDict={},outletParams={}):
-        OutletTemplate.__init__(self,outletConfigDict,outletParams)
+    def __init__(self,name,outletConfigDict={},outletParams={}):
+        OutletTemplate.__init__(self,name,outletConfigDict,outletParams)
         self.state = False
         return
     
