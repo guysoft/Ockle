@@ -140,7 +140,7 @@
 		
 			<tr tal:repeat="outletVar outlets">
 		      <td>
-		      ${outletVar} Status: <input type="checkbox" id="check_${outletVar}" disabled="true"/>
+		      ${outlets[outletVar]["name"]} Status: <input type="checkbox" id="check_${outletVar}" disabled="true"/>
 		      </td>
 		    </tr>
 		    <tr>
