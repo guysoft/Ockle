@@ -5,21 +5,8 @@
 
 	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 	<style type="text/css">
-	.iCheckbox_container {
-		height:27px;
-		width:94px;
-		position: relative;
-		overflow: hidden;
-	}
-	.iCheckbox_switch {
-		height:27px;
-		width:94px;
-		background-image:url(/static/iPhoneCheckbox/images/iphone_switch.png); /* your actual slider image */
-		background-repeat:none;
-		background-position:0px;
-	}
-	.iCheckbox_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
-	}
+	
+	/* Server big switch */
 	.iCheckbox_two_container {
 		height:27px;
 		width:94px;
@@ -35,6 +22,24 @@
 	}
 	.iCheckbox_two_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
 	}
+	
+	/* Outlet switches */
+    .iCheckbox_Outlet_container {
+            height:27px;
+            width:94px;
+            position: relative;
+            overflow: hidden;
+    }
+    .iCheckbox_Outlet_switch {
+            height:16px;
+            width:36px;
+            background-image:url(/static/iPhoneCheckbox/images/bpm-lozenge.png); /* your actual slider image */
+            background-repeat:none;
+            background-position:0px;
+    }
+    .iCheckbox_Outlet_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
+    }
+	
 	/*
 	* below are styles to just pretty up the demo page... they have nothing to do with iCheckbox.
 	*/
@@ -45,11 +50,6 @@
 		margin-right:auto;
 		font-family:Arial, Helvetica, sans-serif;
 		font-size:12px;
-	}
-	.magic_pink {
-		background-color: #FF00FF;
-		padding: 5px;
-		margin:0px;
 	}
 	</style>
 	
@@ -91,13 +91,30 @@
 			switch_swing: -53,
 			checkbox_hide: false
 			};
+		
+        var checkOutletOpts = {
+                switch_container_src: '/static/iPhoneCheckbox/images/bpm-frame.gif',
+                class_container: 'iCheckbox_Outlet_container',
+                class_switch: 'iCheckbox_Outlet_switch',
+                class_checkbox: 'iCheckbox_Outlet_checkbox',
+                switch_speed: 150,
+                switch_swing: -18,
+                checkbox_hide: false
+                };
+
+		
 		var initial_state = "${server_dict['Switch']}";
+		var initial_state_outlet = "${server_dict['Switch']}";
 		$('#checkTwo').iCheckbox(initial_state, checkTwoOpts );
 		$('#checkTwo').change(function(e){
-			if ( $('#checkOne').attr('checked') == true ) {
+			if ( $('#checkTwo').attr('checked') == true ) {
 				console.log('checkbox two checked: '+$(e.target).attr('checked'));
 			}
 		});
+		var outletsDict = ${structure: outletsDict};
+		for(var outletKey in outletsDict){
+			$('#check_' + outletKey).iCheckbox(outletsDict[outletKey]["Switch"], checkOutletOpts );
+		}
 	});
 	</script>
 
@@ -116,8 +133,14 @@
     <div metal:fill-slot="content">
 		<table>
 			<tr>
+			<td>
+			Server Status: <input type="checkbox" id="checkTwo" disabled="true"/>
+			</td>
+			</tr>
+		
+			<tr tal:repeat="outletVar outlets">
 		      <td>
-		      Status: <input type="checkbox" id="checkTwo" disabled="true"/>
+		      ${outletVar} Status: <input type="checkbox" id="check_${outletVar}" disabled="true"/>
 		      </td>
 		    </tr>
 		    <tr>

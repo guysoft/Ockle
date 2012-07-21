@@ -12,6 +12,8 @@ sys.path.insert(0, p)
 from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
 
+import json
+
 class CoreCommunicationCommands(ModuleTemplate):
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
@@ -32,19 +34,19 @@ class CoreCommunicationCommands(ModuleTemplate):
             return {} #no server found
         server.getName()
         outlets={}
-        i=0;
+        outletNumber=1;
         for outlet in server.getOutlets():
-            outletIndex="Outlet"+str(i)
+            outletIndex="outlet"+str(outletNumber)
             outlets[outletIndex] ={} 
             outlets[outletIndex]["type"] = outlet.getOutletType()
             outlets[outletIndex]["OpState"] = outlet.getOpState()
             outlets[outletIndex]["data"] = outlet.getData()
             outlets[outletIndex]["name"] = outlet.getName()
-            i=i+1
+            outletNumber=outletNumber+1
             
         return {"Name" :  server.getName(),
                 "OpState" : server.getOpState(),
-                "outlets" : outlets,
+                "outlets" : json.dumps(outlets),
                 "StartAttempts" : server.getStartAttempts()
                 }
     

@@ -72,7 +72,6 @@ def serverPage(request):
         if serverDict["OpState"] ==  str(OpState.OK) or serverDict["OpState"] == str(OpState.SwitchingOff):
             serverDict["Switch"]="on"
         else:
-            print serverDict["OpState"]
             serverDict["Switch"]="off"
     else:
         #return an empty dict if we encountered some error
@@ -83,8 +82,8 @@ def serverPage(request):
     dataLog=[]
     serverLog = getServerStatistics(serverName,time.time() - STATISTICS_WINDOW,time.time()+1)
     
-    #get the first data entry
-    dataEntry = serverLog[serverLog.keys()[0]]
+    #get the last data entry
+    dataEntry = serverLog[serverLog.keys()[len(serverLog)-1]]
     dataDictHead=json.loads(dataEntry["dataDict"])#parse the dict from the db string
     
     #list of variables we are going to fill, generating the plots
@@ -102,7 +101,6 @@ def serverPage(request):
             if dataKey != "name":
                 #Init all the plot labels and lists
                 #TODO time pulling can be done at O(n) not O(n^2)
-                print dataDictHead
                 plotTitle.insert(plotNumber, dataKey + " graph for " + dataDictHead[outletKey]["name"])
                 plotYLabel.insert(plotNumber, dataKey + " " + DATA_NAME_TO_UNITS_NAME[dataKey])
                 plotYFormat.insert(plotNumber, DATA_NAME_TO_UNITS[dataKey])
@@ -132,13 +130,27 @@ def serverPage(request):
                 #    plotsTicks[plotNumber].append(datetime.fromtimestamp(timestamp).strftime("%d %H:%M"))
                 
                 plotNumber=plotNumber+1
-            
+                
+    #Build outlet switches dict
+    outlets={}
+    outletsServerDict = json.loads(serverDict["outlets"])
+    for outlet in outletsServerDict:
+        outlets[outlet] ={}
+        outlets[outlet]["name"] = dataDictHead[outlet]["name"]
+        outlets[outlet]["OpState"] = outletsServerDict[outlet]["OpState"]
+        
+        if outletsServerDict[outlet]["OpState"] ==  OpState.OK or outletsServerDict[outlet]["OpState"] == OpState.SwitchingOff:
+            outlets[outlet]["Switch"] = "on"
+        else:
+            outlets[outlet]["Switch"]="off"
+    
     return {"layout": site_layout(),
             "xdottree" : "",
             "server_dict" : serverDict,
             "page_title" : "Server View: " + str(serverName),
             "ServerLog" : str(serverLog),
             
+            #Plot data
             "plotTitle"   : plotTitle,
             "plotYLabel" : plotYLabel,
             "plotYFormat" : plotYFormat,
@@ -146,7 +158,11 @@ def serverPage(request):
             #"plotsTicks"  : plotsTicks,
             "plotXLabel"  : plotXLabel,
             "minTick" : minTick,
-            "maxTick" : maxTick}
+            "maxTick" : maxTick,
+            
+            #outlets data
+            "outletsDict" : json.dumps(outlets),
+            "outlets" : outlets}
 
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")
