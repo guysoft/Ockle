@@ -30,7 +30,7 @@
 	</td>
 	<td>
 	<br/>
-	<p>AutoConf Status: ${autoControlStatus}</p>
+	<p>Auto Control Status: ${autoControlStatus}</p>
 	</td></tr>
 	</table>
 <div id="debug_output"></div>
