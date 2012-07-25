@@ -6,6 +6,7 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
+from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
@@ -174,8 +175,10 @@ def index_view(request):
     '''
     View of the server network
     '''
+    #get Dot data
     dot= getServerTree()
     
+    #Add generate an xdot file from the dot we got from the server
     gv = pgv.AGraph(string=dot,weights=False)
     #TODO: fix this ugly escape character, ie add a javascript variable wrapper
     #gv.node_attr.update(href="javascript:void(click_node(\\'\\\N\\'))")
@@ -190,8 +193,11 @@ def index_view(request):
     
     gv.layout(prog='dot')
     
+    #get autocontrol stuff
+    autoControlStatus = getAutoControlStatus()["status"]
     return {"layout": site_layout(),
             "page_title": "Server Network View",
+            "autoControlStatus" : autoControlStatus,
             "xdottree" : gv.draw(format="xdot").replace('\n','\\n\\\n')}
 
 

@@ -15,7 +15,7 @@ class Dummy(OutletTemplate):
     '''
     def __init__(self,name,outletConfigDict={},outletParams={}):
         OutletTemplate.__init__(self,name,outletConfigDict,outletParams)
-        self.state = False
+        self.setState(False)
         return
     
     def _setOutletState(self,state):
@@ -35,6 +35,10 @@ class Dummy(OutletTemplate):
         self.state=self._getOuteletState()
         
     def _getOuteletState(self):
+        try:
+            self.state
+        except AttributeError:
+            self.state = False 
         return self.state
         
         

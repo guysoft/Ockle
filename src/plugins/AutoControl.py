@@ -20,8 +20,12 @@ class AutoControl(ModuleTemplate):
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         self.WAIT_TIME = self.getConfigVar("WAIT_TIME")
+        self.MAX_START_ATTEPMTS = self.getConfigVar("MAX_START_ATTEPMTS")
         
         self.setEnabled(True) 
+        
+        #Communication commands
+        self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict))
         return
     
     def setEnabled(self,state):
@@ -56,17 +60,36 @@ class AutoControl(ModuleTemplate):
     
     def turnOnSequence(self):
         first = True
+        attemptsToTurnOn=0#counter to count how many iterations went without turning something on
         while (first or self.mainDaemon.servers.turningOn()) and self.isEnabled():#go in the loop and stay until we don't have any servers that are in intermediate states
+            attemptsToTurnOn+=1
             first = False
             for server in self.mainDaemon.servers.getSortedNodeList():
                 if server.getOpState() == ServerNodeOpState.OK or server.getOpState() == ServerNodeOpState.permanentlyFailedToStart:
                         pass
                 elif self.mainDaemon.servers.isReadyToTurnOn(server.getName()):
-                    server.turnOn()# should be threaded
+                    self.mainDaemon.debug("Turning on " + server.getName())
+                    server.turnOn()#TODO should be threaded
+                    attemptsToTurnOn = 0
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
-                    
+            #Turn off loop
+            if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS):
+                self.setEnabled(False)
             time.sleep(float(self.WAIT_TIME))
+        return
+    
+    def getAutoControlStatus(self,dataDict):
+        ''' Check if Auto Control is on from the network
+        @param dataDict: The dataDict
+        @return: The response dict, answer in value 'status'
+        '''
+        if self.isEnabled():
+            return {'status' : 'on'}
+        else:
+            return {'status' : 'off'}
+        return {}
+        
 
 if __name__ == "__main__":
     a = AutoControl(None)

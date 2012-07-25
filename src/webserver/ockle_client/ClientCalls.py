@@ -16,6 +16,7 @@ from ConfigParser import SafeConfigParser
 from lxml import html
 from common.CommunicationMessage import MessageClientSend
 from common.CommunicationMessage import Message
+from common.common import trimOneObjectListsFromDict
 
 config = SafeConfigParser()
 import os.path, sys
@@ -70,12 +71,19 @@ def getServerTree():
         return html.fromstring(response["Dot"][0]).text 
 
 def getServerView(serverName):
-    
     response = getDataFromServer("ServerView",{"server":serverName})
     if response == None:
         return "Error connecting to Ockle server - Can't get server Info"
     else:
         #return html.fromstring(str(response)).text 
+        return response
+    return
+
+def getAutoControlStatus():
+    response = trimOneObjectListsFromDict(getDataFromServer("getAutoControlStatus",{}))
+    if response == None:
+        return {"status":"N/A"}
+    else:
         return response
     return
 

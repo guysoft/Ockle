@@ -40,7 +40,7 @@ class ServerNode():
         self.setName(name)
         self.outlets = outlets #list of outlets types for the server
         self.testers = testers #list of testers to make sure server is preforming right
-        self.setOutletsState(OutletOpState.INIT) #server state
+        #self.setOutletsOpState(OutletOpState.INIT) #server state
         self.setOpState(ServerNodeOpState.INIT)
         self.startAttempts = 0 #reset startup attempts
         #TODO add shutdown attempts when implementing shutdown
@@ -80,14 +80,22 @@ class ServerNode():
                 outletFailList.append(outlet)
         return outletFailList
     
-    def getNotOutletsState(self,state):
-        ''' Returns outlets that don't have a given state
-        @param state:  
+    def setOutletsOpState(self,opState):
+        ''' Set all the outlets to a given opState
+        @param opState: The opState to set the outlets to
+        '''
+        for outlet in self.outlets:
+            outlet.setOpState(opState)
+        return
+    
+    def getNotOutletsOpState(self,opState):
+        ''' Returns outlets that don't have a given opState
+        @param opState:  
         @return: outlets that don't have a given state
         '''
         notOutletState = []
         for outlet in self.outlets:
-            if outlet.getOpState() != state:
+            if outlet.getOpState() != opState:
                 notOutletState.append(outlet)
         return notOutletState
     
@@ -147,19 +155,23 @@ class ServerNode():
         ''' Turn on the server outlets, and check if all services are in order
         '''
         self.setOpState(ServerNodeOpState.SwitcingOn)
-        self.setOutletsState(ServerNodeOpState.SwitcingOn)
+        self.setOutletsOpState(ServerNodeOpState.SwitcingOn)
         self.incrementStartAttempt()
         
-        nonWorkingOutlets = self.getNotOutletsState(OpState.OK)
+        nonWorkingOutlets = self.getNotOutletsOpState(OpState.OK)
         outletsFailList=[]
        
         while self.outletsStillStarting():
             for outlet in nonWorkingOutlets:
                 if not outlet.setState(True): #TODO this should fork 
+                    #Failed, set outlet and server state
                     outletsFailList.append(outlet)
-                    self.setOutletState(OpState.failedToStart)
+                    outlet.setOpState(OutletOpState.failedToStart)
+                    self.setOpState(ServerNodeOpState.failedToStart)
                 else:
-                    self.setOutletState(OpState.OK)
+                    #Failed, set outlet state to ok
+                    outlet.setOpState(OutletOpState.OK)
+                    #self.setOpState(ServerNodeOpState.OK)
                     
             time.sleep(float(MAX_STARTUP_TIME))
         

@@ -24,7 +24,15 @@
  </div>
     <div metal:fill-slot="content">
         <h2>Server Network</h2>
-	<div id="canviz"></div>
+     <table>
+     <tr><td>
+     <div id="canviz"></div>
+	</td>
+	<td>
+	<br/>
+	<p>AutoConf Status: ${autoControlStatus}</p>
+	</td></tr>
+	</table>
 <div id="debug_output"></div>
     </div>
 </div>

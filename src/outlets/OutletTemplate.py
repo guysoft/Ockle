@@ -16,9 +16,11 @@ class OutletTemplate(object):
     @param outletParams: A dictionary of the server-specific params specified in the outlet section on the server config file
     '''
     def __init__(self,name,outletConfigDict={},outletParams={}):
-        self.OutletOpState = OutletOpState.OK #outlets are innocent until proven guilty
         self.data={} #data information from the port
         self.setName(name)
+        
+        self.updateState()
+        self.updateOpState()
         return
     
     def getName(self):
@@ -28,6 +30,16 @@ class OutletTemplate(object):
         self.name = name
     
     def _setOutletState(self,state):
+        pass
+    
+    def updateOpState(self):
+        ''' Update the op state to on or off according to the on/off state of the outlet
+        @return: the new opState
+        '''
+        if self.getState():
+            self.setOpState(OutletOpState.OK)
+        else:
+            self.setOpState(OutletOpState.OFF)
         return
     
     def setState(self,state):
@@ -35,16 +47,16 @@ class OutletTemplate(object):
         @param state: The state of the outlet to set
         @return: True if the setting was successful 
         '''
-        return
+        pass
     
     def getState(self):
         return self.state
     
     def updateState(self):
-        return
+        pass
         
     def _getOuteletState(self):
-        return
+        pass
     
     def setOpState(self,state):
         self.OutletOpState=state
@@ -62,4 +74,4 @@ class OutletTemplate(object):
         return self.data
     
     def updateData(self):
-        return
+        pass

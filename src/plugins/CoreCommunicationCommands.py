@@ -40,6 +40,7 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlets[outletIndex] ={} 
             outlets[outletIndex]["type"] = outlet.getOutletType()
             outlets[outletIndex]["OpState"] = outlet.getOpState()
+            outlets[outletIndex]["state"] = outlet.getState()
             outlets[outletIndex]["data"] = outlet.getData()
             outlets[outletIndex]["name"] = outlet.getName()
             outletNumber=outletNumber+1
