@@ -57,7 +57,7 @@ class SocketListener(ModuleTemplate):
                 xml = self.mainDaemon.communicationHandler.handleMessage(message).toxml()
                 self.debug("Sending XML:" + str(xml))
                 #client.send(xml)
-                client.sendall(xml)
+                client.sendall(str(len(xml)) +":" +  xml)
                 #except:
                 #    self.debug("Got a bad message class, returning error")
                 #    client.send(MessageServerError().toxml())

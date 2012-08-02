@@ -24,14 +24,54 @@ ETC_DIR= os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),'..',"etc")
 print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
+SOCKET_TIMEOUT = config.getint('plugins.SocketListener', 'SOCKET_TIMEOUT')
 OCKLE_SERVER_HOSTNAME="127.0.0.1"
-MAX_RECIVE=1048576
 
 def getDataFromServer(command,paramsDict):
     ''' Send a command to the Ockle server, and return the responce dict 
     @param command: The command to send
     @param paramsDict: the dictionary that is sent with command arguments
     @return: A dict with the responce data, None if we failed to connect
+    '''
+    returnValue=""
+    def recv(sendMessage):
+        ''' Loop to receive a message'''
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(SOCKET_TIMEOUT)
+        n = ''
+        data = ''
+        try:
+            s.connect((OCKLE_SERVER_HOSTNAME, PORT))
+            s.send(sendMessage)
+            while 1:
+                c = s.recv(1)
+                if c == ':':
+                    break
+                n += c
+
+            n = int(n)
+            while n > 0:
+                data += s.recv(n)
+                n -= len(data)
+            s.close()
+            return None, data
+        except socket.error as e:
+            s.close()
+            return e, None
+        
+    a = MessageClientSend(command,paramsDict)
+    cnt = 0
+    while cnt < 3:
+        m, data = recv(a.toxml())
+        #print 'recv: ', 'error=', m, 'data=', data
+        cnt += 1
+    if data:
+        messageGen = Message()
+        print "got the following data:"
+        print data
+        reply = messageGen.parse(data)
+        returnValue= reply.getDataDict()
+    
     '''
     returnValue=""
     try:
@@ -59,6 +99,7 @@ def getDataFromServer(command,paramsDict):
     except:
         returnValue=None
         s.close()
+    '''
     return returnValue
 
 def getServerTree():

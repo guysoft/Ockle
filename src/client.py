@@ -24,30 +24,42 @@ class ConnectionClient(object):
     classdocs
     '''
     def getServerTree(self):
-        returnValue=None
-        #a = MessageClientSend(MessageAttr.listServers,{"yay":"yay"})
-        a = MessageClientSend("ServerLog",{"server":"server1","fromTime" : "1342355321.28", "toTime" : "2342355321.28"})
-        #create an INET, STREAMing socket
-        s = socket.socket(
-            socket.AF_INET, socket.SOCK_STREAM)
-        #now connect to the web server on port 80
-        # - the normal http port
-        print "trying to connect"
-        #print a.toxml()
-        s.connect(("127.0.0.1", PORT))
-        s.send(a.toxml())
-        data = s.recv (1024)
         
-        if data:
-            messageGen = Message()
-            print data
-            reply = messageGen.parse(data)
+        def recv(sendMessage):
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(5)
+            n = ''
+            data = ''
+            try:
+                s.connect(('localhost', PORT))
+                s.send(sendMessage)
+                while 1:
+                    c = s.recv(1)
+                    if c == ':':
+                        break
+                    n += c
+    
+                n = int(n)
+                while n > 0:
+                    data += s.recv(n)
+                    n -= len(data)
+                s.close()
+                return None, data
+            except socket.error as e:
+                s.close()
+                return e, None
             
-            reply.getCommand()
             
-            returnValue= reply.getDataDict()
-            
-        s.close()
+        a = MessageClientSend("dotgraph",{"server":"server1","fromTime" : "1342355321.28", "toTime" : "2342355321.28"})
+        
+        
+        cnt = 0
+        while cnt < 3:
+            m, data = recv(a.toxml())
+            print 'recv: ', 'error=', m, 'data=', data
+            cnt += 1
+        returnValue = data
+        
         return returnValue
     
     def __init__(self):
