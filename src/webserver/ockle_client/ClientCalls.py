@@ -60,11 +60,8 @@ def getDataFromServer(command,paramsDict):
             return e, None
         
     a = MessageClientSend(command,paramsDict)
-    cnt = 0
-    while cnt < 3:
-        m, data = recv(a.toxml())
-        #print 'recv: ', 'error=', m, 'data=', data
-        cnt += 1
+    m, data = recv(a.toxml())
+    #print 'recv: ', 'error=', m, 'data=', data
     if data:
         messageGen = Message()
         print "got the following data:"
