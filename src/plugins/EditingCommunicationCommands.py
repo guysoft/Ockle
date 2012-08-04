@@ -21,7 +21,7 @@ class EditingCommunicationCommands(ModuleTemplate):
         return
     
     def getINIFile(self,dataDict):
-        fileContent ="burr"
+        fileContent =""
         path = dataDict["Path"]
         print path
         try:
