@@ -88,3 +88,17 @@ def slicedict(d, s):
     '''
     return {k:v for k,v in d.iteritems() if k.startswith(s)}
 
+def configToDict(config):
+    ''' Get a configuration dictionary from a config parser
+    @param config: A config file handler
+    @return: A dict of the sections and the variables in it
+    '''
+    returnValue={}
+    
+    for section in config.sections():
+        returnValue[section]={}
+        sectionTurples = config.items(section)
+        for itemTurple in sectionTurples:
+            returnValue[section][itemTurple[0]] = itemTurple[1]
+    return returnValue
+    

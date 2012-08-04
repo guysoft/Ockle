@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<div metal:use-macro="layout">
+    <div metal:fill-slot="content">
+        <p>Main Ockle configuration file</p>
+        <form>
+        <table>
+        <div tal:repeat="section INIFileDict.keys()">
+        	<tr>
+        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
+        	</tr>
+        	<div tal:repeat="item INIFileDict[section].keys()">
+        		<tr>
+        		<td><p tal:replace="item"></p></td>
+        		<td><input type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
+        		</tr>
+        	</div>
+		 </div>
+		 </table>
+		 <input type="button" value="submit">
+		 </form>
+    </div>
+</div>

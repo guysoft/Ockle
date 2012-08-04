@@ -128,6 +128,6 @@ def getAutoControlStatus():
     return
 
 def getINIFile(iniPath):
-    return getDataFromServer("getAutoControlStatus",{"Path":iniPath})
+    return getDataFromServer("getINIFile",{"Path":iniPath})["File"]
 
     

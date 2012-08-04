@@ -11,9 +11,13 @@ from ockle_client.ClientCalls import getINIFile
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
-from common.common import trimOneObjectListsFromDict
+from common.common import configToDict
 from plugins.Log import DATA_NAME_TO_UNITS
 from plugins.Log import DATA_NAME_TO_UNITS_NAME
+
+#config stuff
+from ConfigParser import SafeConfigParser
+from StringIO import StringIO
 
 #graphviz
 import pygraphviz as pgv
@@ -208,10 +212,17 @@ def about_view(request):
 
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
-    iniFile = getINIFile("config.ini")
+    iniString = getINIFile("config.ini")
+    iniFile = StringIO(iniString)
+    iniConfig = SafeConfigParser()
+    iniConfig.readfp(iniFile)
+    print configToDict(iniConfig)
+    
+    
+    
     return {"layout": site_layout(),
             "page_title": "Configuration",
-            "INIFile" : iniFile}
+            "INIFileDict" : configToDict(iniConfig)}
 
 # Dummy data
 COMPANY = "ACME, Inc."
