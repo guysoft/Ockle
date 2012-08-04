@@ -223,16 +223,3 @@ def config_view(request):
     return {"layout": site_layout(),
             "page_title": "Configuration",
             "INIFileDict" : configToDict(iniConfig)}
-
-# Dummy data
-COMPANY = "ACME, Inc."
-
-PEOPLE = [
-        {'name': 'sstanton', 'title': 'Susan Stanton'},
-        {'name': 'bbarker', 'title': 'Bob Barker'},
-]
-
-PROJECTS = [
-        {'name': 'sillyslogans', 'title': 'Silly Slogans'},
-        {'name': 'meaninglessmissions', 'title': 'Meaningless Missions'},
-]
