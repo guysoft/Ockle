@@ -173,7 +173,7 @@
 			           max: '${structure: maxTick[repeat.plotVar.number-1]}',
 			          tickRenderer:$.jqplot.CanvasAxisTickRenderer,
 			          tickOptions:{
-			        	  	formatString:'%d %H:%M',
+			        	  	formatString:'%H:%M %d/%m',
 				            showTicks: true,
 				            show: true,
 				            angle: -40
