@@ -22,6 +22,8 @@ class OpState:
     SwitcingOn = 4
     SwitchingOff = 5
     permanentlyFailedToStart=6
+    forcedOn=7
+    forcedOff=8
     
 COLOR_DICT={
             -1:"black",

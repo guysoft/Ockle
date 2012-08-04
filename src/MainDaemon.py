@@ -29,7 +29,7 @@ LOG_FILE_PATH = appendProjectPath(config.get('main', 'LOG_FILE_PATH'))
 pluginList= json.loads(config.get("plugins","pluginList"))
 
 
-class MainDaemon():
+class MainDaemon(object):
     def debug(self,message):
         self.f = codecs.open(LOG_FILE_PATH,'a')
         print "DEBUG: " + str(message)
@@ -38,6 +38,7 @@ class MainDaemon():
         return
         
     def __init__(self):
+        self.ETC_DIR = ETC_DIR
         
         #config framework
         self.config = config #get it from the global

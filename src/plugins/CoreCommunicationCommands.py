@@ -29,7 +29,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         @return: the server information, empty dict if invalid request
         '''
         try:
-            server = self.mainDaemon.servers.getServernode(dataDict["server"][0])
+            server = self.mainDaemon.servers.getServernode(dataDict["server"])
         except:
             return {} #no server found
         server.getName()

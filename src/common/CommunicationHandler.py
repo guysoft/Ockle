@@ -8,6 +8,7 @@ Created on May 16, 2012
 """
 from CommunicationMessage import MessageServerSend
 from CommunicationMessage import MessageServerError
+from common import trimOneObjectListsFromDict
 
 class CommunicationHandler(object):
     def __init__(self,mainDaemon):
@@ -27,7 +28,13 @@ class CommunicationHandler(object):
         '''
         A command to list all available commands on the communication server
         '''
-        return MessageServerSend("listcommands",self.commandDict)
+        docCommandsDict = {}
+        for command in self.commandDict.keys():
+            doc =  self.commandDict[command].__doc__
+            if doc == None:
+                doc = ""
+            docCommandsDict[command] = doc 
+        return MessageServerSend("listcommands",docCommandsDict)
     
     def handleMessage(self,message):
         '''
@@ -38,8 +45,11 @@ class CommunicationHandler(object):
         #print message.__class__.__name__
         command = message.getCommand()
         if not command in self.commandDict:
-            return MessageServerError(command)#TODO: return an unkown command Error message
+            return MessageServerError(command)#TODO: return an unknown command Error message
         handleFunction = self.commandDict[command]
+        dataDict = message.getDataDict()
+        if dataDict != None:
+            dataDict = trimOneObjectListsFromDict(dataDict)
         returnValue = handleFunction(message.getDataDict())
         
         returnMessage = MessageServerSend(command,returnValue)

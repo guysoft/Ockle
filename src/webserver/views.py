@@ -7,6 +7,7 @@ from pyramid.response import Response
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
+from ockle_client.ClientCalls import getINIFile
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
@@ -64,9 +65,7 @@ def serverPage(request):
     serverName = request.matchdict['serverName']
     serverDict = getServerView(serverName)
     
-    #Trim lists from dict
     if type(serverDict) == dict:
-        serverDict=trimOneObjectListsFromDict(serverDict)
         
         #Set the on/of switch
         serverDict["Switch"]=""
@@ -134,6 +133,7 @@ def serverPage(request):
                 
     #Build outlet switches dict
     outlets={}
+    print serverDict
     outletsServerDict = json.loads(serverDict["outlets"])
     for outlet in outletsServerDict:
         outlets[outlet] ={}
@@ -205,6 +205,13 @@ def index_view(request):
 def about_view(request):
     return {"layout": site_layout(),
             "page_title": "About"}
+
+@view_config(renderer="templates/config.pt", name="config")
+def config_view(request):
+    iniFile = getINIFile("config.ini")
+    return {"layout": site_layout(),
+            "page_title": "Configuration",
+            "INIFile" : iniFile}
 
 # Dummy data
 COMPANY = "ACME, Inc."

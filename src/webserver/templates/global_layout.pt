@@ -14,6 +14,7 @@
 <body style="width: 98%;">
 <ul id="nav">
     <li><a class="hsubs" href="/">Home</a></li>
+    <li><a class="hsubs" href="/config">Configuration</a></li>
     <li><a class="hsubs" href="/about.html">About Ockle</a></li>
     <div id="lavalamp"></div>
 </ul>

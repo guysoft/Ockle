@@ -68,7 +68,9 @@ def getDataFromServer(command,paramsDict):
         print data
         reply = messageGen.parse(data)
         returnValue= reply.getDataDict()
-    
+        if type(returnValue) == dict:
+            returnValue = trimOneObjectListsFromDict(returnValue)
+
     '''
     returnValue=""
     try:
@@ -106,7 +108,7 @@ def getServerTree():
     if response == None:
         return "Error connecting to Ockle server"
     else:
-        return html.fromstring(response["Dot"][0]).text 
+        return html.fromstring(response["Dot"]).text 
 
 def getServerView(serverName):
     response = getDataFromServer("ServerView",{"server":serverName})
@@ -118,11 +120,14 @@ def getServerView(serverName):
     return
 
 def getAutoControlStatus():
-    response = trimOneObjectListsFromDict(getDataFromServer("getAutoControlStatus",{}))
+    response = getDataFromServer("getAutoControlStatus",{})
     if response == None:
         return {"status":"N/A"}
     else:
         return response
     return
+
+def getINIFile(iniPath):
+    return getDataFromServer("getAutoControlStatus",{"Path":iniPath})
 
     
