@@ -74,7 +74,7 @@ class AutoControl(ModuleTemplate):
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
             #Turn off loop
-            if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS):
+            if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS) or self.mainDaemon.servers.isAllOn():
                 self.setEnabled(False)
             time.sleep(float(self.WAIT_TIME))
         return
