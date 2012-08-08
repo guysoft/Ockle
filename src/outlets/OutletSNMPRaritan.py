@@ -38,7 +38,6 @@ class Raritan(OutletTemplate):
     '''
     def __init__(self,name,outletConfigDict,outletParams):
         print outletConfigDict,outletParams
-        OutletTemplate.__init__(self,name,outletConfigDict,outletParams)
         #mibSources = mibBuilder.getMibSources() + (
         #    builder.DirMibSource(os.path.dirname(sys.argv[0])),
         #    )
@@ -50,6 +49,8 @@ class Raritan(OutletTemplate):
         self.agentName= outletConfigDict['outlet']["agent_name"]
         self.ReadCommunity = outletConfigDict['outlet']["read_community"]
         self.WriteCommunity = outletConfigDict['outlet']["write_community"]
+        
+        OutletTemplate.__init__(self,name,outletConfigDict,outletParams)
         self.updateState()
         
         #init data Parameters
@@ -153,7 +154,10 @@ class Raritan(OutletTemplate):
         Get the state of an outlet in the PDU
         returns 0 for off, 1 for on
         '''
-        oid,val= self._snmpGet((1,3,6,1,4,1,13742,4,1,2,2,1,3,self.outletNumber))
+        try:
+            oid,val= self._snmpGet((1,3,6,1,4,1,13742,4,1,2,2,1,3,self.outletNumber))
+        except:
+            val = 0
         return int2bool(val)
     
     def updateData(self):
