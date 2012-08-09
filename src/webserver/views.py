@@ -8,6 +8,7 @@ from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
+from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
@@ -18,6 +19,7 @@ from plugins.Log import DATA_NAME_TO_UNITS_NAME
 #config stuff
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
+from common.common import getINITemplate
 
 #graphviz
 import pygraphviz as pgv
@@ -212,14 +214,38 @@ def about_view(request):
 
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
-    iniString = getINIFile("config.ini")
+    configPath = "config.ini"
+    multiListChoices={}
+    iniTemplate = getINITemplate(configPath)
+    
+    iniString = getINIFile(configPath)
     iniFile = StringIO(iniString)
     iniConfig = SafeConfigParser()
     iniConfig.readfp(iniFile)
-    print configToDict(iniConfig)
+    INIFileDict = configToDict(iniConfig)
     
+    for section in iniTemplate.keys():
+        for item in iniTemplate[section].keys():
+            iniTemplate[section][item] = json.loads(iniTemplate[section][item])
     
+    #build list of checked plugins multilist
+    selectedPlugins = json.loads(INIFileDict["plugins"]["pluginlist"])
+    multiListChoices["plugins"]={}
+    
+    #TODO: perhaps we could un-hardcode this somehow
+    multiListChoices["plugins"]["pluginlist"]=getAvailablePluginsList()
+    for key in multiListChoices["plugins"]["pluginlist"].keys():
+        multiListChoices["plugins"]["pluginlist"][key] = { "doc" : multiListChoices["plugins"]["pluginlist"][key] }
+    
+    for pluginName in multiListChoices["plugins"]["pluginlist"].keys():
+        if pluginName in selectedPlugins:
+            multiListChoices["plugins"]["pluginlist"][pluginName]["checked"]=True
+        else:
+            multiListChoices["plugins"]["pluginlist"][pluginName]["checked"]=False
+            
     
     return {"layout": site_layout(),
             "page_title": "Configuration",
-            "INIFileDict" : configToDict(iniConfig)}
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : iniTemplate,
+            "multiListChoices" : multiListChoices}

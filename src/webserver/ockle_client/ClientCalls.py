@@ -130,4 +130,12 @@ def getAutoControlStatus():
 def getINIFile(iniPath):
     return getDataFromServer("getINIFile",{"Path":iniPath})["File"]
 
+def getAvailablePluginsList():
+    response = getDataFromServer("getAvailablePluginsList",{})
+    if response == None:
+        return {}
+    else:
+        return response
+    return
+
     

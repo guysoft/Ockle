@@ -25,6 +25,7 @@ from networkTree.ServerNode import ServerNodeOpState
 import json
 
 class Logger(ModuleTemplate):
+    ''' A plugin to log server and outlet information to a database '''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         #config variables init

@@ -17,6 +17,7 @@ from outlets.OutletTemplate import OutletOpState
 from networkTree.ServerNode import ServerNodeOpState
 
 class AutoControl(ModuleTemplate):
+    ''' Automatic on/off Control of servers'''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         self.WAIT_TIME = self.getConfigVar("WAIT_TIME")

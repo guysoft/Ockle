@@ -13,6 +13,7 @@ from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
 
 class GraphTester(ModuleTemplate):
+    ''' Simple tester for graph functions'''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         return

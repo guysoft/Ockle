@@ -54,11 +54,14 @@ class MainDaemon(object):
         #Communication handling system
         self.communicationHandler =CommunicationHandler(self)
         
+        self.communicationHandler.AddCommandToList("getAvailablePluginsList", lambda dataDict: self.getAvailablePluginsListIndex((dataDict)))
+        
         self.running= True
         
         #plugin init
         self.plugins = []
-        plugins = load(PLUGIN_DIR,subclasses=ModuleTemplate)
+        plugins = self.getPluginList()
+        
         for plugin in plugins:
             if plugin.__name__ in pluginList:
                 #self.debug("Loaded: " + plugin.__name__)
@@ -73,9 +76,23 @@ class MainDaemon(object):
             self.debug("In main loop")
             time.sleep(10)
         return
-
-
-
+    
+    def getPluginList(self):
+        '''
+        Get a list of all class plugins
+        @return: a list of all class plugins
+        '''
+        return load(PLUGIN_DIR,subclasses=ModuleTemplate)
+    
+    def getAvailablePluginsListIndex(self,dict={}):
+        ''' Get an Index of available plugins
+        @return: a dict with available plugins with their name as the index, and the description as their value
+        '''
+        returnValue={}
+        plugins = self.getPluginList()
+        for plugin in plugins:
+            returnValue[plugin.__name__] = plugin.__doc__
+        return returnValue
 
 
 pluginLoadList=["PingTester"]

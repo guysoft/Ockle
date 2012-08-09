@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """  Ockle PDU and servers manager
-A plugin to add a bounch of basic communication commands
+A plugin to add a bunch of basic communication commands
 
 Created on May 16, 2012
 
@@ -15,6 +15,7 @@ import pygraph.readwrite.dot
 import json
 
 class CoreCommunicationCommands(ModuleTemplate):
+    ''' Add of basic communication commands'''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         return

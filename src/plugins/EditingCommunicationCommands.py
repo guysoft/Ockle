@@ -16,6 +16,7 @@ import traceback
 import json
 
 class EditingCommunicationCommands(ModuleTemplate):
+    ''' Add a commands that let you modify Ockle config files'''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         return

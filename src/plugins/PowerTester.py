@@ -13,6 +13,7 @@ import time
 from plugins.ModuleTemplate import ModuleTemplate
 
 class PowerTester(ModuleTemplate):
+    ''' Simple tester plugin that turns all servers on (subject to change) '''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         return

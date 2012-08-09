@@ -15,15 +15,15 @@ class OpState:
     '''
     Operation state enum, that all other operation states enums extend
     '''
-    OK=0
-    OFF=1
-    failedToStart=2
-    failedToStop=3
-    SwitcingOn = 4
-    SwitchingOff = 5
-    permanentlyFailedToStart=6
-    forcedOn=7
-    forcedOff=8
+    OK="OK"
+    OFF="OFF"
+    failedToStart="Failed to start"
+    failedToStop="Failed to stop"
+    SwitcingOn = "Switching on"
+    SwitchingOff = "Switching off"
+    permanentlyFailedToStart="Permanently failed to start"
+    forcedOn="Forced on"
+    forcedOff="Forced off"
     
 COLOR_DICT={
             -1:"black",
@@ -95,10 +95,31 @@ def configToDict(config):
     '''
     returnValue={}
     
-    for section in config.sections():
+    for section in reversed(config.sections()):
         returnValue[section]={}
-        sectionTurples = config.items(section)
+        sectionTurples = reversed(config.items(section))
         for itemTurple in sectionTurples:
             returnValue[section][itemTurple[0]] = itemTurple[1]
     return returnValue
-    
+
+def getINITemplate(path):
+    ''' Get an INI template as a dict
+    @param path: relative path in the src tree
+    @return: a dict of the config template
+    '''
+    config = SafeConfigParser()
+    CONFIG_TEMPLATE_DIR= appendProjectPath("config")
+    config.read(os.path.join(CONFIG_TEMPLATE_DIR,path))
+    return configToDict(config)
+
+def getINITemplateFolder(path):
+    ''' Get an INI template of a all INI files in a folder
+    @param path: relative path in the src tree
+    @return: a dict of the config template
+    '''
+    returnValue={}
+    config = SafeConfigParser()
+    CONFIG_TEMPLATE_DIR= appendProjectPath("config")
+    for filePath in os.listdir(os.path.join(CONFIG_TEMPLATE_DIR,path)):
+        returnValue = configToDict(config.read(os.path.join(CONFIG_TEMPLATE_DIR,path,filePath)))
+    return configToDict(config)

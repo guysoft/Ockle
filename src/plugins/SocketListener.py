@@ -20,6 +20,7 @@ from plugins.ModuleTemplate import ModuleTemplate
 from common.CommunicationMessage import MessageServerError
 
 class SocketListener(ModuleTemplate):
+    ''' Lets Ockle talk to a webserver or client using a network socket '''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
         self.LISTENER_PORT = self.getConfigInt('LISTENER_PORT')

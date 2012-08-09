@@ -36,6 +36,12 @@ class CommunicationHandler(object):
             docCommandsDict[command] = doc 
         return MessageServerSend("listcommands",docCommandsDict)
     
+    def listPlugins(self,dataDict):
+        ''' A command to list all the avilable plugins to the Ockle installation
+        '''
+        plugins = load(PLUGIN_DIR,subclasses=ModuleTemplate)
+        return
+    
     def handleMessage(self,message):
         '''
         Receives a message class type, and returns the appropriate response
