@@ -3,43 +3,57 @@
 	<div metal:fill-slot="head_content">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.js" type="text/javascript"></script>
 		<script type="text/javascript" src="/static/forms/numeric/jquery.numeric.js"></script>
+		<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
+		
+	<script type="text/javascript">
+        $(document).ready(function(){
+	    $("input, textarea").addClass("idle");
+            $("input, textarea").focus(function(){
+                $(this).addClass("activeField").removeClass("idle");
+	    }).blur(function(){
+                $(this).removeClass("activeField").addClass("idle");
+	    });
+        });
+    </script>
 	</div>
 	
     <div metal:fill-slot="content">
         <p>Main Ockle configuration file</p>
-        <form>
-        <table>
-        <div tal:repeat="section INIFileTemplate.keys()">
-        	<tr>
-        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
-        	</tr>
-        	<div tal:repeat="item INIFileTemplate[section].keys()">
-        		<tr>
-        		<td><p tal:replace="item"></p></td>
-        		<!-- Switch case for different datatypes -->
-        		<div tal:switch="INIFileTemplate[section][item][0]">
-        		
-        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
-        			
-        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
-        			
-        			<!-- Special cases, because we need to decide what the choices are -->
-        			
-        			<td tal:case="'multilist'">
-        			<div tal:repeat="checkItem multiListChoices[section][item]">
-        			<input type="checkbox" name="checkItem" value="checkItem" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
-        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
-        			</div>
-        			</td>
-        			
-        			
-        		</div>
-        		</tr>
-        	</div>
-		 </div>
-		 </table>
-		 <input type="button" value="submit">
-		 </form>
+        <div id="inputArea">
+	        <form>
+	        <table>
+	        <div tal:repeat="section INIFileTemplate.keys()">
+	        	<tr>
+	        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
+	        	</tr>
+	        	<div tal:repeat="item INIFileTemplate[section].keys()">
+	        		<tr>
+	        		<td><p tal:replace="item"></p></td>
+	        		<!-- Switch case for different datatypes -->
+	        		<div tal:switch="INIFileTemplate[section][item][0]">
+	        		
+	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
+	        			
+	        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
+	        			
+	        			<!-- Special cases, because we need to decide what the choices are -->
+	        			
+	        			<td tal:case="'multilist'">
+	        			<div tal:repeat="checkItem multiListChoices[section][item]">
+	        			<input type="checkbox" name="checkItem" value="checkItem" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
+	        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
+	        			</div>
+	        			</td>
+	        			
+	        			
+	        		</div>
+	        		</tr>
+	        	</div>
+			 </div>
+			 </table>
+			 <input type="button" value="submit">
+			 </form>
+		</div>
 		 
 		 	<script type="text/javascript">
 				$(".numeric").numeric();

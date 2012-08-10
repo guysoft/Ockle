@@ -5,12 +5,13 @@
 }
 #nav {
     background: url('menu_bg.png') no-repeat scroll 0 0 transparent;
+    background-color: #1A1A1A; /* This needs to be the same color as page boarder */
     clear: both;
     font-size: 12px;
     height: 58px;
     padding: 0 0 0 9px;
     position: relative;
-    width: 950px;
+    width: 100%;
 }
 #nav ul {
     background-color: #222;
@@ -112,10 +113,10 @@
     left: 13px;
 }
 #nav li:nth-child(2):hover ~ #lavalamp {
-    left: 90px;
+    left: 105px;
 }
 #nav li:nth-child(3):hover ~ #lavalamp {
-    left: 170px;
+    left: 215px;
 }
 #nav li:nth-child(4):hover ~ #lavalamp {
     left: 250px;

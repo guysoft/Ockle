@@ -5,13 +5,14 @@
 <link rel="icon" type="image/png" href="/static/favicon.png" />
 <link href="/static/mainmenu/layout.css" rel="stylesheet" type="text/css" />
 <link href="/static/mainmenu/menu.css" rel="stylesheet" type="text/css" />
+<link href="/static/color_palette.css" rel="stylesheet" type="text/css" />
 
 
 <head>
 <title>Ockle - ${page_title}</title>
 <div metal:define-slot="head_content"></div>
 </head>
-<body style="width: 98%;">
+<body>
 <ul id="nav">
     <li><a class="hsubs" href="/">Home</a></li>
     <li><a class="hsubs" href="/config">Configuration</a></li>
@@ -19,8 +20,12 @@
     <div id="lavalamp"></div>
 </ul>
 <div id="wrapper">
-<h1>${page_title}</h1>
-<div metal:define-slot="content"></div>
-</div>
+	<div id="neon">
+		<h1>${page_title}</h1> <!--  class="primary-4" -->
+	</div>
+	<div style="width: 70%; margin: 0px auto;">
+	<div metal:define-slot="content"></div>
+	</div>
+	</div>
 </body>
 </html>

@@ -1,0 +1,124 @@
+/* Palette color codes */
+/* Feel free to copy&paste color codes to your application */
+
+.primary-1 { background-color: #00B060 }
+.primary-2 { background-color: #218457 }
+.primary-3 { background-color: #00733E }
+.primary-4 { background-color: #36D88E ; color: #00733E}
+.primary-5 { background-color: #61D8A2 }
+
+.secondary-a-1 { background-color: #0776A0 }
+.secondary-a-2 { background-color: #226078 }
+.secondary-a-3 { background-color: #024C68 }
+.secondary-a-4 { background-color: #3AA6D0 }
+.secondary-a-5 { background-color: #62B1D0 ; color: #024C68 ; display: block;}
+.secondary-a-6 { background-color: white; ; color: #024C68 ; }
+
+.secondary-b-1 { background-color: #FF8500 }
+.secondary-b-2 { background-color: #BF7A30 }
+.secondary-b-3 { background-color: #A65600 }
+.secondary-b-4 { background-color: #FFA340 }
+.secondary-b-5 { background-color: #FFBC73 ; color: #A65600 }
+
+.complement-1 { background-color: #FF4500 }
+.complement-2 { background-color: #BF5730 }
+.complement-3 { background-color: #A62D00 }
+.complement-4 { background-color: #FF7340 }
+.complement-5 { background-color: #FF9973 }
+
+/* end */
+
+
+body {
+	margin:0; padding: 2em;
+	background:white;
+	/* color: #666; */
+	font: 75%/1.33 Verdana, sans-serif;
+	text-align:left;
+	
+   /* Boarder of page */
+   border-width: 25px;
+   border-style: solid;
+   border-color: #1A1A1A;
+   padding: 0;
+   margin: 0;
+   
+	}
+h1 {
+	margin: 0.5em 0;
+	font-size: 200%;
+	}
+p {
+	margin: 0.5em 0;
+	}
+
+.color-table {
+	margin: 2em 2em 5em;
+	border-collapse:collapse;
+	border:none;
+	border-spacing:0;
+	font-size:100%;
+	}
+.color-table th {
+	padding: 0 1em 0 0;
+	text-align:right;
+	vertical-align: middle;
+	font-size:110%;
+	border: none;
+	}
+.color-table td.sample {
+	width:10em; height:8em;
+	padding: 10px;
+	text-align:center;
+	vertical-align:middle;
+	font-size:90%;
+	border: 1px solid white;
+	white-space:nowrap;
+	}
+.color-table.small td.sample {
+	width:4em; height:4em;
+	padding:0;
+	border:none;
+	}
+.color-table .white { margin-bottom:0.2em; color:white }
+.color-table .black { margin-top:0.2em; color:black }
+
+hr {
+	border:none;
+	border-bottom:1px solid silver;
+	}
+#footer {
+	padding:1em;
+	text-align:center;
+	font-size:80%;
+	}
+	
+
+@font-face {
+	font-family: League-Gothic;
+	src: url("League-Gothic.otf") format("opentype");
+}
+
+@font-face {
+	font-family: Museo;
+	src: url("/static/page_title/Museo300-Regular.otf") format("opentype");
+}
+
+
+
+#neon {
+ padding: 5px; background: #000;
+}
+
+#neon h1 {
+	text-align: center;
+	margin: 5px;
+	font-family: "Museo";
+	font-size: 24px; text-transform: uppercase;
+	color: #fff;
+	text-shadow: 0 0 10px #fff,
+	 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #00E6FF, 0 0 70px #00E6FF,
+	  0 0 80px #00E6FF, 0 0 100px #00E6FF, 0 0 150px #00E6FF;
+}
+
+
