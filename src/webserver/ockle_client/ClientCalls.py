@@ -17,6 +17,7 @@ from lxml import html
 from common.CommunicationMessage import MessageClientSend
 from common.CommunicationMessage import Message
 from common.common import trimOneObjectListsFromDict
+import json
 
 config = SafeConfigParser()
 import os.path, sys
@@ -42,7 +43,7 @@ def getDataFromServer(command,paramsDict):
         data = ''
         try:
             s.connect((OCKLE_SERVER_HOSTNAME, PORT))
-            s.send(sendMessage)
+            s.sendall(sendMessage)
             while 1:
                 c = s.recv(1)
                 if c == ':':
@@ -137,5 +138,8 @@ def getAvailablePluginsList():
     else:
         return response
     return
+
+def setINIFile(iniPath,iniDict):
+    return getDataFromServer("setINIFile",{"Path":iniPath, "iniDict" : json.dumps(iniDict)})
 
     

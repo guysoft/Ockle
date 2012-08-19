@@ -11,6 +11,7 @@ from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
+from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
@@ -283,15 +284,25 @@ def updates_view(request):
             iniDict[section][item].append(itemOption)
             
         else: #normal non-multilist item
-            iniDict[section][item] = rawiniDict[key]
+            iniDict[section][item] = rawiniDict[key] 
     
+    for section in iniDict.keys():
+        for item in iniDict[section]:
+            if type(iniDict[section][item]) == list:
+                iniDict[section][item]=str(iniDict[section][item])
+    
+             
     #TODO: if a multilist if empty, it does not get sent
     #updateINIfile(iniDict,iniFilePath) 
-    print iniFilePath
     
+    result =  setINIFile(iniFilePath,iniDict)
     
+    returnValue={}
     
-    return {
-        "message" : "Configuration saved",
-        "color" : "green"
-    }
+    if result["succeeded"] == "True":
+        returnValue["color"] = "green"
+        returnValue["message"] ="Configuration saved"
+    else:
+        returnValue["color"] = "red"
+        returnValue["message"] ="Configuration failed"
+    return returnValue
