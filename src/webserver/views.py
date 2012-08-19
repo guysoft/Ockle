@@ -255,7 +255,39 @@ def config_view(request):
 
 
 @view_config(renderer="json", name="configSend.json")
-def updates_view(self):
+def updates_view(request):
+    rawiniDict={}
+    iniDict={}
+    
+    jsonData = request.json_body["configINI"]
+    iniFilePath = request.json_body["path"]
+    
+    for i in jsonData:
+        rawiniDict[i["name"]] =i["value"]
+    
+    for key in rawiniDict.keys():
+        dataKey = key.split("$")
+        section = dataKey[0]
+        item = dataKey[1]
+        
+        if not section in iniDict:
+            iniDict[section] = {}
+        
+        multiListItem = item.split("*")
+        if len(multiListItem) > 1: #multilist item detection
+            item= multiListItem[0]
+            itemOption=multiListItem[1]
+            if not item in iniDict[section]:
+                iniDict[section][item]=[]
+            
+            iniDict[section][item].append(itemOption)
+            
+        else: #normal non-multilist item
+            iniDict[section][item] = rawiniDict[key]
+    
+    #TODO: if a multilist if empty, it does not get sent
+    #updateINIfile(iniDict,iniFilePath) 
+    print iniFilePath
     
     
     

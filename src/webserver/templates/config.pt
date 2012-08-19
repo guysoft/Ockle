@@ -41,15 +41,15 @@
 	        		<!-- Switch case for different datatypes -->
 	        		<div tal:switch="INIFileTemplate[section][item][0]">
 	        		
-	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
+	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
 	        			
-	        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" id="${section}$${item}"></td>
+	        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
 	        			
 	        			<!-- Special cases, because we need to decide what the choices are -->
 	        			
 	        			<td tal:case="'multilist'">
 	        			<div tal:repeat="checkItem multiListChoices[section][item]">
-	        			<input type="checkbox" name="checkItem" value="checkItem" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
+	        			<input type="checkbox" name="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
 	        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
 	        			</div>
 	        			</td>
@@ -84,25 +84,8 @@
     
     
     <script type="text/javascript">
-    function get_updates () {
-        $.getJSON('/configSend.json', function(data) {
-            var target = $('#formStatus');
-            target.empty();
-            //$.each(data, function (key, val) {
-          	//	target.append(val);
-            //});
-            target.append("<font color='" +data["color"] + "'>" + data["message"] + "</font>");
-        });
-    }
-
-    $('#sidebar a').click(function () {
-    	
-
-    	$('#formLoader').show();
-    	get_updates();
-    });
     
-    $('#configINI').submit(function() {
+    $('#configINI').submit(function() {    	
     	jQuery.ajaxSetup({
   		  beforeSend: function() {
   		     $('#formLoader').show();
@@ -112,10 +95,28 @@
   		  },
   		  success: function() {}
   		});
-    	get_updates();
-    	$('#formStatus').show();
-    	  return false;
-    	});
+    	
+    	$.ajax({ 
+    		type: "POST",  
+    		url: "/configSend.json",
+    		contentType: "application/json; charset=utf-8",
+    		data: JSON.stringify({"path":"config.ini",
+    			"configINI":$('#configINI').serializeArray()}),
+
+    		  success: function(data) {  
+    		    //display message back to user here  
+    	            var target = $('#formStatus');
+    	            target.empty();
+    	            //$.each(data, function (key, val) {
+    	          	//	target.append(val);
+    	            //});
+    	            target.append("<font color='" +data["color"] + "'>" + data["message"] + "</font>");
+    		  }  
+    		});  
+    	
+	    	$('#formStatus').show();
+	    	  return false;
+    	})
     </script>
 
 		 
