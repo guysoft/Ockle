@@ -47,7 +47,21 @@ class SocketListener(ModuleTemplate):
         while 1:
             client, address = serverSocket.accept()
             print 'We have opened a connection with', address
-            data = client.recv(self.MAX_RCV_SIZE)
+            client.settimeout(5)
+            #data = client.recv(self.MAX_RCV_SIZE)
+            
+            n = ''
+            data = ''
+            while 1:
+                c = client.recv(1)
+                if c == ':':
+                    break
+                n += c
+            n = int(n)
+            
+            while n > 0:
+                data += client.recv(n)
+                n -= len(data)
             
             self.debug(data)
             if data:

@@ -43,7 +43,7 @@ def getDataFromServer(command,paramsDict):
         data = ''
         try:
             s.connect((OCKLE_SERVER_HOSTNAME, PORT))
-            s.sendall(sendMessage)
+            s.sendall(str(len(sendMessage)) +":" +sendMessage)
             while 1:
                 c = s.recv(1)
                 if c == ':':
