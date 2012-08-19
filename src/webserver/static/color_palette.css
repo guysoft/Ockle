@@ -33,11 +33,12 @@ body {
 	margin:0; padding: 2em;
 	background:white;
 	/* color: #666; */
-	font: 75%/1.33 Verdana, sans-serif;
+	/* font: 75%/1.33 Verdana, sans-serif; */
+	font-family: Arial, Sans-Serif;
 	text-align:left;
 	
    /* Boarder of page */
-   border-width: 25px;
+   border-width: 45px;
    border-style: solid;
    border-color: #1A1A1A;
    padding: 0;
@@ -117,8 +118,8 @@ hr {
 	font-size: 24px; text-transform: uppercase;
 	color: #fff;
 	text-shadow: 0 0 10px #fff,
-	 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #00E6FF, 0 0 70px #00E6FF,
-	  0 0 80px #00E6FF, 0 0 100px #00E6FF, 0 0 150px #00E6FF;
+	 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #0004FF, 0 0 70px #0004FF,
+	  0 0 80px #0004FF, 0 0 100px #0004FF, 0 0 150px #0004FF;
 }
 
 

@@ -4,7 +4,7 @@
     padding: 0;
 }
 #nav {
-    background: url('menu_bg.png') no-repeat scroll 0 0 transparent;
+    background: url('menu_bg.png') no-repeat scroll 0px 0 transparent;
     background-color: #1A1A1A; /* This needs to be the same color as page boarder */
     clear: both;
     font-size: 12px;
