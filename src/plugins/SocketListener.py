@@ -38,6 +38,7 @@ class SocketListener(ModuleTemplate):
             socket.AF_INET, socket.SOCK_STREAM)
         #bind the socket to a public host,
         # and a well-known port
+        serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serverSocket.bind(('', self.LISTENER_PORT))
         #become a server socket
         serverSocket.listen(self.MAX_CONNECTIONS)
