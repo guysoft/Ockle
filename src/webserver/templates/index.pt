@@ -33,6 +33,7 @@
 	<p>Auto Control Status: ${autoControlStatus}</p>
 	</td></tr>
 	</table>
+	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 <div id="debug_output"></div>
     </div>
 </div>

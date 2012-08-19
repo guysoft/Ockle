@@ -1,3 +1,6 @@
+#im useless remove me
+from random import randint
+
 #pyramid stuff
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
@@ -249,3 +252,14 @@ def config_view(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : iniTemplate,
             "multiListChoices" : multiListChoices}
+
+
+@view_config(renderer="json", name="configSend.json")
+def updates_view(self):
+    
+    
+    
+    return {
+        "message" : "Configuration saved",
+        "color" : "green"
+    }

@@ -2,8 +2,10 @@
 <div metal:use-macro="layout">
 	<div metal:fill-slot="head_content">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.js" type="text/javascript"></script>
-		<script type="text/javascript" src="/static/forms/numeric/jquery.numeric.js"></script>
-		<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="/static/forms/numeric/jquery.numeric.js"></script>
+	
+	<script src="/static/ajax/save_call.js"></script>
+	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
 		
 	<script type="text/javascript">
         $(document).ready(function(){
@@ -13,16 +15,23 @@
 	    }).blur(function(){
                 $(this).removeClass("activeField").addClass("idle");
 	    });
+        
+            
+        $('#formLoader').hide();
+        $('#formStatus').hide();
+        
         });
     </script>
+    
 	</div>
 	
     <div metal:fill-slot="content">
+    
         <p>Main Ockle configuration file</p>
         <div id="inputArea">
-	        <form>
+	        <form id="configINI">
 	        <table>
-	        <div tal:repeat="section INIFileTemplate.keys()">
+	        <div id="configForm" tal:repeat="section INIFileTemplate.keys()">
 	        	<tr>
 	        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
 	        	</tr>
@@ -50,8 +59,10 @@
 	        		</tr>
 	        	</div>
 			 </div>
+			 <tr><td>
+			 <input type="submit" value="submit"><td><div id="formLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="formStatus">Saved</div></td>
+			 </td></tr>
 			 </table>
-			 <input type="button" value="submit">
 			 </form>
 		</div>
 		 
@@ -70,5 +81,43 @@
 			</script>
 		 
 		 ${multiListChoices["plugins"]["pluginlist"]}
+    
+    
+    <script type="text/javascript">
+    function get_updates () {
+        $.getJSON('/configSend.json', function(data) {
+            var target = $('#formStatus');
+            target.empty();
+            //$.each(data, function (key, val) {
+          	//	target.append(val);
+            //});
+            target.append("<font color='" +data["color"] + "'>" + data["message"] + "</font>");
+        });
+    }
+
+    $('#sidebar a').click(function () {
+    	
+
+    	$('#formLoader').show();
+    	get_updates();
+    });
+    
+    $('#configINI').submit(function() {
+    	jQuery.ajaxSetup({
+  		  beforeSend: function() {
+  		     $('#formLoader').show();
+  		  },
+  		  complete: function(){
+  		     $('#formLoader').hide();
+  		  },
+  		  success: function() {}
+  		});
+    	get_updates();
+    	$('#formStatus').show();
+    	  return false;
+    	});
+    </script>
+
+		 
     </div>
 </div>
