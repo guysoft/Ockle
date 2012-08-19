@@ -21,9 +21,9 @@ class EditingCommunicationCommands(ModuleTemplate):
         ModuleTemplate.__init__(self,MainDaemon)
         return
     
-    def getINIFile(self,dataDict):
+    def getINIFile(self,path):
         fileContent =""
-        path = dataDict["Path"]
+        
         print path
         try:
             path = os.path.join("etc",path)
@@ -34,9 +34,18 @@ class EditingCommunicationCommands(ModuleTemplate):
             traceback.print_exc(file=sys.stdout)
         return {"File" :  fileContent}
     
+    def setINIFile(self,dataDict):
+        path = dataDict["Path"]
+        iniDict = json.loads(dataDict["iniDict"])
+        
+        print iniDict
+        print path
+        return {"succeeded": True}
+    
     def run(self):
         self.debug("\n")
-        self.mainDaemon.communicationHandler.AddCommandToList("getINIFile",lambda dataDict: self.getINIFile(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("getINIFile",lambda dataDict: self.getINIFile(dataDict["Path"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("setINIFile",lambda dataDict: self.setINIFile(dataDict))
 
         return
 
