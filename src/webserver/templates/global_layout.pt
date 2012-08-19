@@ -13,6 +13,7 @@
 <div metal:define-slot="head_content"></div>
 </head>
 <body>
+<div style="background-color: #1A1A1A; color: #7C7C7C; font-size: 45px; font-weight:bold;"><img src="/static/Logo.png" alt="Ockle" style="float:left; background-color: #1A1A1A;">Ockle</div>
 <ul id="nav">
     <li><a class="hsubs" href="/">Home</a></li>
     <li><a class="hsubs" href="/config">Configuration</a></li>
