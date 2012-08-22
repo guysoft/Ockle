@@ -17,7 +17,7 @@ import os.path, sys
 ETC_DIR= os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),'..',"etc")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 LOG_DB = config.get('plugins.Logger', 'LOG_DB')
-LOG_DB = LOG_DB.replace("%HOME%", os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])).replace("/src", "/")))
+LOG_DB = LOG_DB.replace("~~HOME~~", os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])).replace("/src", "/")))
 
 #Import database structure
 from plugins.Log import Log
@@ -27,6 +27,7 @@ class Reader():
         self.LOG_DB = LOG_DB
         self.Log = Log
         
+        print self.LOG_DB
         self.engine = create_engine(self.LOG_DB)
         return
     def getDBInfo(self,server,fromTime,toTime):
