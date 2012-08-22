@@ -177,6 +177,16 @@ def serverPage(request):
             "outletsDict" : json.dumps(outlets),
             "outlets" : outlets}
 
+@view_config(route_name='serverEdit',renderer="templates/server_edit.pt")
+def serverEdit(request):
+    serverName = request.matchdict['serverName']
+    
+    serverDict = getServerView(serverName)
+    
+    return {"layout": site_layout(),
+            "page_title" : "Server Edit: " + str(serverName),
+            "server_dict" : serverDict}
+
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")
     layout = renderer.implementation().macros['layout']

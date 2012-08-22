@@ -120,6 +120,7 @@
 
 
     <div metal:fill-slot="content" class="secondary-a-6">
+    <p style="float: right;"><a href="/server/${server_dict['Name']}/edit">Edit</a></p>
 		<table>
 			<tr>
 			<td>
