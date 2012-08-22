@@ -8,6 +8,7 @@ Created on May 10, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from ConfigParser import SafeConfigParser
+from StringIO import StringIO
 import os.path, sys
 import json
 
@@ -95,22 +96,56 @@ def configToDict(config):
     '''
     returnValue={}
     
-    for section in reversed(config.sections()):
+    for section in config.sections():
+        print section
         returnValue[section]={}
-        sectionTurples = reversed(config.items(section))
+        sectionTurples = config.items(section)
         for itemTurple in sectionTurples:
             returnValue[section][itemTurple[0]] = itemTurple[1]
     return returnValue
 
-def getINITemplate(path):
+def dictToConfig(d):
+    ''' Get a config parser from a config dictionary
+    @param d: a dictionary
+    @return: a config parser file handler
+    '''
+    config = SafeConfigParser()
+    
+    for section in d.keys():
+        config.add_section(section)
+        for item in d[section]:
+            value = d[section][item]
+            if type(value) == list:
+                value = json.dumps(value)
+            config.set(section,item,value)
+        
+    return config
+
+def _appendTemplateDIR(path):
+    CONFIG_TEMPLATE_DIR= appendProjectPath("config")
+    return os.path.join(CONFIG_TEMPLATE_DIR,path)
+
+def getINITemplate(paths):
     ''' Get an INI template as a dict
     @param path: relative path in the src tree
     @return: a dict of the config template
     '''
+    if type(paths) == str:
+        paths = [paths]
+    appandedPaths=[]
+    for path in paths:
+        appandedPaths.append(_appendTemplateDIR(path))
+    
     config = SafeConfigParser()
-    CONFIG_TEMPLATE_DIR= appendProjectPath("config")
-    config.read(os.path.join(CONFIG_TEMPLATE_DIR,path))
+    config.read(appandedPaths)
     return configToDict(config)
+
+def getINIFolderTemplate(path):
+    files = os.listdir(_appendTemplateDIR(path))
+    returnValue=[]
+    for fileName in files:
+        returnValue.append(_appendTemplateDIR(os.path.join(path,fileName)))
+    return returnValue
 
 def getINITemplateFolder(path):
     ''' Get an INI template of a all INI files in a folder
@@ -121,5 +156,26 @@ def getINITemplateFolder(path):
     config = SafeConfigParser()
     CONFIG_TEMPLATE_DIR= appendProjectPath("config")
     for filePath in os.listdir(os.path.join(CONFIG_TEMPLATE_DIR,path)):
-        returnValue = configToDict(config.read(os.path.join(CONFIG_TEMPLATE_DIR,path,filePath)))
-    return configToDict(config)
+        returnValue = mergeDicts(returnValue,configToDict(config.read(os.path.join(CONFIG_TEMPLATE_DIR,path,filePath))))
+    return returnValue
+
+def getINIstringtoDict(iniString):
+    ''' Take an ini file as as string, and convert it to a dict
+    @param iniString: ini file as string
+    @return: a dict of that ini file
+    ''' 
+    print iniString
+    iniFile = StringIO(iniString)
+    iniConfig = SafeConfigParser()
+    iniConfig.readfp(iniFile)
+    return configToDict(iniConfig)
+
+def mergeDicts(a,b):
+    '''
+    Merges two dicts, second should overwrite the first
+    @param a: a dict
+    @param b: a dict, should overwrite a
+    @return: a merged dict, second dict overwrites the first
+    '''
+    return dict(a.items() + b.items())
+    

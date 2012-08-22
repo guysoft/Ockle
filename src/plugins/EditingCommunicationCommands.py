@@ -12,6 +12,10 @@ sys.path.insert(0, p)
 from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
 import traceback
+import shutil,time
+from common.common import getINIstringtoDict
+from common.common import mergeDicts
+from common.common import dictToConfig
 
 import json
 
@@ -21,33 +25,44 @@ class EditingCommunicationCommands(ModuleTemplate):
         ModuleTemplate.__init__(self,MainDaemon)
         return
     
-    def getINIFile(self,path):
+    def _getINIFile(self,path):
         fileContent =""
-        
-        print path
         try:
-            path = os.path.join("etc",path)
+            path = os.path.join(self.mainDaemon.ETC_DIR,path)
             print path
+            
             with open(path, 'r') as content_file:
                 fileContent = content_file.read()
         except:
             traceback.print_exc(file=sys.stdout)
-        return {"File" :  fileContent}
+        return fileContent
+    
+    def getINIFileCommand(self,path):
+        return {"File" :  self._getINIFile(path)}
     
     def setINIFile(self,dataDict):
         path = dataDict["Path"]
-        iniDict = json.loads(dataDict["iniDict"])
+        path = os.path.join(self.mainDaemon.ETC_DIR,path)
         
-        print iniDict
-        print path
+        iniDict = json.loads(dataDict["iniDict"])
+        iniSource =  getINIstringtoDict(self._getINIFile(path))
+        newConfig={}
+        
+        for section in iniDict.keys():
+            newConfig[section] = mergeDicts(iniSource[section],iniDict[section])
+        
+        config = dictToConfig(newConfig)
+        shutil.copy(path,path + "." + str(int(time.time())))
+        config.write(open(path,"w"))
+        #print newConfig
         return {"succeeded": True}
     
     def run(self):
         self.debug("\n")
-        self.mainDaemon.communicationHandler.AddCommandToList("getINIFile",lambda dataDict: self.getINIFile(dataDict["Path"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("getINIFile",lambda dataDict: self.getINIFileCommand(dataDict["Path"]))
         self.mainDaemon.communicationHandler.AddCommandToList("setINIFile",lambda dataDict: self.setINIFile(dataDict))
 
         return
 
 if __name__ == "__main__":
-    a = CoreCommunicationCommands(None)
+    a = EditingCommunicationCommands(None)

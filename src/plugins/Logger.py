@@ -30,8 +30,8 @@ class Logger(ModuleTemplate):
         ModuleTemplate.__init__(self,MainDaemon)
         #config variables init
         self.LOG_DB = self.getConfigVar("LOG_DB")
-        self.LOG_DB = self.LOG_DB.replace("%HOME%", appendProjectPath())
-        self.LOG_DB
+        self.LOG_DB = self.LOG_DB.replace("~~HOME~~", appendProjectPath())
+        
         self.LOG_RESOLUTION = int(self.getConfigVar("LOG_RESOLUTION"))
         
         self.engine = create_engine(self.LOG_DB)

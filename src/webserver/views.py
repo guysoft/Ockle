@@ -16,7 +16,9 @@ from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
-from common.common import configToDict
+from common.common import getINIstringtoDict
+from common.common import mergeDicts
+from common.common import getINIFolderTemplate
 from plugins.Log import DATA_NAME_TO_UNITS
 from plugins.Log import DATA_NAME_TO_UNITS_NAME
 
@@ -222,11 +224,13 @@ def config_view(request):
     multiListChoices={}
     iniTemplate = getINITemplate(configPath)
     
+    pluginList = getINIFolderTemplate("plugins")
+    print pluginList
+    #,"plugins/AutoControl.ini
+    iniTemplate = getINITemplate(["config.ini"] + pluginList)
+    
     iniString = getINIFile(configPath)
-    iniFile = StringIO(iniString)
-    iniConfig = SafeConfigParser()
-    iniConfig.readfp(iniFile)
-    INIFileDict = configToDict(iniConfig)
+    INIFileDict = getINIstringtoDict(iniString)
     
     for section in iniTemplate.keys():
         for item in iniTemplate[section].keys():
@@ -289,7 +293,7 @@ def updates_view(request):
     for section in iniDict.keys():
         for item in iniDict[section]:
             if type(iniDict[section][item]) == list:
-                iniDict[section][item]=str(iniDict[section][item])
+                iniDict[section][item]=json.dumps(iniDict[section][item])
     
              
     #TODO: if a multilist if empty, it does not get sent
