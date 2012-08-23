@@ -79,7 +79,6 @@ class SocketListener(ModuleTemplate):
                     #    self.debug("Got a bad message class, returning error")
                     #    client.send(MessageServerError().toxml())
                     client.close()
-                    self.clients.remove(client)
 
             except socket.timeout:
                 pass

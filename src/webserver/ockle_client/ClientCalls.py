@@ -36,7 +36,7 @@ def getDataFromServer(command,paramsDict={},noReturn=False):
     @return: A dict with the response data, None if we failed to connect
     '''
     returnValue=""
-    def recv(sendMessage,noReturn=False):
+    def recv(sendMessage,noReturn):
         ''' Loop to receive a message'''
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(SOCKET_TIMEOUT)
@@ -61,13 +61,14 @@ def getDataFromServer(command,paramsDict={},noReturn=False):
                     data += s.recv(n)
                     n -= len(data)
                 s.close()
+                print data
                 return None, data
         except socket.error as e:
             s.close()
             return e, None
         
     a = MessageClientSend(command,paramsDict)
-    m, data = recv(a.toxml(),True)
+    m, data = recv(a.toxml(),noReturn)
     #print 'recv: ', 'error=', m, 'data=', data
     if data:
         messageGen = Message()
@@ -127,7 +128,7 @@ def getServerView(serverName):
     return
 
 def getAutoControlStatus():
-    response = getDataFromServer("getAutoControlStatus",{})
+    response = getDataFromServer("getAutoControlStatus")
     if response == None:
         return {"status":"N/A"}
     else:
@@ -149,6 +150,6 @@ def setINIFile(iniPath,iniDict):
     return getDataFromServer("setINIFile",{"Path":iniPath, "iniDict" : json.dumps(iniDict)})
 
 def restartOckle(self):
-    return getDataFromServer("restart")
+    return getDataFromServer("restart",{},True)
 
     
