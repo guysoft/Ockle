@@ -1,5 +1,4 @@
-#im useless remove me
-from random import randint
+import os.path
 
 #pyramid stuff
 from pyramid.renderers import get_renderer
@@ -7,17 +6,18 @@ from pyramid.view import view_config
 from pyramid.response import Response
 
 #ockle stuff
+from ockle_client import ClientCalls
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
+from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
 from common.common import getINIstringtoDict
-from common.common import mergeDicts
 from common.common import getINIFolderTemplate
 from plugins.Log import DATA_NAME_TO_UNITS
 from plugins.Log import DATA_NAME_TO_UNITS_NAME
@@ -181,11 +181,19 @@ def serverPage(request):
 def serverEdit(request):
     serverName = request.matchdict['serverName']
     
+    SERVER_DIR = ClientCalls.config.get('main', 'SERVER_DIR')
+    
+    configPath =  os.path.join(SERVER_DIR,serverName) + ".ini"
+    iniString = getINIFile(configPath)
+    print iniString
+    INIFileDict = getINIstringtoDict(iniString)
+    
     serverDict = getServerView(serverName)
     
     return {"layout": site_layout(),
             "page_title" : "Server Edit: " + str(serverName),
-            "server_dict" : serverDict}
+            "server_dict" : serverDict,
+            "INIFileDict" : INIFileDict}
 
 def site_layout():
     renderer = get_renderer("templates/global_layout.pt")
@@ -320,3 +328,17 @@ def updates_view(request):
         returnValue["color"] = "red"
         returnValue["message"] ="Configuration failed"
     return returnValue
+
+@view_config(renderer="json", name="sendOckleCommand.json")
+def sendOckleCommand(request):
+    command = request.json_body["command"]
+    
+    dataDict = {}
+    try:
+        dataDict = request.json_body["dataDict"]
+    except:
+        pass
+    print command
+    if command == "restart":
+        restartOckle()
+    return
