@@ -106,7 +106,7 @@ class MainDaemon(object):
         '''        
         self.shutdown()
         self.debug("Ockle is restarting")
-        os.execl(sys.executable,sys.executable,"/home/guy/workspace/Ockle/src/MainDaemon.py","restart")
+        os.execl(sys.executable,sys.executable,__file__,"restart")
         return
     
     def shutdown(self):
