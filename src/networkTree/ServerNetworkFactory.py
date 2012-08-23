@@ -34,6 +34,9 @@ class ServerNetworkFactory(object):
         '''
         self.mainDaemon = MainDaemon
         return
+    def _getNameFromFilePath(self,path):
+        return os.path.splitext(os.path.basename(path))[0]
+    
     def buildNetwork(self,config_path):
         config,ETC_DIR = loadConfig()
         
@@ -48,7 +51,8 @@ class ServerNetworkFactory(object):
             serverConfigFile = os.path.join(serverConfigPath,serverConfigFile)
             serverConfig = SafeConfigParser()
             serverConfig.read(serverConfigFile)
-            server = serverConfig.get('server', 'name')
+            #server = serverConfig.get('server', 'name')
+            server = self._getNameFromFilePath(serverConfigFile)
             
             #Handle a list or single string outlet
             outlets = serverConfig.get('server', 'outlets')
@@ -80,7 +84,8 @@ class ServerNetworkFactory(object):
             serverConfig = SafeConfigParser()
             serverConfig.read(serverConfigFile)
             
-            server = serverConfig.get('server', 'name')
+            #server = serverConfig.get('server', 'name')
+            server = self._getNameFromFilePath(serverConfigFile)
             
             #sanitize input
             if serverConfig.get("server","dependencies") != "":    

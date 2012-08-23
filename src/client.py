@@ -19,6 +19,8 @@ print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
 
+from webserver.ockle_client.ClientCalls import getDataFromServer
+
 class ConnectionClient(object):
     '''
     classdocs
@@ -32,7 +34,7 @@ class ConnectionClient(object):
             data = ''
             try:
                 s.connect(('localhost', PORT))
-                s.send(sendMessage)
+                s.sendall(str(len(sendMessage)) + ":" + sendMessage)
                 while 1:
                     c = s.recv(1)
                     if c == ':':
@@ -50,7 +52,7 @@ class ConnectionClient(object):
                 return e, None
             
             
-        a = MessageClientSend("dotgraph",{"server":"server1","fromTime" : "1342355321.28", "toTime" : "2342355321.28"})
+        a = MessageClientSend("listcommands",{"Path":"config.ini"})
         
         
         cnt = 0
@@ -66,7 +68,9 @@ class ConnectionClient(object):
         '''
         Constructor
         '''
-        print self.getServerTree()
+        #print self.getServerTree()
+        print getDataFromServer("restart",{"Path":"config.ini"})
+        
         
         
 if __name__ == "__main__":

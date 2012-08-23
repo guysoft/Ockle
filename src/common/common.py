@@ -50,7 +50,7 @@ def appendProjectPath(path=""):
     @param path: the internal path
     @return: the relative path 
     '''
-    return os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),path)
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)),'..',path)
 
 def turpleList2Dict(tupleList):
     ''' Convert a tuple list to a dict. For easy and saner access
@@ -122,7 +122,8 @@ def dictToConfig(d):
     return config
 
 def _appendTemplateDIR(path):
-    CONFIG_TEMPLATE_DIR= appendProjectPath("config")
+    CONFIG_TEMPLATE_DIR= appendProjectPath(os.path.join("src","config"))
+    print CONFIG_TEMPLATE_DIR
     return os.path.join(CONFIG_TEMPLATE_DIR,path)
 
 def getINITemplate(paths):
@@ -141,7 +142,9 @@ def getINITemplate(paths):
     return configToDict(config)
 
 def getINIFolderTemplate(path):
+    print path
     files = os.listdir(_appendTemplateDIR(path))
+    print _appendTemplateDIR(path)
     returnValue=[]
     for fileName in files:
         returnValue.append(_appendTemplateDIR(os.path.join(path,fileName)))
@@ -154,7 +157,7 @@ def getINITemplateFolder(path):
     '''
     returnValue={}
     config = SafeConfigParser()
-    CONFIG_TEMPLATE_DIR= appendProjectPath("config")
+    CONFIG_TEMPLATE_DIR= _appendTemplateDIR()
     for filePath in os.listdir(os.path.join(CONFIG_TEMPLATE_DIR,path)):
         returnValue = mergeDicts(returnValue,configToDict(config.read(os.path.join(CONFIG_TEMPLATE_DIR,path,filePath))))
     return returnValue

@@ -21,7 +21,7 @@ import json
 
 config = SafeConfigParser()
 import os.path, sys
-ETC_DIR= os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])),'..',"etc")
+ETC_DIR= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','..','..',"etc")
 print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
