@@ -116,10 +116,10 @@ hr {
 	margin: 5px;
 	font-family: "Museo";
 	font-size: 24px; text-transform: uppercase;
-	color: #fff;
+	color: #2E2E2E;
 	text-shadow: 0 0 10px #fff,
-	 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #0004FF, 0 0 70px #0004FF,
-	  0 0 80px #0004FF, 0 0 100px #0004FF, 0 0 150px #0004FF;
+	 0 0 20px #06DBFF, 0 0 30px #06DBFF, 0 0 40px #06DBFF, 0 0 70px #06DBFF,
+	  0 0 80px #06DBFF, 0 0 100px #06DBFF, 0 0 150px #06DBFF;
 }
 
 
