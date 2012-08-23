@@ -8,6 +8,7 @@ Created on Apr 25, 2012
 """
 import json
 import codecs
+import os,sys
 
 from common.common import loadConfig
 from common.common import appendProjectPath
@@ -56,6 +57,8 @@ class MainDaemon(object):
         
         self.communicationHandler.AddCommandToList("getAvailablePluginsList", lambda dataDict: self.getAvailablePluginsListIndex((dataDict)))
         
+        self.communicationHandler.AddCommandToList("restart", lambda dataDict: self.reload((dataDict)))
+        
         self.running= True
         
         #plugin init
@@ -72,9 +75,13 @@ class MainDaemon(object):
             plugin.start()
         
         #main loop
-        while self.running:
-            self.debug("In main loop")
-            time.sleep(10)
+        try:
+            while self.running:
+                self.debug("In main loop")
+                time.sleep(10)
+        except KeyboardInterrupt:
+            self.debug("Got KeyboardInterrupt, exiting")
+            self.shutdown()
         return
     
     def getPluginList(self):
@@ -93,9 +100,30 @@ class MainDaemon(object):
         for plugin in plugins:
             returnValue[plugin.__name__] = plugin.__doc__
         return returnValue
+    
+    def reload(self,dataDict):
+        ''' A general function to reload everything
+        '''        
+        self.shutdown()
+        self.debug("Ockle is restarting")
+        os.execl(sys.executable,sys.executable,"/home/guy/workspace/Ockle/src/MainDaemon.py","restart")
+        return
+    
+    def shutdown(self):
+        ''' Shutdown Ockle '''
+        self.running = False
+        for plugin in self.plugins:
+            plugin.stop()
+        return
 
 
 pluginLoadList=["PingTester"]
     
 if __name__ == "__main__":
+    try:
+        if sys.argv[1] == "restart":
+            print "restart, wait 5 seconds"
+            time.sleep(5)
+    except:
+        pass
     servers = MainDaemon()

@@ -26,7 +26,6 @@ class SocketListener(ModuleTemplate):
         self.LISTENER_PORT = self.getConfigInt('LISTENER_PORT')
         self.MAX_CONNECTIONS = self.getConfigInt('MAX_CONNECTIONS')
         self.MAX_RCV_SIZE = self.getConfigInt('MAX_RCV_SIZE')
-        
         return
     
     def run(self):
@@ -34,61 +33,66 @@ class SocketListener(ModuleTemplate):
         
         
         #create an INET, STREAMing socket
-        serverSocket = socket.socket(
+        self.serverSocket = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM)
         #bind the socket to a public host,
         # and a well-known port
-        serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serverSocket.bind(('', self.LISTENER_PORT))
+        self.serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.serverSocket.bind(('', self.LISTENER_PORT))
         #become a server socket
-        serverSocket.listen(self.MAX_CONNECTIONS)
+        self.serverSocket.listen(self.MAX_CONNECTIONS)
         
         self.debug("Started Listening on port:" + str(self.LISTENER_PORT))
-        while 1:
-            client, address = serverSocket.accept()
-            print 'We have opened a connection with', address
-            client.settimeout(5)
-            #data = client.recv(self.MAX_RCV_SIZE)
-            
-            n = ''
-            data = ''
-            while 1:
-                c = client.recv(1)
-                if c == ':':
-                    break
-                n += c
-            n = int(n)
-            
-            while n > 0:
-                data += client.recv(n)
-                n -= len(data)
-            
-            self.debug(data)
-            if data:
+        while self.mainDaemon.running:
+            try:
+                self.serverSocket.settimeout(5)
+                client, address = self.serverSocket.accept()
+                print 'We have opened a connection with', address
+                client.settimeout(5)
+                #data = client.recv(self.MAX_RCV_SIZE)
                 
-                message= Message(data,self)
-                #TODO add here for debug what message we got
-                message = message.parse(data,self)
-                #try:
-                xml = self.mainDaemon.communicationHandler.handleMessage(message).toxml()
-                self.debug("Sending XML:" + str(xml))
-                #client.send(xml)
-                client.sendall(str(len(xml)) +":" +  xml)
-                #except:
-                #    self.debug("Got a bad message class, returning error")
-                #    client.send(MessageServerError().toxml())
-                client.close()
-            '''
-            client.close() 
-            #accept connections from outside
-            (clientsocket, address) = serverSocket.accept()
-            #now do something with the clientsocket
-            #in this case, we'll pretend this is a threaded server
-            ct = client_thread(clientsocket)
-            ct.run()
-            '''
-            
+                n = ''
+                data = ''
+                while 1:
+                    c = client.recv(1)
+                    if c == ':':
+                        break
+                    n += c
+                n = int(n)
+                
+                while n > 0:
+                    data += client.recv(n)
+                    n -= len(data)
+                
+                self.debug(data)
+                if data:
+                    
+                    message= Message(data,self)
+                    #TODO add here for debug what message we got
+                    message = message.parse(data,self)
+                    #try:
+                    xml = self.mainDaemon.communicationHandler.handleMessage(message).toxml()
+                    self.debug("Sending XML:" + str(xml))
+                    #client.send(xml)
+                    client.sendall(str(len(xml)) +":" +  xml)
+                    #except:
+                    #    self.debug("Got a bad message class, returning error")
+                    #    client.send(MessageServerError().toxml())
+                    client.close()
+                    self.clients.remove(client)
+
+            except socket.timeout:
+                pass
         return
+    
+    def stop(self):
+        ''' Called to request the thread to terminate
+        Clears the socket
+        '''
+        returnValue =ModuleTemplate.stop(self)
+        #Free the socket, otherwise complains that its in use
+        self.serverSocket.close()
+        return returnValue
 
 if __name__ == "__main__":
     a = SocketListener(None)

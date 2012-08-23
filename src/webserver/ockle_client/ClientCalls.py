@@ -28,14 +28,15 @@ PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
 SOCKET_TIMEOUT = config.getint('plugins.SocketListener', 'SOCKET_TIMEOUT')
 OCKLE_SERVER_HOSTNAME="127.0.0.1"
 
-def getDataFromServer(command,paramsDict):
+def getDataFromServer(command,paramsDict={},noReturn=False):
     ''' Send a command to the Ockle server, and return the responce dict 
     @param command: The command to send
     @param paramsDict: the dictionary that is sent with command arguments
-    @return: A dict with the responce data, None if we failed to connect
+    @param noReturn: Should we not expect a reply. Used in cases were we want to restart the Ockle server
+    @return: A dict with the response data, None if we failed to connect
     '''
     returnValue=""
-    def recv(sendMessage):
+    def recv(sendMessage,noReturn=False):
         ''' Loop to receive a message'''
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(SOCKET_TIMEOUT)
@@ -44,24 +45,29 @@ def getDataFromServer(command,paramsDict):
         try:
             s.connect((OCKLE_SERVER_HOSTNAME, PORT))
             s.sendall(str(len(sendMessage)) +":" +sendMessage)
-            while 1:
-                c = s.recv(1)
-                if c == ':':
-                    break
-                n += c
-
-            n = int(n)
-            while n > 0:
-                data += s.recv(n)
-                n -= len(data)
-            s.close()
-            return None, data
+            
+            if noReturn:
+                s.close()
+                return None,None
+            else:
+                while 1:
+                    c = s.recv(1)
+                    if c == ':':
+                        break
+                    n += c
+    
+                n = int(n)
+                while n > 0:
+                    data += s.recv(n)
+                    n -= len(data)
+                s.close()
+                return None, data
         except socket.error as e:
             s.close()
             return e, None
         
     a = MessageClientSend(command,paramsDict)
-    m, data = recv(a.toxml())
+    m, data = recv(a.toxml(),True)
     #print 'recv: ', 'error=', m, 'data=', data
     if data:
         messageGen = Message()
@@ -132,7 +138,7 @@ def getINIFile(iniPath):
     return getDataFromServer("getINIFile",{"Path":iniPath})["File"]
 
 def getAvailablePluginsList():
-    response = getDataFromServer("getAvailablePluginsList",{})
+    response = getDataFromServer("getAvailablePluginsList")
     if response == None:
         return {}
     else:
@@ -141,5 +147,8 @@ def getAvailablePluginsList():
 
 def setINIFile(iniPath,iniDict):
     return getDataFromServer("setINIFile",{"Path":iniPath, "iniDict" : json.dumps(iniDict)})
+
+def restartOckle(self):
+    return getDataFromServer("restart")
 
     

@@ -37,3 +37,10 @@ class ModuleTemplate(Thread):
         '''
         self.mainDaemon.debug(self.__class__.__name__ +": "+ str(message))
         return
+    
+    def stop(self):
+        ''' Called to request the thread to terminate
+        '''
+        self._Thread__stop()
+
+        return 
