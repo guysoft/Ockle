@@ -46,11 +46,11 @@
         <div id="inputArea">
 	        <form id="configINI">
 	        <table>
-	        <div id="configForm" tal:repeat="section INIFileTemplate.keys()">
+	        <div id="configForm" tal:repeat="section reversed(INIFileTemplate.keys())">
 	        	<tr>
 	        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
 	        	</tr>
-	        	<div tal:repeat="item INIFileTemplate[section].keys()">
+	        	<div tal:repeat="item reversed(INIFileTemplate[section].keys())">
 	        		<tr>
 	        		<td><p tal:replace="item"></p></td>
 	        		<!-- Switch case for different datatypes -->
