@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<div metal:use-macro="layout">
-	<div metal:fill-slot="head_content">
+<tal:block metal:use-macro="layout">
+	<tal:block metal:fill-slot="head_content">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js" type="text/javascript"></script>
 	<script type="text/javascript" src="/static/forms/numeric/jquery.numeric.js"></script>
 	
@@ -75,7 +75,7 @@
         });
     </script>
     
-	</div>
+	</tal:block>
 	
     <div metal:fill-slot="content">
     
@@ -83,15 +83,15 @@
         <div id="inputArea">
 	        <form id="configINI">
 	        <table>
-	        <div id="configForm" tal:repeat="section reversed(INIFileTemplate.keys())">
+	        <tal:block tal:repeat="section reversed(INIFileTemplate.keys())">
 	        	<tr>
 	        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
 	        	</tr>
-	        	<div tal:repeat="item reversed(INIFileTemplate[section].keys())">
+	        	<tal:block tal:repeat="item reversed(INIFileTemplate[section].keys())">
 	        		<tr>
 	        		<td><p tal:replace="item"></p></td>
 	        		<!-- Switch case for different datatypes -->
-	        		<div tal:switch="INIFileTemplate[section][item][0]">
+	        		<tal:block tal:switch="INIFileTemplate[section][item][0]">
 	        		
 	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
 	        			
@@ -107,10 +107,10 @@
 	        			</td>
 	        			
 	        			
-	        		</div>
+	        		</tal:block>
 	        		</tr>
-	        	</div>
-			 </div>
+	        	</tal:block>
+			 </tal:block>
 			 <tr><td>
 			 <input type="submit" value="submit"><td><div id="formLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="formStatus">Saved</div></td>
 			 </td></tr>
@@ -180,4 +180,4 @@
 
 		 
     </div>
-</div>
+</tal:block>

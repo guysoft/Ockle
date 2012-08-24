@@ -2,15 +2,13 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       metal:define-macro="layout">
+<head>
 <link rel="icon" type="image/png" href="/static/favicon.png" />
 <link href="/static/mainmenu/layout.css" rel="stylesheet" type="text/css" />
 <link href="/static/mainmenu/menu.css" rel="stylesheet" type="text/css" />
 <link href="/static/color_palette.css" rel="stylesheet" type="text/css" />
-
-
-<head>
 <title>Ockle - ${page_title}</title>
-<div metal:define-slot="head_content"></div>
+<tal:block metal:define-slot="head_content"></tal:block>
 </head>
 <body>
 <div style="background-color: #1A1A1A; color: #7C7C7C; font-size: 45px; font-weight:bold;"><img src="/static/Logo.png" alt="Ockle" style="float:left; background-color: #1A1A1A;">Ockle</div>

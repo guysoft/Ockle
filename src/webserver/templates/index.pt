@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<div metal:use-macro="layout">
- <div metal:fill-slot="head_content" style="height: 100%;">
+<tal:block metal:use-macro="layout">
+ <tal:block metal:fill-slot="head_content">
 	<meta name="MSSmartTagsPreventParsing" content="true" />
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="/static/canviz/styles_inner.css" />
@@ -21,7 +21,7 @@
 	}
 });
 	</script>
- </div>
+ </tal:block>
     <div metal:fill-slot="content">
         <h2>Server Network</h2>
      <table>
@@ -36,4 +36,4 @@
 	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 <div id="debug_output"></div>
     </div>
-</div>
+</tal:block>
