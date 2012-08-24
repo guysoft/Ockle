@@ -149,7 +149,7 @@ def getAvailablePluginsList():
 def setINIFile(iniPath,iniDict):
     return getDataFromServer("setINIFile",{"Path":iniPath, "iniDict" : json.dumps(iniDict)})
 
-def restartOckle(self):
+def restartOckle():
     return getDataFromServer("restart",{},True)
 
     

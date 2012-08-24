@@ -1,3 +1,8 @@
+import os.path,sys
+p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')
+print p
+sys.path.insert(0, p)
+
 import os.path
 
 #pyramid stuff
@@ -21,6 +26,9 @@ from common.common import getINIstringtoDict
 from common.common import getINIFolderTemplate
 from plugins.Log import DATA_NAME_TO_UNITS
 from plugins.Log import DATA_NAME_TO_UNITS_NAME
+
+#macros
+from macros import site_layout,config_ini_layout
 
 #config stuff
 from ConfigParser import SafeConfigParser
@@ -195,11 +203,6 @@ def serverEdit(request):
             "server_dict" : serverDict,
             "INIFileDict" : INIFileDict}
 
-def site_layout():
-    renderer = get_renderer("templates/global_layout.pt")
-    layout = renderer.implementation().macros['layout']
-    return layout
-
 @view_config(renderer="templates/index.pt")
 def index_view(request):
     '''
@@ -234,6 +237,7 @@ def index_view(request):
 @view_config(renderer="templates/about.pt", name="about.html")
 def about_view(request):
     return {"layout": site_layout(),
+            "name_filler" : config_ini_layout(),
             "page_title": "About"}
 
 @view_config(renderer="templates/config.pt", name="config")
