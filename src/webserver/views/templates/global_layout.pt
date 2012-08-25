@@ -22,6 +22,7 @@
 	<div id="neon">
 		<h1>${page_title}</h1> <!--  class="primary-4" -->
 	</div>
+	<div metal:define-slot="pre_content"></div>
 	<div style="width: 70%; margin: 0px auto;">
 	<div metal:define-slot="content"></div>
 	</div>

@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-<div metal:use-macro="layout">
-    <div metal:fill-slot="content">
+<tal:block metal:use-macro="layout">
+<tal:block metal:fill-slot="head_content">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js" type="text/javascript"></script>
+<tal:block metal:use-macro="config_sidebar_head"></tal:block>
+<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
+</tal:block>
+	
+	<div metal:fill-slot="pre_content">
+	    <div metal:use-macro="config_sidebar_body">
+	       <b metal:fill-slot="onPage"></b>
+	    </div>
+	</div>
 
-		<table>
-		<tr><td>
+    <div metal:fill-slot="content"  class="secondary-a-6">
+    
+    <p style="float: right"><a href="">+ Add new PDU</a></p>
 		<p>PDU data that would go in to a nice table:</p>
-		</td></tr>
-		<tr tal:repeat="PDUVar PDUList.keys()">
-			<td tal:content="repeat.PDUVar.number"></td>
-			<td><a href="/pdu/${PDUVar}"><p tal:replace="PDUVar"></p></a></td>
-			<td> - <p tal:replace="PDUList[PDUVar]['outlet']['comment']"></p></td>
-		</tr>
-		</table>
-   		
-        ${PDUList}
+		<ol>
+		<li tal:repeat="PDUVar PDUList.keys()">
+			<a href="/pdu/${PDUVar}"><p tal:replace="PDUVar"></p></a> - <p tal:replace="PDUList[PDUVar]['outlet']['comment']"></p>
+		</li>
+		</ol>
+		
+		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     </div>
-</div>
+</tal:block>
