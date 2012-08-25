@@ -11,6 +11,7 @@ p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','common')
 sys.path.insert(0, p)
 from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
+from common.common import iniToDict
 
 import json
 
@@ -23,6 +24,16 @@ class CoreCommunicationCommands(ModuleTemplate):
     def getDotGraph(self,dataDict):
         dot = pygraph.readwrite.dot.write(self.mainDaemon.servers.graph,False) 
         return {"Dot" :  dot}
+    
+    def getPDUDict(self):
+        returnValue = {}
+        for pdu in os.listdir(self.mainDaemon.OUTLETS_DIR):
+            pdu = os.path.join(self.mainDaemon.OUTLETS_DIR,pdu)
+            pduDict = iniToDict(pdu)
+            pduName = os.path.splitext(os.path.basename(pdu))[0]
+            returnValue[pduName] = pduDict
+            
+        return {"pdus" : json.dumps(returnValue)}
     
     def getServerInfo(self,dataDict):
         ''' Get the data dict of a server
@@ -56,6 +67,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.getServerInfo(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("getPDUDict",lambda dataDict: self.getPDUDict())
 
         return
 

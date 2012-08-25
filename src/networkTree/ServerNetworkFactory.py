@@ -23,6 +23,9 @@ from common.Exceptions import OutletTypeNotFound
 from common.Exceptions import TesterTypeNotFound
 
 config,ETC_DIR = loadConfig()
+
+TESTERS_PACKAGE="testers"
+OUTLETS_PACKAGE="outlets"
 class ServerNetworkFactory(object):
     '''
     A class to take the config file folder and turn it in to a server network
@@ -33,7 +36,9 @@ class ServerNetworkFactory(object):
         Constructor
         '''
         self.mainDaemon = MainDaemon
+        print MainDaemon.OUTLETS_DIR
         return
+    
     def _getNameFromFilePath(self,path):
         return os.path.splitext(os.path.basename(path))[0]
     
@@ -111,8 +116,7 @@ class ServerNetworkFactory(object):
         
         #get outlet type so we can pull its config data
         outletConfig=serverConfig.get(outlet, "outlet")
-        OUTLET_DIR = config.get('main', 'OUTLET_DIR')
-        outletConfigPath = os.path.join(ETC_DIR,OUTLET_DIR,outletConfig + ".ini")
+        outletConfigPath = os.path.join(self.mainDaemon.OUTLETS_DIR,outletConfig + ".ini")
         outletConfig = SafeConfigParser()
         
         #Create the outlet with server params and outlet config 
@@ -123,7 +127,7 @@ class ServerNetworkFactory(object):
             outletConfigDict[section] = turpleList2Dict(outletConfig.items('outlet'))
         
         #Find from type the kind of outlet
-        outlets = load(OUTLET_DIR,subclasses=OutletTemplate)
+        outlets = load(OUTLETS_PACKAGE,subclasses=OutletTemplate)
         outletType = outletConfigDict['outlet']['type']
         for outletClass in outlets:
             if outletClass.__name__ == outletType:
@@ -156,7 +160,7 @@ class ServerNetworkFactory(object):
             testerConfigDict[section] = turpleList2Dict(testerConfig.items('tester'))
                         
         #Find from type the kind of tester
-        testers = load(TESTER_DIR,subclasses=TemplateTester)
+        testers = load(TESTERS_PACKAGE,subclasses=TemplateTester)
         testerType = testerConfigDict['tester']['type']
         for tester in testers:
             if tester.__name__ == testerType:

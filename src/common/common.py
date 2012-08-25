@@ -104,6 +104,15 @@ def configToDict(config):
             returnValue[section][itemTurple[0]] = itemTurple[1]
     return returnValue
 
+def iniToDict(path):
+    ''' Read an ini path in to a dict
+    @param path: Path to file
+    @return: a dict of that path
+    ''' 
+    config = SafeConfigParser()
+    config.read(path)
+    return configToDict(config)
+
 def dictToConfig(d):
     ''' Get a config parser from a config dictionary
     @param d: a dictionary

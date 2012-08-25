@@ -40,6 +40,8 @@ class MainDaemon(object):
         
     def __init__(self):
         self.ETC_DIR = ETC_DIR
+        OUTLET_DIR = config.get('main', 'OUTLET_DIR')
+        self.OUTLETS_DIR = os.path.join(ETC_DIR,OUTLET_DIR)
         
         #config framework
         self.config = config #get it from the global

@@ -152,4 +152,8 @@ def setINIFile(iniPath,iniDict):
 def restartOckle():
     return getDataFromServer("restart",{},True)
 
+def getPDUDict():
+    reply = json.loads(getDataFromServer("getPDUDict")["pdus"])
+    return reply
+
     

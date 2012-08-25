@@ -19,6 +19,7 @@ from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
+from ockle_client.ClientCalls import getPDUDict
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
@@ -239,6 +240,12 @@ def about_view(request):
     return {"layout": site_layout(),
             "name_filler" : config_ini_layout(),
             "page_title": "About"}
+
+@view_config(renderer="templates/pdus.pt", name="pdus")
+def pdu_view(request):
+    return {"layout": site_layout(),
+            "PDUList" : getPDUDict(),
+            "page_title": "PDU List"}
 
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
