@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <div metal:use-macro="layout">
+<tal:block metal:fill-slot="head_content">
+</tal:block>
+
     <div metal:fill-slot="content">
         <p>Bla bla Ockle</p>
     </div>

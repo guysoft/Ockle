@@ -29,7 +29,7 @@ from plugins.Log import DATA_NAME_TO_UNITS
 from plugins.Log import DATA_NAME_TO_UNITS_NAME
 
 #macros
-from macros import site_layout,config_ini_layout
+from macros import site_layout,config_sidebar_head,config_sidebar_body
 
 #config stuff
 from ConfigParser import SafeConfigParser
@@ -238,25 +238,22 @@ def index_view(request):
 @view_config(renderer="templates/about.pt", name="about.html")
 def about_view(request):
     return {"layout": site_layout(),
-            "name_filler" : config_ini_layout(),
             "page_title": "About"}
 
 @view_config(renderer="templates/pdus.pt", name="pdus")
-def pdu_view(request):
+def pdus_view(request):
     return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
             "PDUList" : getPDUDict(),
-            "page_title": "PDU List"}
+            "page_title": "PDUs"}
 
-@view_config(renderer="templates/config.pt", name="config")
-def config_view(request):
-    configPath = "config.ini"
-    multiListChoices={}
-    iniTemplate = getINITemplate(configPath)
+
+def loadINIFile(configPath,templatePaths):
+    if type(templatePaths) == str:
+        templatePaths= [templatePaths]
     
-    pluginList = getINIFolderTemplate("plugins")
-    print pluginList
-    #,"plugins/AutoControl.ini
-    iniTemplate = getINITemplate(["config.ini"] + pluginList)
+    iniTemplate = getINITemplate(templatePaths)
     
     iniString = getINIFile(configPath)
     INIFileDict = getINIstringtoDict(iniString)
@@ -264,6 +261,15 @@ def config_view(request):
     for section in iniTemplate.keys():
         for item in iniTemplate[section].keys():
             iniTemplate[section][item] = json.loads(iniTemplate[section][item])
+    return iniTemplate,INIFileDict
+
+@view_config(renderer="templates/config.pt", name="config")
+def config_view(request):
+    
+    pluginList = getINIFolderTemplate("plugins")
+    
+    multiListChoices={}
+    iniTemplate,INIFileDict = loadINIFile("config.ini",["config.ini"] + pluginList)
     
     #build list of checked plugins multilist
     selectedPlugins = json.loads(INIFileDict["plugins"]["pluginlist"])
@@ -282,7 +288,9 @@ def config_view(request):
             
     
     return {"layout": site_layout(),
-            "page_title": "Configuration",
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "page_title": "General",
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : iniTemplate,
             "multiListChoices" : multiListChoices}
@@ -352,4 +360,4 @@ def sendOckleCommand(request):
     print command
     if command == "restart":
         restartOckle()
-    return
+    return dataDict

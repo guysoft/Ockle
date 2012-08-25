@@ -13,7 +13,10 @@ def site_layout():
     return layout
 
 
-def config_ini_layout():
-    renderer = get_renderer("templates/test.pt")
-    macro = renderer.implementation().macros['name_filler']
-    return macro
+def config_sidebar_body():
+    renderer = get_renderer("templates/config_sidebar.pt")
+    return renderer.implementation().macros['config_sidebar_body']
+
+def config_sidebar_head():
+    renderer = get_renderer("templates/config_sidebar.pt")
+    return renderer.implementation().macros['config_sidebar_head']

@@ -1,0 +1,21 @@
+<tal:block metal:define-macro="config_sidebar_head">
+</tal:block>
+
+<div metal:define-macro="config_sidebar_body" style="float: left; padding-left: 30px;">
+	
+	<ul>
+	<li id="sidebar_General"><a href="/config">General</a></li>
+	<li id="sidebar_PDUs"><a href="/pdus">PDUs</a></li>
+	<li id="sidebar_Servers">Servers</li>
+	<li id="sidebar_Controlers">Controlers</li>
+	<li id="sidebar_Testers">Testers</li>
+	</ul>
+
+   <b metal:define-slot="onPage"></b>
+   <script type="text/javascript">
+   $(document).ready(function(){
+	   $("#sidebar_${page_title}").css("font-weight", "bold");
+	   $("#sidebar_${page_title}").css("background", "#EBF2F9");
+   });
+   </script>
+</div>
