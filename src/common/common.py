@@ -145,7 +145,6 @@ def getINITemplate(paths):
     appandedPaths=[]
     for path in paths:
         appandedPaths.append(_appendTemplateDIR(path))
-    
     config = SafeConfigParser()
     config.read(appandedPaths)
     return configToDict(config)

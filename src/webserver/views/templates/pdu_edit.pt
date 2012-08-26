@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<tal:block metal:use-macro="layout">
+	<tal:block metal:fill-slot="head_content">
+	<tal:block metal:use-macro="INI_InputArea_head"></tal:block>
+	</tal:block>
+
+
+    <tal:block metal:fill-slot="content">
+
+    <tal:block metal:use-macro="INI_InputArea_body"></tal:block>
+
+
+   </tal:block>	
+   
+</tal:block>

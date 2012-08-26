@@ -1,0 +1,134 @@
+<tal:block metal:define-macro="INI_InputArea_head">
+	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js" type="text/javascript"></script>
+
+	<script type="text/javascript" src="/static/forms/numeric/jquery.numeric.js"></script>
+	
+	<script type="text/javascript" src="/static//noty/jquery.noty.js"></script>
+	<script type="text/javascript" src="/static/noty/layouts/top.js"></script>
+	<script type="text/javascript" src="/static/noty/themes/default.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/noty/buttons.css"/>
+	
+	<script src="/static/ajax/save_call.js"></script>
+	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
+		
+	<script type="text/javascript">
+	NOTY_MEESAGE_LAYOUT = 'top';
+	
+	  function nottyQuestion(message,button1,button2) {
+		    var n = noty({
+		      text: message,
+		      type: 'warning',
+		      dismissQueue: true,
+		      layout: NOTY_MEESAGE_LAYOUT,
+		      theme: 'default',
+		      buttons: [
+		        {addClass: 'btn btn-primary', text: button1, onClick: function($noty) {
+		        	$noty.close();
+		            noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'Restarting Ockle. Please wait', type: 'success', modal: true});
+		            
+		            $.ajax({ 
+		        		type: "POST",  
+		        		url: "/sendOckleCommand.json",
+		        		contentType: "application/json; charset=utf-8",
+		        		data: JSON.stringify({"command":"restart"})
+		        		});
+		            
+		            setTimeout(location.reload,7000);
+		            
+		          }
+		        },
+		        {addClass: 'btn btn-danger', text: button2, onClick: function($noty) {
+		            $noty.close();
+		            //noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'You clicked "Cancel" button', type: 'error'});
+		          }
+		        }
+		      ]
+		    });
+		    console.log('html: '+n.options.id);
+		  }
+	
+	function nottyMessage(type,text) {
+	 	var n = noty({
+	 		text: text,
+	 		type: type,
+	 		timeout: 2000,
+	     dismissQueue: true,
+	 		layout: NOTY_MEESAGE_LAYOUT,
+	 		theme: 'default'
+	 	});
+	   return n;
+	 }
+
+        $(document).ready(function(){
+	    $("input, textarea").addClass("idle");
+            $("input, textarea").focus(function(){
+                $(this).addClass("activeField").removeClass("idle");
+	    }).blur(function(){
+                $(this).removeClass("activeField").addClass("idle");
+	    });
+        
+            
+        $('#formLoader').hide();
+        $('#formStatus').hide();
+        
+        });
+    </script>
+    
+    
+  	<script type="text/javascript">
+		$(".numeric").numeric();
+		$(".integer").numeric(false, function() { alert("Integers only"); this.value = ""; this.focus(); });
+		$(".positive").numeric({ negative: false }, function() { alert("No negative values"); this.value = ""; this.focus(); });
+		$(".positive-integer").numeric({ decimal: false, negative: false }, function() { alert("Positive integers only"); this.value = ""; this.focus(); });
+		$("#remove").click(
+		function(e)
+		{
+		e.preventDefault();
+		$(".numeric,.integer,.positive").removeNumeric();
+		}
+		);
+	</script>
+</tal:block>
+
+<tal:block metal:define-macro="INI_InputArea_body">
+
+        <div id="inputArea">
+	        <form id="configINI">
+	        <table>
+	        <tal:block tal:repeat="section reversed(INIFileTemplate.keys())">
+	        	<tr>
+	        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
+	        	</tr>
+	        	<tal:block tal:repeat="item reversed(INIFileTemplate[section].keys())">
+	        		<tr>
+	        		<td><p tal:replace="item"></p></td>
+	        		<!-- Switch case for different datatypes -->
+	        		<tal:block tal:switch="INIFileTemplate[section][item][0]">
+	        		
+	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
+	        			
+	        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
+	        			
+	        			<!-- Special cases, because we need to decide what the choices are -->
+	        			
+	        			<td tal:case="'multilist'">
+	        			<div tal:repeat="checkItem multiListChoices[section][item]">
+	        			<input type="checkbox" name="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
+	        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
+	        			</div>
+	        			</td>
+	        			
+	        			
+	        		</tal:block>
+	        		</tr>
+	        	</tal:block>
+			 </tal:block>
+			 <tr><td>
+			 <input type="submit" value="submit"><td><div id="formLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="formStatus">Saved</div></td>
+			 </td></tr>
+			 </table>
+			 </form>
+		</div>
+
+</tal:block>

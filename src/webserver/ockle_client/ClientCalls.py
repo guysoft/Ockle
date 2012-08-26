@@ -17,12 +17,15 @@ from lxml import html
 from common.CommunicationMessage import MessageClientSend
 from common.CommunicationMessage import Message
 from common.common import trimOneObjectListsFromDict
+from common.common import getINIstringtoDict
+from common.common import getINITemplate
+from common.Exceptions import ParsingTemplateException
+
 import json
 
 config = SafeConfigParser()
-import os.path, sys
 ETC_DIR= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','..','..',"etc")
-print os.path.join(ETC_DIR,"config.ini")
+#print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
 PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
 SOCKET_TIMEOUT = config.getint('plugins.SocketListener', 'SOCKET_TIMEOUT')
@@ -156,4 +159,32 @@ def getPDUDict():
     reply = json.loads(getDataFromServer("getPDUDict")["pdus"])
     return reply
 
+def loadINIFileTemplate(templatePaths):
+    ''' Load an INI file and template data so it would display correctly.
+    Is called with loadINIFileConfig(configPath)
+    @param templatesPaths: A path, or list of paths relative to 'src/config'
+    @return: A dicts of the template
+    '''
+    if type(templatePaths) == str or type(templatePaths) == unicode:
+        templatePaths= [templatePaths]
+
+    iniTemplate = getINITemplate(templatePaths)
     
+    try:
+        for section in iniTemplate.keys():
+            for item in iniTemplate[section].keys():
+                print iniTemplate[section][item]
+                iniTemplate[section][item] = json.loads(iniTemplate[section][item])
+    except ValueError:
+        raise ParsingTemplateException()
+        
+    return iniTemplate
+
+def loadINIFileConfig(configPath):
+    ''' Get the config on an ini file
+    @param configPath: the path to the config relative to etc
+    @return: a dict of the config
+    '''
+    iniString = getINIFile(configPath)
+    INIFileDict = getINIstringtoDict(iniString)
+    return INIFileDict

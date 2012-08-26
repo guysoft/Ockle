@@ -49,4 +49,9 @@ class MultipleDeclerationList(Error):
         @param key the key that caused the clash
     '''
     def __init__(self, key):
-        self.key = key        
+        self.key = key
+        
+        
+class ParsingTemplateException(Error):
+    ''' Exception raised if we got an invalid template ini file to parse'''
+    

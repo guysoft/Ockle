@@ -20,21 +20,22 @@ from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getPDUDict
+from ockle_client.ClientCalls import loadINIFileTemplate
+from ockle_client.ClientCalls import loadINIFileConfig
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import slicedict
-from common.common import getINIstringtoDict
 from common.common import getINIFolderTemplate
 from plugins.Log import DATA_NAME_TO_UNITS
 from plugins.Log import DATA_NAME_TO_UNITS_NAME
 
 #macros
-from macros import site_layout,config_sidebar_head,config_sidebar_body
+from macros import site_layout,config_sidebar_head,config_sidebar_body,INI_InputArea_head,INI_InputArea_body
 
 #config stuff
 from ConfigParser import SafeConfigParser
 from StringIO import StringIO
-from common.common import getINITemplate
+from common.common import getINIstringtoDict
 
 #graphviz
 import pygraphviz as pgv
@@ -248,20 +249,32 @@ def pdus_view(request):
             "PDUList" : getPDUDict(),
             "page_title": "PDUs"}
 
-
-def loadINIFile(configPath,templatePaths):
-    if type(templatePaths) == str:
-        templatePaths= [templatePaths]
+@view_config(renderer="templates/pdu_edit.pt", route_name="pduEdit")
+def pdu_edit(request):
+    PDUName = request.matchdict['pduName']
     
-    iniTemplate = getINITemplate(templatePaths)
+    INIFileDict = loadINIFileConfig('outlets/' + PDUName + '.ini')
+    outletType = INIFileDict["outlet"]["type"]
+    print "outletType"
+    print outletType 
+    print 'conf_outlets/' + outletType + '.ini'
+    INIFileTemplate = loadINIFileTemplate('conf_outlets/' + outletType + '.ini')
+    print INIFileTemplate
     
-    iniString = getINIFile(configPath)
-    INIFileDict = getINIstringtoDict(iniString)
+    #Remove the outlet params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("outletParams")
+    except:
+        pass
     
-    for section in iniTemplate.keys():
-        for item in iniTemplate[section].keys():
-            iniTemplate[section][item] = json.loads(iniTemplate[section][item])
-    return iniTemplate,INIFileDict
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "page_title": "PDUs"}
 
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
@@ -269,7 +282,9 @@ def config_view(request):
     pluginList = getINIFolderTemplate("plugins")
     
     multiListChoices={}
-    iniTemplate,INIFileDict = loadINIFile("config.ini",["config.ini"] + pluginList)
+    
+    INIFileDict = loadINIFileConfig("config.ini")
+    iniTemplate = loadINIFileTemplate(["config.ini"] + pluginList)
     
     #build list of checked plugins multilist
     selectedPlugins = json.loads(INIFileDict["plugins"]["pluginlist"])
@@ -290,6 +305,8 @@ def config_view(request):
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
             "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),
             "page_title": "General",
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : iniTemplate,
