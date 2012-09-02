@@ -11,6 +11,7 @@ from ConfigParser import SafeConfigParser
 from StringIO import StringIO
 import os.path, sys
 import json
+from collections import OrderedDict
 
 class OpState:
     '''
@@ -182,11 +183,16 @@ def getINIstringtoDict(iniString):
     return configToDict(iniConfig)
 
 def mergeDicts(a,b):
-    '''
-    Merges two dicts, second should overwrite the first
+    ''' Merges two dicts, second should overwrite the first
     @param a: a dict
     @param b: a dict, should overwrite a
     @return: a merged dict, second dict overwrites the first
     '''
     return dict(a.items() + b.items())
-    
+
+def sortDict(d):
+    ''' Takes a normal unsorted dict, and returns an alphabetically ordered dict
+    @param d: An unsorted dict
+    @return: An ordered dict, sorted
+    '''
+    return OrderedDict(sorted(d.items(), key=lambda t: t[0])) 

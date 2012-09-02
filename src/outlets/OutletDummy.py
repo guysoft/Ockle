@@ -10,8 +10,7 @@ from OutletTemplate import OutletTemplate
 import time
 
 class Dummy(OutletTemplate):
-    '''
-    This class is an instance of an outlet within the pdu, you must specify a number
+    ''' A dummy outlet, useful for testing
     '''
     def __init__(self,name,outletConfigDict={},outletParams={}):
         OutletTemplate.__init__(self,name,outletConfigDict,outletParams)

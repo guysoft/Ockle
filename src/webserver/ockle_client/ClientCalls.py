@@ -188,3 +188,11 @@ def loadINIFileConfig(configPath):
     iniString = getINIFile(configPath)
     INIFileDict = getINIstringtoDict(iniString)
     return INIFileDict
+
+def getAvailableOutletsList():
+    response = getDataFromServer("getAvailableOutletsList")
+    if response == None:
+        return {}
+    else:
+        return json.loads(response["Outlets"])
+    return

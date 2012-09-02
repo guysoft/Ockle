@@ -3,8 +3,6 @@ p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')
 print p
 sys.path.insert(0, p)
 
-import os.path
-
 #pyramid stuff
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
@@ -19,11 +17,13 @@ from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
+from ockle_client.ClientCalls import getAvailableOutletsList
 from ockle_client.ClientCalls import getPDUDict
 from ockle_client.ClientCalls import loadINIFileTemplate
 from ockle_client.ClientCalls import loadINIFileConfig
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
+from common.common import sortDict
 from common.common import slicedict
 from common.common import getINIFolderTemplate
 from plugins.Log import DATA_NAME_TO_UNITS
@@ -49,7 +49,7 @@ PLOT_STEP=3600 #What is the step length of the graph
 STATISTICS_WINDOW=60*60*3#How far back should the log show
 
 @view_config(route_name='serverView',renderer="templates/server_info.pt")
-def serverPage(request):
+def serverPage_view(request):
     ''' Server View page 
     '''
     def unix2javascript(time):
@@ -106,6 +106,7 @@ def serverPage(request):
     
     #get the last data entry
     dataEntry = serverLog[serverLog.keys()[len(serverLog)-1]]
+    print dataEntry
     dataDictHead=json.loads(dataEntry["dataDict"])#parse the dict from the db string
     
     #list of variables we are going to fill, generating the plots
@@ -136,7 +137,10 @@ def serverPage(request):
                     
                     #save data point
                     dataPointTime=serverLog[key]["time"]
-                    dataPoint=dataDict[outletKey][dataKey]
+                    try:
+                        dataPoint=dataDict[outletKey][dataKey]
+                    except KeyError:
+                        dataPoint=0
                     
                     plotsData[plotNumber].append([unix2javascript(float(dataPointTime)),float(dataPoint)])
                 
@@ -249,23 +253,103 @@ def pdus_view(request):
             "PDUList" : getPDUDict(),
             "page_title": "PDUs"}
 
+
+def fillINIwithTemplate(INIFileTemplate,INIFileDict):
+    ''' Fill missing values in an INI config file with ones that exist in the template
+    @param INIFileTemplate: The config template as a dict
+    @param INIFileDict: The config file dict
+    @return: The new INIFileDict with the missing fields
+    '''
+    for section in INIFileTemplate.keys():
+        if section not in INIFileDict.keys():
+            INIFileDict[section] = {}
+        for item in INIFileTemplate[section].keys():
+            if item not in INIFileDict[section]:
+                INIFileDict[section][item] =  INIFileTemplate[section][item][1]
+    return INIFileDict
+
+@view_config(renderer="templates/add_pdu_list.pt", name="pdus_add_list")
+def pdu_add_list_view(request):
+    
+
+    PDUTypeList = sortDict(getAvailableOutletsList())
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "PDUTypeList" : PDUTypeList,
+            "page_title": "Add new PDU"
+            }
+    
+@view_config(renderer="templates/pdu_create.pt", route_name="pduCreate")
+def pdu_create(request):
+    PDUType = request.matchdict['pduType']
+    INIFileTemplate = loadOutletINITemplate(PDUType)
+
+    #Remove the outlet params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("outletParams")
+    except:
+        pass
+    try:
+        INIFileTemplate['outlet'].pop("type")
+    except:
+        pass
+    
+    INIFileTemplate['outlet']["name"] =["string",""]
+    
+    INIFileDict = fillINIwithTemplate(INIFileTemplate,{})
+    
+    
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),            
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "configPath" : "fixme.ini",
+            "multiListChoices" : {},
+            
+            "page_title": "Add new PDU: " + PDUType
+            }
+    
+
+def loadOutletINITemplate(outletType):
+    ''' Get the outlet type template
+    @param outletType: The type of the outlet '''
+    return loadINIFileTemplate(['conf_outlets/' + outletType + '.ini'] + ["outlets.ini"])
+
 @view_config(renderer="templates/pdu_edit.pt", route_name="pduEdit")
 def pdu_edit(request):
     PDUName = request.matchdict['pduName']
     
-    INIFileDict = loadINIFileConfig('outlets/' + PDUName + '.ini')
+    configPath= 'outlets/' + PDUName + '.ini'
+    INIFileDict = loadINIFileConfig(configPath)
+    
     outletType = INIFileDict["outlet"]["type"]
-    print "outletType"
-    print outletType 
-    print 'conf_outlets/' + outletType + '.ini'
-    INIFileTemplate = loadINIFileTemplate('conf_outlets/' + outletType + '.ini')
-    print INIFileTemplate
+    INIFileTemplate = loadOutletINITemplate(outletType)
+    
+    INIFileDict = fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
     #Remove the outlet params if exist, we handle them in the server section
     try:
         INIFileTemplate.pop("outletParams")
     except:
         pass
+    
+    #Create a multi-choice box for the outlets
+    multiListChoices={}
+    multiListChoices["outlet"]={}
+    multiListChoices["outlet"]["type"]={}
+    
+    for slectionName in getAvailableOutletsList().keys():
+        multiListChoices["outlet"]["type"][slectionName]={}
+    
+    for slectionName in multiListChoices["outlet"]["type"].keys():
+        multiListChoices["outlet"]["type"][slectionName]["selected"] = (slectionName == outletType)
+
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -274,7 +358,9 @@ def pdu_edit(request):
             "INI_InputArea_body" : INI_InputArea_body(),
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
-            "page_title": "PDUs"}
+            "configPath" : configPath,
+            "multiListChoices" : multiListChoices,
+            "page_title": "PDU Edit: " + str(PDUName)}
 
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
@@ -282,9 +368,10 @@ def config_view(request):
     pluginList = getINIFolderTemplate("plugins")
     
     multiListChoices={}
-    
-    INIFileDict = loadINIFileConfig("config.ini")
-    iniTemplate = loadINIFileTemplate(["config.ini"] + pluginList)
+    configPath = "config.ini"
+    INIFileDict = loadINIFileConfig(configPath)
+    iniTemplate = loadINIFileTemplate([configPath] + pluginList)
+    INIFileDict = fillINIwithTemplate(iniTemplate,INIFileDict)
     
     #build list of checked plugins multilist
     selectedPlugins = json.loads(INIFileDict["plugins"]["pluginlist"])
@@ -310,6 +397,7 @@ def config_view(request):
             "page_title": "General",
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : iniTemplate,
+            "configPath" : configPath,
             "multiListChoices" : multiListChoices}
 
 

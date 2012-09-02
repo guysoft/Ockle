@@ -44,8 +44,7 @@ class CPUsage:
   
 
 class DummyWithCPU(Dummy):
-    '''
-    This class is an instance of an outlet within the pdu, you must specify a number
+    ''' A dummy outlet, useful for testing, also comes with dummy CPU % information
     '''
     def __init__(self,name,outletConfigDict={},outletParams={}):
         Dummy.__init__(self,name,outletConfigDict,outletParams)

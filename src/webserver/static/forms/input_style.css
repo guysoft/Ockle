@@ -34,3 +34,15 @@
 	    background-repeat: repeat-x;
 	    background-position: top;
         }
+        
+        .styled-select select {
+   		background: transparent;
+	    font-family: Arial, Sans-Serif;
+	    font-size: 13px;
+	    background-color: #d6e5f4;
+	    padding: 4px;
+	    border: solid 1px #85b1de;
+	    background-image: url( '/static/forms/blue_bg.png' );
+	    background-repeat: repeat-x;
+	    background-position: top;
+}

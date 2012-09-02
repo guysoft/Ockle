@@ -19,50 +19,6 @@
         <tal:block metal:use-macro="INI_InputArea_body"></tal:block>
 		 
 		 ${multiListChoices["plugins"]["pluginlist"]}
-    
-    
-    <script type="text/javascript">
-    
-    $('#configINI').submit(function() {    	
-    	jQuery.ajaxSetup({
-  		  beforeSend: function() {
-  		     $('#formLoader').show();
-  		  },
-  		  complete: function(){
-  		     $('#formLoader').hide();
-  		  },
-  		  success: function() {}
-  		});
-    	
-    	$.ajax({ 
-    		type: "POST",  
-    		url: "/configSend.json",
-    		contentType: "application/json; charset=utf-8",
-    		data: JSON.stringify({"path":"config.ini",
-    			"configINI":$('#configINI').serializeArray()}),
-
-    		  success: function(data) {  
-    		    //display message back to user here  
-    	            var target = $('#formStatus');
-    	            target.empty();
-    	            //$.each(data, function (key, val) {
-    	          	//	target.append(val);
-    	            //});
-    	            target.append("<font color='" +data["color"] + "'>" + data["message"] + "</font>");
-    	            if (data["color"] == "green"){
-    	            	nottyMessage('success',data["message"]);
-    	            	nottyQuestion("Restart of Ockle is required for changes to take effect. Restart now?","Restart","Later");
-    	            }
-    	            else{
-    	            	nottyMessage('error',data["message"]);
-    	            }
-    		  }  
-    		});  
-    	
-	    	$('#formStatus').show();
-	    	  return false;
-    	})
-    </script>
 
 		 
     </div>

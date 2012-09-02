@@ -33,8 +33,7 @@ def int2bool(int):
 
 from OutletTemplate import OutletTemplate
 class Raritan(OutletTemplate):
-    '''
-    This class is an instance of an outlet within the pdu, you must spesify a number
+    ''' A Raritan Dominion PX DPXR8A-16 PDU
     '''
     def __init__(self,name,outletConfigDict,outletParams):
         print outletConfigDict,outletParams

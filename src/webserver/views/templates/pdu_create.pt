@@ -14,14 +14,7 @@
 
     <div metal:fill-slot="content"  class="secondary-a-6">
     
-    <p style="float: right"><a href="/pdus_add_list">+ Add new PDU</a></p>
-		<p>PDU data that would go in to a nice table:</p>
-		<ol>
-		<li tal:repeat="PDUVar PDUList.keys()">
-			<a href="/pdu/${PDUVar}/edit"><p tal:replace="PDUVar"></p></a> - <p tal:replace="PDUList[PDUVar]['outlet']['comment']"></p>
-		</li>
-		</ol>
-		
-		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <tal:block metal:use-macro="INI_InputArea_body"></tal:block>
+
     </div>
 </tal:block>

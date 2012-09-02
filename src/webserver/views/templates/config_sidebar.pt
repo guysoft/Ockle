@@ -1,7 +1,7 @@
 <tal:block metal:define-macro="config_sidebar_head">
 </tal:block>
 
-<div metal:define-macro="config_sidebar_body" style="float: left; padding-left: 30px;">
+<div metal:define-macro="config_sidebar_body" style="float: left; padding-left: 30px; font-size: 13px; color: #666;">
 	
 	<ul>
 	<li id="sidebar_General"><a href="/config">General</a></li>

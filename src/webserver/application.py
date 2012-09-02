@@ -9,6 +9,7 @@ def main():
     config.add_route('serverView', '/server/{serverName}')
     config.add_route('serverEdit', '/server/{serverName}/edit')
     config.add_route('pduEdit', '/pdu/{pduName}/edit')
+    config.add_route('pduCreate', '/pduCreate/{pduType}')
     
     config.scan("views")
     config.add_static_view('static', 'static/',

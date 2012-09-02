@@ -36,7 +36,6 @@ class ServerNetworkFactory(object):
         Constructor
         '''
         self.mainDaemon = MainDaemon
-        print MainDaemon.OUTLETS_DIR
         return
     
     def _getNameFromFilePath(self,path):
@@ -134,7 +133,23 @@ class ServerNetworkFactory(object):
                 return outletClass(outlet,outletConfigDict,outletParams)
         raise OutletTypeNotFound(outletConfigPath,outletType)
     
+    def _getClassDictIndex(self,package,subclass):
+        ''' Get a list of modules
+        @param package: The package path to search
+        @param subclass: The subclass to search for 
+        @return: A list of the names of the classes ''' 
+        classTypeDict = {}
+        outlets = load(OUTLETS_PACKAGE,subclasses=OutletTemplate)
+        for outletClass in outlets:
+            if not outletClass.__name__ in classTypeDict:
+                classTypeDict[outletClass.__name__] = outletClass.__doc__
+        return classTypeDict
     
+    def getOutletsDictIndex(self):
+        return self._getClassDictIndex(OUTLETS_PACKAGE,OutletTemplate)
+
+    def getTestersDictIndex(self):
+        return self._getClassDictIndex(TESTERS_PACKAGE,TemplateTester)
     
     def __makeTester(self,serverConfig,tester,serverConfigPath):
         ''' Make a tester from the config file path of a tester, and the required tester-server info
