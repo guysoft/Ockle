@@ -68,6 +68,14 @@ class ServerNode():
         '''
         return self.outlets
     
+    def getOutletByName(self,outletSearchName):
+        ''' Get an outlet from a server, None if does not exist
+        '''
+        for outlet in self.getOutlets():
+            if outlet.getName() == outletSearchName:
+                return outlet
+        return None
+    
     def setOutletsState(self,state):
         ''' Sets the outlets all to a given state by force
         @param state: set the outlets to state (boolean)

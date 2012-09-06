@@ -199,3 +199,6 @@ def getAvailableOutletsList():
 
 def getOutletFolder():
     return loadINIFileConfig("config.ini")['main']['outlet_dir']
+
+def switchOutlet(dataDict):
+    return getDataFromServer("switchOutlet",dataDict)

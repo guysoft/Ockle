@@ -13,6 +13,8 @@ from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
 from common.common import iniToDict
 
+from outlets.OutletTemplate import OutletOpState
+
 import json
 
 class CoreCommunicationCommands(ModuleTemplate):
@@ -63,13 +65,28 @@ class CoreCommunicationCommands(ModuleTemplate):
                 "StartAttempts" : server.getStartAttempts()
                 }
     
+    def switchOutlet(self,dataDict):
+        serverName = dataDict["server"]
+        outletName = dataDict["outlet"]
+        
+        outletState = dataDict["state"] == "on" 
+        
+        outlet = self.mainDaemon.servers.getServer(serverName).getOutletByName(outletName)
+        outlet.setState(outletState)
+        if outletState:
+            outlet.setOpState(OutletOpState.forcedOn)
+        else:
+            outlet.setOpState(OutletOpState.forcedOff)
+        return {}
+    
     def run(self):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.getServerInfo(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getPDUDict",lambda dataDict: self.getPDUDict())
+        self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
 
-        return
+        return 
 
 if __name__ == "__main__":
     a = CoreCommunicationCommands(None)

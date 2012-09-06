@@ -84,6 +84,16 @@ class ServerNetwork():
             servers.append(self.graph.node_attributes(node))
         return servers
     
+    def getServer(self,serverNameSearch):
+        ''' Get a server by name
+        @param serverNameSearch: The server to search for
+        @return: The server class, None if not found
+        '''
+        for server in self.getSortedNodeList():
+            if server.getName() == serverNameSearch:
+                return server
+        return None
+    
     def getSortedNodeListIndex(self):
         ''' returns a list of the node names topologically sorted
         @return: a list of the node names topologically sorted

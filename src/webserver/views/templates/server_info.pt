@@ -101,10 +101,57 @@
 			}
 		});
 		var outletsDict = ${structure: outletsDict};
+		
 		for(var outletKey in outletsDict){
+			$('#status_'+ outletKey).hide();
+			outletsDict[outletKey]["firstRun"] = true;
 			$('#check_' + outletKey).iCheckbox(outletsDict[outletKey]["Switch"], checkOutletOpts );
+
+			$('#check_' + outletKey).change(function(e){
+			outletID = e.currentTarget.getAttribute('id');
+			currentOutlet = outletID.split("_")[1];
+				if (!outletsDict[currentOutlet]["firstRun"]){
+				state = document.getElementById(outletID).checked;
+				
+				$('#status_'+ currentOutlet).show();
+				switchOutlet(currentOutlet,outletID,state);
+				
+				}
+
+				if (outletsDict[currentOutlet]["firstRun"]){
+					outletsDict[currentOutlet]["firstRun"]=false;
+				}
+			});
 		}
+		
 	});
+	
+	function switchOutlet(outlet,elementID,state){
+	serverName = "${server_dict['Name']}";
+					//alert(outlet +  state + serverName);
+					if (state){
+					state = "on";
+					}else{
+					state="off";
+					}
+					
+		$.ajax({
+	        'type': 'POST',
+	        'url': "/sendOckleCommand.json",
+	        'contentType': 'application/json',
+	        'data': JSON.stringify({"command": "switchOutlet",
+			"dataDict" : {"server": serverName,
+						"outlet" : 	outlet,
+						"state" : state
+			}}),
+	        'dataType': 'json',
+	        'success': function(response){
+	        	$('#status_'+ outlet).hide();
+
+			}
+	    });
+
+	}
 	</script>
 
 
@@ -130,7 +177,7 @@
 		
 			<tr tal:repeat="outletVar outlets">
 		      <td>
-		      ${outlets[outletVar]["name"]} Status: <input type="checkbox" id="check_${outletVar}" disabled="true"/>
+		      ${outlets[outletVar]["name"]} Status: <input type="checkbox" id="check_${outletVar}"/><div id="status_${outletVar}" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 		      </td>
 		    </tr>
 		    <tr>
@@ -209,6 +256,7 @@
 		      <td><p tal:replace="server_dict[serverVar]"></p></td>
 		   </tr>
 		</table>
+		${server_dict['outlets']}
    </div>	
    
 </tal:block>

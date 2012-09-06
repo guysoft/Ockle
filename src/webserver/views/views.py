@@ -11,6 +11,7 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client import ClientCalls
 from ockle_client.ClientCalls import getServerTree
+from ockle_client.ClientCalls import switchOutlet
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
@@ -490,4 +491,9 @@ def sendOckleCommand(request):
             return {"reply" : dataDict["name"] in getPDUDict()}
         except:
             return {"reply" : "Error"}
+    
+    if command == "switchOutlet":
+        switchOutlet(dataDict)
+    print "yau"
+        
     return dataDict
