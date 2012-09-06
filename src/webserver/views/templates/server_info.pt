@@ -58,6 +58,7 @@
 	}
 
 	// init the checkboxes at dom ready
+	var outletsDict = ${structure: outletsDict};
 	$(document).ready( function () {
 		/*
 		* first example - defaults
@@ -100,7 +101,6 @@
 				console.log('checkbox two checked: '+$(e.target).attr('checked'));
 			}
 		});
-		var outletsDict = ${structure: outletsDict};
 		
 		for(var outletKey in outletsDict){
 			$('#status_'+ outletKey).hide();
@@ -127,21 +127,21 @@
 	});
 	
 	function switchOutlet(outlet,elementID,state){
-	serverName = "${server_dict['Name']}";
-					//alert(outlet +  state + serverName);
-					if (state){
-					state = "on";
-					}else{
-					state="off";
-					}
-					
+		serverName = "${server_dict['Name']}";
+		//alert(outlet +  state + serverName);
+		if (state){
+			state = "on";
+		}else{
+			state="off";
+		}
+		
 		$.ajax({
 	        'type': 'POST',
 	        'url': "/sendOckleCommand.json",
 	        'contentType': 'application/json',
 	        'data': JSON.stringify({"command": "switchOutlet",
 			"dataDict" : {"server": serverName,
-						"outlet" : 	outlet,
+						"outlet" : 	outletsDict[outlet]["name"],
 						"state" : state
 			}}),
 	        'dataType': 'json',

@@ -494,6 +494,5 @@ def sendOckleCommand(request):
     
     if command == "switchOutlet":
         switchOutlet(dataDict)
-    print "yau"
         
     return dataDict
