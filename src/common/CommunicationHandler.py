@@ -51,7 +51,7 @@ class CommunicationHandler(object):
         #print message.__class__.__name__
         command = message.getCommand()
         if not command in self.commandDict:
-            return MessageServerError(command)#TODO: return an unknown command Error message
+            return MessageServerError("Unknown Command")#TODO: return an unknown command Error message
         handleFunction = self.commandDict[command]
         dataDict = message.getDataDict()
         if dataDict != None:
