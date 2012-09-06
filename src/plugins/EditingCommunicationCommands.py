@@ -49,10 +49,16 @@ class EditingCommunicationCommands(ModuleTemplate):
         newConfig={}
         
         for section in iniDict.keys():
-            newConfig[section] = mergeDicts(iniSource[section],iniDict[section])
+            if section in iniSource:
+                newConfig[section] = mergeDicts(iniSource[section],iniDict[section])
+            else:
+                newConfig[section] = iniDict[section]
         
         config = dictToConfig(newConfig)
-        shutil.copy(path,path + "." + str(int(time.time())))
+        try:
+            shutil.copy(path,path + "." + str(int(time.time())))
+        except:
+            pass
         config.write(open(path,"w"))
         #print newConfig
         return {"succeeded": True}

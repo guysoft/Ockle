@@ -1,7 +1,10 @@
 <tal:block metal:define-macro="INI_InputArea_head">
 	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.js" type="text/javascript"></script>
-
+	
+	
+	<script type="text/javascript" src="/static/TextChangePlugin/jquery.textchange.min.js"></script>
+	
 	<script type="text/javascript" src="/static/forms/numeric/jquery.numeric.js"></script>
 	
 	<script type="text/javascript" src="/static//noty/jquery.noty.js"></script>
@@ -11,7 +14,19 @@
 	
 	<script src="/static/ajax/save_call.js"></script>
 	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
-		
+	
+	
+	<script  type="text/javascript">
+	var configPathPrefix ="";
+	var configPath = "";
+	</script>
+	<script tal:condition='exists: configPathPrefix' type="text/javascript">
+	var configPathPrefix = '${configPathPrefix}';
+	</script>
+	<script tal:condition='exists: configPath' type="text/javascript">
+	var configPath = '${configPath}';
+	</script>
+	
 	<script type="text/javascript">
 	NOTY_MEESAGE_LAYOUT = 'top';
 	
@@ -89,6 +104,49 @@
 		}
 		);
 	</script>
+	
+	
+	    <script>
+    	$(document).ready(function() {
+    		$('#ajaxNameCheck').hide();
+    		loadHTML = $('#ajaxNameCheck').html();
+    	});
+    	 
+    	function check_name(){
+    		var PDUname = document.forms["configINI"].outlet$name.value || "";
+    		
+    		if(PDUname.length > 2){
+    			$('#ajaxNameCheck').html(loadHTML);
+    			$('#ajaxNameCheck').show();
+    			
+    			$.ajax({
+    		        'type': 'POST',
+    		        'url': "/sendOckleCommand.json",
+    		        'contentType': 'application/json',
+    		        'data': JSON.stringify({"command": "checkExistingPDU",
+					"dataDict" : {"name": PDUname}}),
+    		        'dataType': 'json',
+    		        'success': function(response){
+    		        	
+        				$('#Info').fadeOut();
+	       				$('#ajaxNameCheck').hide();
+	       				//if exists
+	       				if (response["reply"]){
+	       					$('#ajaxNameCheck').html("<font color='red'>Name already exists</font>");
+	       					$('#ajaxNameCheck').show();
+       					} if (! response["reply"]){
+       						$('#ajaxNameCheck').html("<font color='green'>Name available</font>");
+       						configPath = PDUname + ".ini";
+       						$('#ajaxNameCheck').show();
+	       				}
+       				}
+    		    });
+    			
+    			return false;
+    		}
+    	}
+    	 
+	</script>
 </tal:block>
 
 <tal:block metal:define-macro="INI_InputArea_body">
@@ -96,6 +154,7 @@
         <div id="inputArea">
 	        <form id="configINI">
 	        <table>
+	        <tal:block metal:define-macro="INI_InputArea_body_extra_fields"></tal:block>
 	        <tal:block tal:repeat="section reversed(INIFileTemplate.keys())">
 	        	<tr>
 	        	<td><b> <p tal:replace="repeat.section.number"></p>. <p tal:replace="section"></p></b></td>
@@ -106,9 +165,9 @@
 	        		<!-- Switch case for different datatypes -->
 	        		<tal:block tal:switch="INIFileTemplate[section][item][0]">
 	        		
-	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
+	        			<td tal:case="'string'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}" id="${section}$${item}"></td>
 	        			
-	        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" name="${section}$${item}"></td>
+	        			<td tal:case="'int'"><input class="positive-integer" type="text" value="${INIFileDict[section][item]}" name="${section}$${item}" id="${section}$${item}"></td>
 	        			
 	        			<!-- Special cases, because we need to decide what the choices are -->
 	        			
@@ -119,13 +178,16 @@
 	        			</div>
 	        			</td>
 	        			
-	        			<td tal:case="'select'" name="${section}$${item}" class="styled-select">
+	        			<td tal:case="'select'" class="styled-select">
 	        			 <select name="${section}$${item}" disabled="${INIFileTemplate[section][item][1]}">
 	        			 <tal:block tal:repeat="selectItem multiListChoices[section][item]">
 						  <option value="${selectItem}" tal:attributes='selected python:multiListChoices[section][item][selectItem]["selected"]'>${selectItem}</option>
 						 </tal:block>
 						</select> 
+						<input type="hidden" value="${INIFileDict[section][item]}" name="${section}$${item}">
 	        			</td>
+	        			
+	        			<td tal:case="'name'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}" id="${section}$${item}" onblur="return check_name();"/><div id="ajaxNameCheck" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div></td>
 	        			
 	        			
 	        		</tal:block>
@@ -158,7 +220,7 @@
     		type: "POST",  
     		url: "/configSend.json",
     		contentType: "application/json; charset=utf-8",
-    		data: JSON.stringify({"path":"${configPath}",
+    		data: JSON.stringify({"path": configPathPrefix + configPath,
     			"configINI":$('#configINI').serializeArray()}),
 
     		  success: function(data) {  

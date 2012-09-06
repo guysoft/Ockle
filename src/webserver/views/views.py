@@ -21,6 +21,7 @@ from ockle_client.ClientCalls import getAvailableOutletsList
 from ockle_client.ClientCalls import getPDUDict
 from ockle_client.ClientCalls import loadINIFileTemplate
 from ockle_client.ClientCalls import loadINIFileConfig
+from ockle_client.ClientCalls import getOutletFolder
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import sortDict
@@ -278,7 +279,7 @@ def pdu_add_list_view(request):
             "config_sidebar_body" : config_sidebar_body(),
             "INI_InputArea_head" : INI_InputArea_head(),
             "PDUTypeList" : PDUTypeList,
-            "page_title": "Add new PDU"
+            "page_title": "Add new PDU - Select type from list"
             }
     
 @view_config(renderer="templates/pdu_create.pt", route_name="pduCreate")
@@ -287,19 +288,33 @@ def pdu_create(request):
     INIFileTemplate = loadOutletINITemplate(PDUType)
 
     #Remove the outlet params if exist, we handle them in the server section
+    
     try:
         INIFileTemplate.pop("outletParams")
     except:
         pass
+    '''
     try:
         INIFileTemplate['outlet'].pop("type")
     except:
         pass
-    
-    INIFileTemplate['outlet']["name"] =["string",""]
+    '''
+    INIFileTemplate['outlet']["name"] =["name",""]
     
     INIFileDict = fillINIwithTemplate(INIFileTemplate,{})
     
+    
+    INIFileDict['outlet']["type"] = PDUType
+        #Create a multi-choice box for the outlets
+    multiListChoices={}
+    multiListChoices["outlet"]={}
+    multiListChoices["outlet"]["type"]={}
+    
+    for slectionName in getAvailableOutletsList().keys():
+        multiListChoices["outlet"]["type"][slectionName]={}
+    
+    for slectionName in multiListChoices["outlet"]["type"].keys():
+        multiListChoices["outlet"]["type"][slectionName]["selected"] = (slectionName == PDUType)
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -309,8 +324,9 @@ def pdu_create(request):
             "INI_InputArea_body" : INI_InputArea_body(),            
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
-            "configPath" : "fixme.ini",
-            "multiListChoices" : {},
+            "multiListChoices" : multiListChoices,
+            
+            "configPathPrefix": getOutletFolder() + "/",
             
             "page_title": "Add new PDU: " + PDUType
             }
@@ -409,6 +425,8 @@ def updates_view(request):
     jsonData = request.json_body["configINI"]
     iniFilePath = request.json_body["path"]
     
+    print "wee"
+    print jsonData
     for i in jsonData:
         rawiniDict[i["name"]] =i["value"]
     
@@ -462,7 +480,14 @@ def sendOckleCommand(request):
         dataDict = request.json_body["dataDict"]
     except:
         pass
+    
     print command
     if command == "restart":
         restartOckle()
+    
+    if command == "checkExistingPDU":
+        try:
+            return {"reply" : dataDict["name"] in getPDUDict()}
+        except:
+            return {"reply" : "Error"}
     return dataDict
