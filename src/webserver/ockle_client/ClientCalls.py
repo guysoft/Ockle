@@ -196,3 +196,6 @@ def getAvailableOutletsList():
     else:
         return json.loads(response["Outlets"])
     return
+
+def getOutletFolder():
+    return loadINIFileConfig("config.ini")['main']['outlet_dir']
