@@ -112,6 +112,15 @@ def getDataFromServer(command,paramsDict={},noReturn=False):
     '''
     return returnValue
 
+def _getDataFromServerWithFail(command,dataDict,errorClass):
+    ''' Gets data from server, if fails returns an empty dict
+    '''
+    response = getDataFromServer(command,dataDict)
+    if response == None:
+        return errorClass
+    else:
+        return response
+
 def getServerTree():
     ''' Get a server tree status from the Ockle server, and return a dict ready
     to be parsed by a pyramid view '''
@@ -122,32 +131,16 @@ def getServerTree():
         return html.fromstring(response["Dot"]).text 
 
 def getServerView(serverName):
-    response = getDataFromServer("ServerView",{"server":serverName})
-    if response == None:
-        return "Error connecting to Ockle server - Can't get server Info"
-    else:
-        #return html.fromstring(str(response)).text 
-        return response
-    return
+    return _getDataFromServerWithFail("ServerView",{"server":serverName},"Error connecting to Ockle server - Can't get server Info")
 
 def getAutoControlStatus():
-    response = getDataFromServer("getAutoControlStatus")
-    if response == None:
-        return {"status":"N/A"}
-    else:
-        return response
-    return
+    return _getDataFromServerWithFail("getAutoControlStatus",{},{"status":"N/A"})
 
 def getINIFile(iniPath):
     return getDataFromServer("getINIFile",{"Path":iniPath})["File"]
 
 def getAvailablePluginsList():
-    response = getDataFromServer("getAvailablePluginsList")
-    if response == None:
-        return {}
-    else:
-        return response
-    return
+    return _getDataFromServerWithFail("getAvailablePluginsList",{},{})
 
 def setINIFile(iniPath,iniDict):
     return getDataFromServer("setINIFile",{"Path":iniPath, "iniDict" : json.dumps(iniDict)})
@@ -157,6 +150,10 @@ def restartOckle():
 
 def getPDUDict():
     reply = json.loads(getDataFromServer("getPDUDict")["pdus"])
+    return reply
+
+def getTesterDict():
+    reply = json.loads(getDataFromServer("getTesterDict")["testers"])
     return reply
 
 def loadINIFileTemplate(templatePaths):
@@ -197,8 +194,19 @@ def getAvailableOutletsList():
         return json.loads(response["Outlets"])
     return
 
+def getAvailableTestersList():
+    response = getDataFromServer("getAvailableTestersList")
+    if response == None:
+        return {}
+    else:
+        return json.loads(response["Testers"])
+    return
+
 def getOutletFolder():
     return loadINIFileConfig("config.ini")['main']['outlet_dir']
+
+def getTesterFolder():
+    return loadINIFileConfig("config.ini")['main']['tester_dir']
 
 def switchOutlet(dataDict):
     return getDataFromServer("switchOutlet",dataDict)

@@ -13,8 +13,7 @@ from TemplateTester import TemplateTester
 from TemplateTester import TesterOpState
 
 def ping(ip):
-    '''
-    subprocess ping
+    ''' subprocess ping
     '''
     ping = subprocess.Popen(["ping", "-c", "2", "-w", "1", ip], shell=None,stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb'))
     ping.wait()
@@ -25,6 +24,8 @@ def ping(ip):
         return True
 
 class Ping(TemplateTester):
+    ''' A simple ping test
+    '''
     def __init__(self,testerConfigDict={},testerParams={}):
         TemplateTester.__init__(self, testerConfigDict, testerParams)
         self.hostname = testerParams["hostname"]

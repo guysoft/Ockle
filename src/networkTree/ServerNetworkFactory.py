@@ -139,7 +139,7 @@ class ServerNetworkFactory(object):
         @param subclass: The subclass to search for 
         @return: A list of the names of the classes ''' 
         classTypeDict = {}
-        outlets = load(OUTLETS_PACKAGE,subclasses=OutletTemplate)
+        outlets = load(package,subclasses=subclass)
         for outletClass in outlets:
             if not outletClass.__name__ in classTypeDict:
                 classTypeDict[outletClass.__name__] = outletClass.__doc__

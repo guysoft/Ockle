@@ -19,12 +19,16 @@
 	<script  type="text/javascript">
 	var configPathPrefix ="";
 	var configPath = "";
+	var existingOBJCallback ="";
 	</script>
 	<script tal:condition='exists: configPathPrefix' type="text/javascript">
 	var configPathPrefix = '${configPathPrefix}';
 	</script>
 	<script tal:condition='exists: configPath' type="text/javascript">
 	var configPath = '${configPath}';
+	</script>
+	<script tal:condition='exists: existingOBJCallback' type="text/javascript">
+	var existingOBJCallback = '${existingOBJCallback}';
 	</script>
 	
 	<script type="text/javascript">
@@ -111,11 +115,23 @@
     		$('#ajaxNameCheck').hide();
     		loadHTML = $('#ajaxNameCheck').html();
     	});
-    	 
+    	
     	function check_name(){
-    		var PDUname = document.forms["configINI"].outlet$name.value || "";
     		
-    		if(PDUname.length > 2){
+    		//TODO: there should be a better way to do this
+    		try{
+    			var OBJname = document.forms["configINI"].outlet$name.value || "";
+    		}
+    		catch(e){
+    			try{
+    				var OBJname = document.forms["configINI"].tester$name.value || "";
+    			}
+    			catch(e){
+    				
+    			}
+    		}
+    		
+    		if(OBJname.length > 2){
     			$('#ajaxNameCheck').html(loadHTML);
     			$('#ajaxNameCheck').show();
     			
@@ -123,8 +139,8 @@
     		        'type': 'POST',
     		        'url': "/sendOckleCommand.json",
     		        'contentType': 'application/json',
-    		        'data': JSON.stringify({"command": "checkExistingPDU",
-					"dataDict" : {"name": PDUname}}),
+    		        'data': JSON.stringify({"command": existingOBJCallback,
+					"dataDict" : {"name": OBJname}}),
     		        'dataType': 'json',
     		        'success': function(response){
     		        	
@@ -136,7 +152,7 @@
 	       					$('#ajaxNameCheck').show();
        					} if (! response["reply"]){
        						$('#ajaxNameCheck').html("<font color='green'>Name available</font>");
-       						configPath = PDUname + ".ini";
+       						configPath = OBJname + ".ini";
        						$('#ajaxNameCheck').show();
 	       				}
        				}

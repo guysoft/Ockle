@@ -19,10 +19,13 @@ from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getAvailableOutletsList
+from ockle_client.ClientCalls import getAvailableTestersList
 from ockle_client.ClientCalls import getPDUDict
+from ockle_client.ClientCalls import getTesterDict
 from ockle_client.ClientCalls import loadINIFileTemplate
 from ockle_client.ClientCalls import loadINIFileConfig
 from ockle_client.ClientCalls import getOutletFolder
+from ockle_client.ClientCalls import getTesterFolder
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import sortDict
@@ -247,14 +250,25 @@ def about_view(request):
     return {"layout": site_layout(),
             "page_title": "About"}
 
-@view_config(renderer="templates/pdus.pt", name="pdus")
+@view_config(renderer="templates/pdus_testers.pt", name="pdus")
 def pdus_view(request):
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
             "config_sidebar_body" : config_sidebar_body(),
-            "PDUList" : getPDUDict(),
+            "ObjectList" : getPDUDict(),
+            "ObjectName" : "PDU",
+            "ObjectClassName" : "outlet",
             "page_title": "PDUs"}
 
+@view_config(renderer="templates/pdus_testers.pt", name="testers")
+def testers_view(request):
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "ObjectList" : getTesterDict(),
+            "ObjectName" : "tester",
+            "ObjectClassName" : "tester",
+            "page_title": "Testers"}
 
 def fillINIwithTemplate(INIFileTemplate,INIFileDict):
     ''' Fill missing values in an INI config file with ones that exist in the template
@@ -270,52 +284,67 @@ def fillINIwithTemplate(INIFileTemplate,INIFileDict):
                 INIFileDict[section][item] =  INIFileTemplate[section][item][1]
     return INIFileDict
 
-@view_config(renderer="templates/add_pdu_list.pt", name="pdus_add_list")
+@view_config(renderer="templates/add_pdu_or_tester_list.pt", name="pdus_add_list")
 def pdu_add_list_view(request):
-    
 
-    PDUTypeList = sortDict(getAvailableOutletsList())
+    TypeList = sortDict(getAvailableOutletsList())
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
             "config_sidebar_body" : config_sidebar_body(),
             "INI_InputArea_head" : INI_InputArea_head(),
-            "PDUTypeList" : PDUTypeList,
+            "TypeList" : TypeList,
+            "typeCreatePath" : "pduCreate",
+            "TypeCreateName" : "PDU",
             "page_title": "Add new PDU - Select type from list"
             }
     
-@view_config(renderer="templates/pdu_create.pt", route_name="pduCreate")
+@view_config(renderer="templates/add_pdu_or_tester_list.pt", name="testers_add_list")
+def testers_add_list_view(request):
+
+    TypeList = sortDict(getAvailableTestersList())
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "TypeList" : TypeList,
+            "typeCreatePath" : "testerCreate",
+            "TypeCreateName" : "Testers",
+            "page_title": "Add new Tester - Select type from list"
+            }
+
+def _makeObjectTypeMulitChoice(existingType,objectType,getObjectCallback,multiListChoices=None):
+    #Create a multi-choice box for the outlets
+    if multiListChoices == None:
+        multiListChoices={}
+    if not objectType in multiListChoices:
+        multiListChoices[objectType]={}
+    multiListChoices[objectType]["type"]={}
+    #getAvailableOutletsList
+    for slectionName in getObjectCallback().keys():
+        multiListChoices[objectType]["type"][slectionName]={}
+    
+    for slectionName in multiListChoices[objectType]["type"].keys():
+        multiListChoices[objectType]["type"][slectionName]["selected"] = (slectionName == existingType)
+        
+    return multiListChoices
+    
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="pduCreate")
 def pdu_create(request):
     PDUType = request.matchdict['pduType']
-    INIFileTemplate = loadOutletINITemplate(PDUType)
+    INIFileTemplate = _loadOutletINITemplate(PDUType)
 
     #Remove the outlet params if exist, we handle them in the server section
-    
     try:
         INIFileTemplate.pop("outletParams")
     except:
         pass
-    '''
-    try:
-        INIFileTemplate['outlet'].pop("type")
-    except:
-        pass
-    '''
+
     INIFileTemplate['outlet']["name"] =["name",""]
     
-    INIFileDict = fillINIwithTemplate(INIFileTemplate,{})
-    
+    INIFileDict = fillINIwithTemplate(INIFileTemplate,{})    
     
     INIFileDict['outlet']["type"] = PDUType
-        #Create a multi-choice box for the outlets
-    multiListChoices={}
-    multiListChoices["outlet"]={}
-    multiListChoices["outlet"]["type"]={}
-    
-    for slectionName in getAvailableOutletsList().keys():
-        multiListChoices["outlet"]["type"][slectionName]={}
-    
-    for slectionName in multiListChoices["outlet"]["type"].keys():
-        multiListChoices["outlet"]["type"][slectionName]["selected"] = (slectionName == PDUType)
+    multiListChoices = _makeObjectTypeMulitChoice(PDUType,"outlet",getAvailableOutletsList)
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -328,25 +357,64 @@ def pdu_create(request):
             "multiListChoices" : multiListChoices,
             
             "configPathPrefix": getOutletFolder() + "/",
+            "existingOBJCallback" : "checkExistingPDU" ,
             
             "page_title": "Add new PDU: " + PDUType
             }
-    
 
-def loadOutletINITemplate(outletType):
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="testerCreate")
+def tester_create(request):
+    testerType = request.matchdict['testerType']
+    INIFileTemplate = _loadTesterINITemplate(testerType)
+    print INIFileTemplate
+    #Remove the tester params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("testerParams")
+    except:
+        pass
+
+    INIFileTemplate['tester']["name"] =["name",""]
+    
+    INIFileDict = fillINIwithTemplate(INIFileTemplate,{})    
+    
+    INIFileDict['tester']["type"] = testerType
+    multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
+    
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),            
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "multiListChoices" : multiListChoices,
+            
+            "configPathPrefix": getTesterFolder() + "/",
+            "existingOBJCallback" : "checkExistingTesters" ,
+            
+            "page_title": "Add new Tester: " + testerType
+            }
+
+def _loadOutletINITemplate(outletType):
     ''' Get the outlet type template
     @param outletType: The type of the outlet '''
     return loadINIFileTemplate(['conf_outlets/' + outletType + '.ini'] + ["outlets.ini"])
 
-@view_config(renderer="templates/pdu_edit.pt", route_name="pduEdit")
-def pdu_edit(request):
+def _loadTesterINITemplate(testerType):
+    ''' Get the outlet type template
+    @param outletType: The type of the outlet '''
+    return loadINIFileTemplate(['conf_testers/' + testerType + '.ini'] + ["testers.ini"])
+
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
+def pdu_edit_view(request):
     PDUName = request.matchdict['pduName']
     
-    configPath= 'outlets/' + PDUName + '.ini'
+    configPath= os.path.join(getOutletFolder() , PDUName + '.ini')
     INIFileDict = loadINIFileConfig(configPath)
     
     outletType = INIFileDict["outlet"]["type"]
-    INIFileTemplate = loadOutletINITemplate(outletType)
+    INIFileTemplate = _loadOutletINITemplate(outletType)
     
     INIFileDict = fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
@@ -356,18 +424,8 @@ def pdu_edit(request):
     except:
         pass
     
-    #Create a multi-choice box for the outlets
-    multiListChoices={}
-    multiListChoices["outlet"]={}
-    multiListChoices["outlet"]["type"]={}
-    
-    for slectionName in getAvailableOutletsList().keys():
-        multiListChoices["outlet"]["type"][slectionName]={}
-    
-    for slectionName in multiListChoices["outlet"]["type"].keys():
-        multiListChoices["outlet"]["type"][slectionName]["selected"] = (slectionName == outletType)
+    multiListChoices = _makeObjectTypeMulitChoice(outletType,"outlet",getAvailableOutletsList)
 
-    
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
             "config_sidebar_body" : config_sidebar_body(),
@@ -378,6 +436,37 @@ def pdu_edit(request):
             "configPath" : configPath,
             "multiListChoices" : multiListChoices,
             "page_title": "PDU Edit: " + str(PDUName)}
+
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="testerEdit")
+def tester_edit_view(request):
+    TesterName = request.matchdict['testerName']
+    
+    configPath= os.path.join(getTesterFolder() , TesterName + '.ini')
+    INIFileDict = loadINIFileConfig(configPath)
+    
+    testerType = INIFileDict["tester"]["type"]
+    INIFileTemplate = _loadTesterINITemplate(testerType)
+    
+    INIFileDict = fillINIwithTemplate(INIFileTemplate,INIFileDict)
+    
+    #Remove the outlet params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("testerParams")
+    except:
+        pass
+    
+    multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
+
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "configPath" : configPath,
+            "multiListChoices" : multiListChoices,
+            "page_title": "Tester Edit: " + str(TesterName)}
 
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
@@ -491,6 +580,12 @@ def sendOckleCommand(request):
             return {"reply" : dataDict["name"] in getPDUDict()}
         except:
             return {"reply" : "Error"}
+    
+    if command == "checkExistingTesters":
+        try:
+            return {"reply" : dataDict["name"] in getTesterDict()}
+        except:
+            return {"reply" : "Error"}        
     
     if command == "switchOutlet":
         switchOutlet(dataDict)

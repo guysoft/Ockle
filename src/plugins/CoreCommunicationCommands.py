@@ -27,15 +27,20 @@ class CoreCommunicationCommands(ModuleTemplate):
         dot = pygraph.readwrite.dot.write(self.mainDaemon.servers.graph,False) 
         return {"Dot" :  dot}
     
-    def getPDUDict(self):
+    def _getObjectDict(self,returnVariable,objectFolder):
         returnValue = {}
-        for pdu in os.listdir(self.mainDaemon.OUTLETS_DIR):
-            pdu = os.path.join(self.mainDaemon.OUTLETS_DIR,pdu)
-            pduDict = iniToDict(pdu)
-            pduName = os.path.splitext(os.path.basename(pdu))[0]
-            returnValue[pduName] = pduDict
-            
-        return {"pdus" : json.dumps(returnValue)}
+        for obj in os.listdir(objectFolder):
+            obj = os.path.join(objectFolder,obj)
+            objectDict = iniToDict(obj)
+            objName = os.path.splitext(os.path.basename(obj))[0]
+            returnValue[objName] = objectDict
+        return {returnVariable : json.dumps(returnValue)}
+    
+    def getPDUDict(self):
+        return self._getObjectDict("pdus",self.mainDaemon.OUTLETS_DIR)
+    
+    def getTesterDict(self):
+        return self._getObjectDict("testers",self.mainDaemon.TESTERS_DIR)
     
     def getServerInfo(self,dataDict):
         ''' Get the data dict of a server
@@ -66,6 +71,11 @@ class CoreCommunicationCommands(ModuleTemplate):
                 }
     
     def switchOutlet(self,dataDict):
+        ''' Swtich an outlet on or off
+        @param dataDict: A dict with an entry for server, outlet and state
+        @return: Empty dict for now
+        '''
+        #TODO: return a success of failed state, so we can move the switch back up in the GUI if failed
         serverName = dataDict["server"]
         outletName = dataDict["outlet"]
         
@@ -84,6 +94,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.getServerInfo(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getPDUDict",lambda dataDict: self.getPDUDict())
+        self.mainDaemon.communicationHandler.AddCommandToList("getTesterDict",lambda dataDict: self.getTesterDict())
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
 
         return 

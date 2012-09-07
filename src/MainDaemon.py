@@ -43,6 +43,9 @@ class MainDaemon(object):
         OUTLET_DIR = config.get('main', 'OUTLET_DIR')
         self.OUTLETS_DIR = os.path.join(ETC_DIR,OUTLET_DIR)
         
+        TESTER_DIR = config.get('main', 'TESTER_DIR')
+        self.TESTERS_DIR = os.path.join(ETC_DIR,TESTER_DIR)
+        
         #config framework
         self.config = config #get it from the global
         

@@ -8,7 +8,7 @@
 	<li id="sidebar_PDUs"><a href="/pdus">PDUs</a></li>
 	<li id="sidebar_Servers">Servers</li>
 	<li id="sidebar_Controlers">Controlers</li>
-	<li id="sidebar_Testers">Testers</li>
+	<li id="sidebar_Testers"> <a href="/testers">Testers</a></li>
 	</ul>
 
    <b metal:define-slot="onPage"></b>
