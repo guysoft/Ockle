@@ -156,6 +156,10 @@ def getTesterDict():
     reply = json.loads(getDataFromServer("getTesterDict")["testers"])
     return reply
 
+def getServerDict():
+    reply = json.loads(getDataFromServer("getServerDict")["servers"])
+    return reply
+
 def loadINIFileTemplate(templatePaths):
     ''' Load an INI file and template data so it would display correctly.
     Is called with loadINIFileConfig(configPath)
@@ -202,11 +206,22 @@ def getAvailableTestersList():
         return json.loads(response["Testers"])
     return
 
+def getAvailableServerOutlets(server):
+    response = getDataFromServer("getAvailableServerOutlets",{"server": server})
+    if response == None:
+        return {}
+    else:
+        return json.loads(response["serverOutlets"])
+    return
+
 def getOutletFolder():
     return loadINIFileConfig("config.ini")['main']['outlet_dir']
 
 def getTesterFolder():
     return loadINIFileConfig("config.ini")['main']['tester_dir']
+
+def getServerFolder():
+    return loadINIFileConfig("config.ini")['main']['server_dir']
 
 def switchOutlet(dataDict):
     return getDataFromServer("switchOutlet",dataDict)

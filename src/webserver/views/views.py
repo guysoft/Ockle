@@ -20,12 +20,15 @@ from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getAvailableOutletsList
 from ockle_client.ClientCalls import getAvailableTestersList
+from ockle_client.ClientCalls import getAvailableServerOutlets
 from ockle_client.ClientCalls import getPDUDict
 from ockle_client.ClientCalls import getTesterDict
+from ockle_client.ClientCalls import getServerDict
 from ockle_client.ClientCalls import loadINIFileTemplate
 from ockle_client.ClientCalls import loadINIFileConfig
 from ockle_client.ClientCalls import getOutletFolder
 from ockle_client.ClientCalls import getTesterFolder
+from ockle_client.ClientCalls import getServerFolder
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import sortDict
@@ -110,9 +113,10 @@ def serverPage_view(request):
     serverLog = getServerStatistics(serverName,time.time() - STATISTICS_WINDOW,time.time()+1)
     
     #get the last data entry
-    dataEntry = serverLog[serverLog.keys()[len(serverLog)-1]]
-    print dataEntry
-    dataDictHead=json.loads(dataEntry["dataDict"])#parse the dict from the db string
+    dataDictHead = {}
+    if not serverLog.keys() == []:
+        dataEntry = serverLog[serverLog.keys()[len(serverLog)-1]]
+        dataDictHead=json.loads(dataEntry["dataDict"])#parse the dict from the db string
     
     #list of variables we are going to fill, generating the plots
     #plotsTicks=[]
@@ -195,9 +199,9 @@ def serverPage_view(request):
             #outlets data
             "outletsDict" : json.dumps(outlets),
             "outlets" : outlets}
-
+'''
 @view_config(route_name='serverEdit',renderer="templates/server_edit.pt")
-def serverEdit(request):
+def server_edit_view(request):
     serverName = request.matchdict['serverName']
     
     SERVER_DIR = ClientCalls.config.get('main', 'SERVER_DIR')
@@ -213,6 +217,41 @@ def serverEdit(request):
             "page_title" : "Server Edit: " + str(serverName),
             "server_dict" : serverDict,
             "INIFileDict" : INIFileDict}
+'''
+@view_config(renderer="templates/pdu_tester_edit.pt",route_name='serverEdit')
+def server_edit_view(request):
+    serverName = request.matchdict['serverName']
+    
+    configPath= os.path.join(getServerFolder() , serverName + '.ini')
+    INIFileDict = loadINIFileConfig(configPath)
+    
+    #testerType = INIFileDict["tester"]["type"]
+    INIFileTemplate = _loadServerINITemplate()
+    
+    INIFileDict = fillINIwithTemplate(INIFileTemplate,INIFileDict)
+    
+    '''
+    #Remove the outlet params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("testerParams")
+    except:
+        pass
+    '''
+    
+    multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict)
+    
+    #multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
+
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "configPath" : configPath,
+            "multiListChoices" : multiListChoices,
+            "page_title": "Server Edit: " + str(serverName)}
 
 @view_config(renderer="templates/index.pt")
 def index_view(request):
@@ -269,6 +308,16 @@ def testers_view(request):
             "ObjectName" : "tester",
             "ObjectClassName" : "tester",
             "page_title": "Testers"}
+    
+@view_config(renderer="templates/pdus_testers.pt", name="servers")
+def servers_view(request):
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "ObjectList" : getServerDict(),
+            "ObjectName" : "server",
+            "ObjectClassName" : "server",
+            "page_title": "Servers"}
 
 def fillINIwithTemplate(INIFileTemplate,INIFileDict):
     ''' Fill missing values in an INI config file with ones that exist in the template
@@ -398,13 +447,20 @@ def tester_create(request):
 
 def _loadOutletINITemplate(outletType):
     ''' Get the outlet type template
-    @param outletType: The type of the outlet '''
+    @param outletType: The type of the outlet 
+    @return: Outlet ini template dict'''
     return loadINIFileTemplate(['conf_outlets/' + outletType + '.ini'] + ["outlets.ini"])
 
 def _loadTesterINITemplate(testerType):
     ''' Get the outlet type template
-    @param outletType: The type of the outlet '''
+    @param outletType: The type of the tester
+    @return: Tester ini template dict'''
     return loadINIFileTemplate(['conf_testers/' + testerType + '.ini'] + ["testers.ini"])
+
+def _loadServerINITemplate():
+    ''' Get the serverNode template
+    @return: Server ini template dict'''
+    return loadINIFileTemplate("serverNodes.ini")
 
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
 def pdu_edit_view(request):
@@ -468,32 +524,47 @@ def tester_edit_view(request):
             "multiListChoices" : multiListChoices,
             "page_title": "Tester Edit: " + str(TesterName)}
 
+
+def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiListChoices=None):
+    ''' Generate a multilist format for a template. So it can be rendered on a template
+    @param section: The option section in the ini file
+    @param option: The name of the option in the ini file
+    @param multiListChoicesCallback: a callback function the returns a dict of the avilable options
+    @param INIFileDict: An INI file dict that holds the list of selected choices
+    @param multiListChoices: If there is a multiListChoices dict you want to append the existing configuration to
+    @return: a multiListChoices dict ready to be rendred in a template
+    '''
+    if multiListChoices == None:
+        multiListChoices = {}
+    
+    if not section in multiListChoices.keys():
+        multiListChoices[section]={}
+    
+    #build list of checked plugins multilist
+    selectedPlugins = json.loads(INIFileDict[section][option])
+    
+    multiListChoices[section][option]=multiListChoicesCallback()
+    for key in multiListChoices[section][option].keys():
+        multiListChoices[section][option][key] = { "doc" : multiListChoices[section][option][key] }
+    
+    for pluginName in multiListChoices[section][option].keys():
+        if pluginName in selectedPlugins:
+            multiListChoices[section][option][pluginName]["checked"]=True
+        else:
+            multiListChoices[section][option][pluginName]["checked"]=False
+    return multiListChoices
+
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
     
     pluginList = getINIFolderTemplate("plugins")
     
-    multiListChoices={}
     configPath = "config.ini"
     INIFileDict = loadINIFileConfig(configPath)
     iniTemplate = loadINIFileTemplate([configPath] + pluginList)
     INIFileDict = fillINIwithTemplate(iniTemplate,INIFileDict)
     
-    #build list of checked plugins multilist
-    selectedPlugins = json.loads(INIFileDict["plugins"]["pluginlist"])
-    multiListChoices["plugins"]={}
-    
-    #TODO: perhaps we could un-hardcode this somehow
-    multiListChoices["plugins"]["pluginlist"]=getAvailablePluginsList()
-    for key in multiListChoices["plugins"]["pluginlist"].keys():
-        multiListChoices["plugins"]["pluginlist"][key] = { "doc" : multiListChoices["plugins"]["pluginlist"][key] }
-    
-    for pluginName in multiListChoices["plugins"]["pluginlist"].keys():
-        if pluginName in selectedPlugins:
-            multiListChoices["plugins"]["pluginlist"][pluginName]["checked"]=True
-        else:
-            multiListChoices["plugins"]["pluginlist"][pluginName]["checked"]=False
-            
+    multiListChoices = _makeMultichoice("plugins","pluginlist",getAvailablePluginsList,INIFileDict)        
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),

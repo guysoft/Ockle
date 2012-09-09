@@ -46,6 +46,9 @@ class MainDaemon(object):
         TESTER_DIR = config.get('main', 'TESTER_DIR')
         self.TESTERS_DIR = os.path.join(ETC_DIR,TESTER_DIR)
         
+        SERVER_DIR = config.get('main', 'SERVER_DIR')
+        self.SERVERS_DIR = os.path.join(ETC_DIR,SERVER_DIR)
+        
         #config framework
         self.config = config #get it from the global
         

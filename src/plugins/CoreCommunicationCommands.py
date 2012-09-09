@@ -42,6 +42,9 @@ class CoreCommunicationCommands(ModuleTemplate):
     def getTesterDict(self):
         return self._getObjectDict("testers",self.mainDaemon.TESTERS_DIR)
     
+    def getServerDict(self):
+        return self._getObjectDict("servers",self.mainDaemon.SERVERS_DIR)
+    
     def getServerInfo(self,dataDict):
         ''' Get the data dict of a server
         @param dataDict: The data dict from the communication call, should contain the key "server"
@@ -89,13 +92,32 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlet.setOpState(OutletOpState.forcedOff)
         return {}
     
+    def _getAvailableServerOutlets(self,server):
+        returnValue = {}
+        serverPath = os.path.join(self.mainDaemon.SERVERS_DIR,server + ".ini")
+        serverDict = iniToDict(serverPath)
+        
+        serverDict.pop("server")
+        
+        for section in serverDict.keys():
+            if "outlet" in serverDict[section]:  #we have an outlet
+                returnValue[section] = serverDict[section]
+        return returnValue
+    def getAvailableServerOutlets(self,server):
+        returnValue = self._getAvailableServerOutlets(server)
+        for outlet in returnValue.keys():
+            returnValue[outlet]["doc"] = ""
+        return {"serverOutlets" : json.dumps(returnValue)}
+    
     def run(self):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.getServerInfo(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getPDUDict",lambda dataDict: self.getPDUDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getTesterDict",lambda dataDict: self.getTesterDict())
+        self.mainDaemon.communicationHandler.AddCommandToList("getServerDict",lambda dataDict: self.getServerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
 
         return 
 
