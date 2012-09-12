@@ -9,6 +9,7 @@ Created on Jul 5, 2012
 import os.path,sys
 import time
 from sqlalchemy import  create_engine
+import traceback
 
 #Import database structure
 from plugins.Log import Base
@@ -61,14 +62,18 @@ class Logger(ModuleTemplate):
     def appendToLog(self):
         ''' Appends to the log the current status
         '''
-        connection = self.engine.connect()
-        for server in self.mainDaemon.servers.getSortedNodeList():
-            sql = "insert into " + self.Log.__tablename__ + " values (?,?,?,?)"
-            variables = (None,server.getName(),json.dumps(server.getOutletsDataDict()),str(time.time()))
-            
-            connection.execute(sql,variables)
-
-        connection.close()
+        try:
+            connection = self.engine.connect()
+            for server in self.mainDaemon.servers.getSortedNodeList():
+                sql = "insert into " + self.Log.__tablename__ + " values (?,?,?,?)"
+                variables = (None,server.getName(),json.dumps(server.getOutletsDataDict()),str(time.time()))
+                
+                connection.execute(sql,variables)
+    
+            connection.close()
+        except:
+            traceback.print_exc(file=sys.stdout)
+            self.mainDaemon.debug("Failed to append to log, reason in stdout")
         return
     
     def clearDB(self):
