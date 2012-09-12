@@ -29,19 +29,16 @@
 /* end */
 
 
-body {
-	margin:0; padding: 2em;
-	background:white;
+#content_main {
+	background:#1A1A1A;
 	/* color: #666; */
 	/* font: 75%/1.33 Verdana, sans-serif; */
 	font-family: Arial, Sans-Serif;
 	text-align:left;
 	
    /* Boarder of page */
-   border-width: 25px;
-   border-style: solid;
    border-color: #1A1A1A;
-   padding: 0;
+   padding: 25px;
    margin: 0;
    
 	}

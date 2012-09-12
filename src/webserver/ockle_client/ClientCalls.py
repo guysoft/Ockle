@@ -22,6 +22,7 @@ from common.common import getINITemplate
 from common.Exceptions import ParsingTemplateException
 
 import json
+from collections import OrderedDict
 
 config = SafeConfigParser()
 ETC_DIR= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','..','..',"etc")
@@ -211,7 +212,15 @@ def getAvailableServerOutlets(server):
     if response == None:
         return {}
     else:
-        return json.loads(response["serverOutlets"])
+        return json.loads(response["serverOutlets"],object_pairs_hook=OrderedDict)
+    return
+
+def getAvailableServerTesters(server):
+    response = getDataFromServer("getAvailableServerTesters",{"server": server})
+    if response == None:
+        return {}
+    else:
+        return json.loads(response["serverTesters"],object_pairs_hook=OrderedDict)
     return
 
 def getOutletFolder():

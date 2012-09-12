@@ -13,6 +13,8 @@ from plugins.ModuleTemplate import ModuleTemplate
 import pygraph.readwrite.dot
 from common.common import iniToDict
 
+from collections import OrderedDict
+
 from outlets.OutletTemplate import OutletOpState
 
 import json
@@ -92,22 +94,37 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlet.setOpState(OutletOpState.forcedOff)
         return {}
     
-    def _getAvailableServerOutlets(self,server):
-        returnValue = {}
+    def _getAvailableServerObjs(self,server,obj):
+        returnValue = OrderedDict()
         serverPath = os.path.join(self.mainDaemon.SERVERS_DIR,server + ".ini")
         serverDict = iniToDict(serverPath)
+        
+        #Get checked items in order
+        try:
+            for objItem in json.loads(serverDict["server"][obj + "s"]):
+                returnValue[objItem] = serverDict[objItem]
+        except:
+            pass
+            
         
         serverDict.pop("server")
         
         for section in serverDict.keys():
-            if "outlet" in serverDict[section]:  #we have an outlet
+            if obj in serverDict[section] and not section in returnValue:  #we have an outlet/tester
                 returnValue[section] = serverDict[section]
         return returnValue
+    
     def getAvailableServerOutlets(self,server):
-        returnValue = self._getAvailableServerOutlets(server)
+        returnValue = self._getAvailableServerObjs(server,"outlet")
         for outlet in returnValue.keys():
             returnValue[outlet]["doc"] = ""
         return {"serverOutlets" : json.dumps(returnValue)}
+    
+    def getAvailableServerTesters(self,server):
+        returnValue = self._getAvailableServerObjs(server,"tester")
+        for outlet in returnValue.keys():
+            returnValue[outlet]["doc"] = ""
+        return {"serverTesters" : json.dumps(returnValue)}
     
     def run(self):
         self.debug("\n")
@@ -118,6 +135,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDict",lambda dataDict: self.getServerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
 
         return 
 

@@ -12,6 +12,8 @@
 	<script src="/static/ajax/save_call.js"></script>
 	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
 	
+	<script type="text/javascript" src="/static/jquery-sortable/jquery-ui-1.7.1.custom.min.js"></script>
+	
 	
 	<script  type="text/javascript">
 	var configPathPrefix ="";
@@ -185,10 +187,69 @@
 	        			<!-- Special cases, because we need to decide what the choices are -->
 	        			
 	        			<td tal:case="'multilist'">
-	        			<div tal:repeat="checkItem multiListChoices[section][item]">
-	        			<input type="checkbox" name="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
-	        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
-	        			</div>
+	        				<tal:block tal:condition="not INIFileTemplate[section][item][1]">
+			        			<div tal:repeat="checkItem multiListChoices[section][item]">
+			        			<input type="checkbox" name="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
+			        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
+			        			</div>
+	        				</tal:block>
+	        				
+	        				<tal:block tal:condition="INIFileTemplate[section][item][1]">
+	        				<style type="text/css">
+	        				#sortable_${section}_${item} {
+							list-style: none;
+							border: solid 1px #85b1de;
+
+							}
+							
+							#sortable_${section}_${item} li {
+							margin: 3px 3px 3px 3px;
+						    background-image: url( '/static/forms/blue_bg.png' );
+	 						background-repeat: repeat-x;
+	   						background-position: top;
+							border: solid 1px #85b1de;
+								display: block;
+								padding: 2px 2px;
+							}
+							
+							#sortable_${section}_${item} li img.handle {
+								margin-right: 5px;
+								cursor: n-resize;
+							}
+							
+	        				</style>
+		        				<script type="text/javascript">
+								  // When the document is ready set up our sortable with it's inherant function(s)
+								  
+								  function update_${section}$${item}(){
+									  var order = $('#sortable_${section}_${item}').sortable("toArray");
+									  
+									  newOrder=[];
+									  for (var i = 0, len = order.length; i < len; i++ ) {
+										  if (document.getElementById("${section}$${item}*" +  order[i]).checked){
+											  newOrder.push(order[i]);
+										  }
+										  
+									  }
+									  document.forms["configINI"].${section}$${item}.value = JSON.stringify(newOrder);
+								  }
+								  $(document).ready(function() {
+									  
+									  
+								    $("#sortable_${section}_${item}").sortable({
+								      handle : '.handle',
+								      update : update_${section}$${item}
+								    });
+								});
+								</script>
+	        				
+	        					<ul id="sortable_${section}_${item}">
+				        			<tal:block tal:repeat="checkItem multiListChoices[section][item]">
+				        			<li id="${checkItem}"><img src="/static/jquery-sortable/arrow.png" alt="move" width="16" height="16" class="handle" /><input type="checkbox" id="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]' onclick="javascript:update_${section}$${item}()"/><strong>${checkItem}</strong> - ${multiListChoices[section][item][checkItem]["doc"]}</li>
+				        			</tal:block>
+				        		</ul>
+				        		<input type="hidden" value="${INIFileDict[section][item]}" name="${section}$${item}">
+	        				</tal:block>
 	        			</td>
 	        			
 	        			<td tal:case="'select'" class="styled-select">
@@ -208,7 +269,7 @@
 	        	</tal:block>
 			 </tal:block>
 			 <tr><td>
-			 <input type="submit" value="submit"><td><div id="formLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="formStatus">Saved</div></td>
+			 <input type="submit" value="submit"><td><div id="formLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="formStatus">Saving</div></td>
 			 </td></tr>
 			 </table>
 			 </form>

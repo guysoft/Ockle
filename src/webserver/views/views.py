@@ -3,6 +3,8 @@ p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')
 print p
 sys.path.insert(0, p)
 
+from collections import OrderedDict
+
 #pyramid stuff
 from pyramid.renderers import get_renderer
 from pyramid.view import view_config
@@ -21,6 +23,7 @@ from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getAvailableOutletsList
 from ockle_client.ClientCalls import getAvailableTestersList
 from ockle_client.ClientCalls import getAvailableServerOutlets
+from ockle_client.ClientCalls import getAvailableServerTesters
 from ockle_client.ClientCalls import getPDUDict
 from ockle_client.ClientCalls import getTesterDict
 from ockle_client.ClientCalls import getServerDict
@@ -238,7 +241,9 @@ def server_edit_view(request):
         pass
     '''
     
-    multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict)
+    multiListChoices = _makeMultichoice("server","testers",lambda: getAvailableServerTesters(serverName),INIFileDict)
+    multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
+    
     
     #multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
 
@@ -366,8 +371,8 @@ def _makeObjectTypeMulitChoice(existingType,objectType,getObjectCallback,multiLi
     if multiListChoices == None:
         multiListChoices={}
     if not objectType in multiListChoices:
-        multiListChoices[objectType]={}
-    multiListChoices[objectType]["type"]={}
+        multiListChoices[objectType]=OrderedDict()
+    multiListChoices[objectType]["type"]=OrderedDict()
     #getAvailableOutletsList
     for slectionName in getObjectCallback().keys():
         multiListChoices[objectType]["type"][slectionName]={}
@@ -535,17 +540,17 @@ def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiLi
     @return: a multiListChoices dict ready to be rendred in a template
     '''
     if multiListChoices == None:
-        multiListChoices = {}
+        multiListChoices = OrderedDict()
     
     if not section in multiListChoices.keys():
-        multiListChoices[section]={}
+        multiListChoices[section]=OrderedDict()
     
     #build list of checked plugins multilist
     selectedPlugins = json.loads(INIFileDict[section][option])
     
     multiListChoices[section][option]=multiListChoicesCallback()
     for key in multiListChoices[section][option].keys():
-        multiListChoices[section][option][key] = { "doc" : multiListChoices[section][option][key] }
+        multiListChoices[section][option][key] = { "doc" : multiListChoices[section][option][key]["doc"] }
     
     for pluginName in multiListChoices[section][option].keys():
         if pluginName in selectedPlugins:
@@ -616,7 +621,13 @@ def updates_view(request):
             if type(iniDict[section][item]) == list:
                 iniDict[section][item]=json.dumps(iniDict[section][item])
     
-             
+    
+    #Add sections that were dropped
+    oldINIDict = loadINIFileConfig(iniFilePath)
+    for section in oldINIDict.keys():
+        if not section in iniDict:
+            iniDict[section] = oldINIDict[section]
+    
     #TODO: if a multilist if empty, it does not get sent
     #updateINIfile(iniDict,iniFilePath) 
     

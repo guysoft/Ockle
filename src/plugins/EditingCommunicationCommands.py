@@ -26,7 +26,9 @@ class EditingCommunicationCommands(ModuleTemplate):
         return
     
     def _getINIFile(self,path):
-        fileContent =""
+        ''' Gets an INI file, returns an empty file if does not exist
+        '''
+        fileContent =" "
         try:
             path = os.path.join(self.mainDaemon.ETC_DIR,path)
             print path
@@ -56,7 +58,8 @@ class EditingCommunicationCommands(ModuleTemplate):
         
         config = dictToConfig(newConfig)
         try:
-            shutil.copy(path,path + "." + str(int(time.time())))
+            #shutil.copy(path,path + "." + str(int(time.time())))
+            pass
         except:
             pass
         config.write(open(path,"w"))

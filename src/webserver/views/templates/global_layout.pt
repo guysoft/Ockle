@@ -10,7 +10,7 @@
 <title>Ockle - ${page_title}</title>
 <tal:block metal:define-slot="head_content"></tal:block>
 </head>
-<body>
+<body id="content_main">
 <div style="background-color: #1A1A1A; color: #7C7C7C; font-size: 45px; font-weight:bold;"><img src="/static/Logo.png" alt="Ockle" style="float:left; background-color: #1A1A1A;">Ockle</div>
 <ul id="nav">
     <li><a class="hsubs" href="/">Home</a></li>
@@ -18,7 +18,7 @@
     <li><a class="hsubs" href="/about.html">About Ockle</a></li>
     <div id="lavalamp"></div>
 </ul>
-<div id="wrapper">
+<div id="wrapper" style="background: white;">
 	<div id="neon">
 		<h1>${page_title}</h1> <!--  class="primary-4" -->
 	</div>
