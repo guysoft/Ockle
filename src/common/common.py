@@ -98,7 +98,6 @@ def configToDict(config):
     returnValue={}
     
     for section in config.sections():
-        print section
         returnValue[section]={}
         sectionTurples = config.items(section)
         for itemTurple in sectionTurples:
