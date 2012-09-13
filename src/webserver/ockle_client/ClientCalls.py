@@ -19,6 +19,7 @@ from common.CommunicationMessage import Message
 from common.common import trimOneObjectListsFromDict
 from common.common import getINIstringtoDict
 from common.common import getINITemplate
+from common.common import mergeDicts
 from common.Exceptions import ParsingTemplateException
 
 import json
@@ -212,16 +213,28 @@ def getAvailableServerOutlets(server):
     if response == None:
         return {}
     else:
-        return json.loads(response["serverOutlets"],object_pairs_hook=OrderedDict)
-    return
+        outletDict =  json.loads(response["serverOutlets"],object_pairs_hook=OrderedDict)
+        for key in outletDict.keys():
+            outletDict[key] = outletDict[key]["doc"]
+    return outletDict
 
 def getAvailableServerTesters(server):
     response = getDataFromServer("getAvailableServerTesters",{"server": server})
     if response == None:
         return {}
     else:
-        return json.loads(response["serverTesters"],object_pairs_hook=OrderedDict)
-    return
+        testerDict =  json.loads(response["serverTesters"],object_pairs_hook=OrderedDict)
+        for key in testerDict.keys():
+            testerDict[key] = testerDict[key]['doc']
+    return testerDict
+
+def getServerDependencyMap(server):
+    response = getDataFromServer("getServerDependencyMap",{"server": server})
+    if response == None:
+        return {}
+    else:
+        depMap = json.loads(response["dependencyMap"])
+        return mergeDicts(depMap["available"], depMap["existing"])
 
 def getOutletFolder():
     return loadINIFileConfig("config.ini")['main']['outlet_dir']

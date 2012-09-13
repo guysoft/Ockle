@@ -22,7 +22,7 @@ class DependencyException(ServerTreeError):
     def __init__(self, nodesList, msg):
         self.list = nodesList
         self.msg = msg
-        self.debug(msg +":" + str(list))
+        #self.debug(msg +":" + str(list))
 
 class ServerNodeUnmetDependencies(ServerTreeError):
     '''Exception raised when a server dependencies failed to start

@@ -6,7 +6,7 @@
 	<ul>
 	<li id="sidebar_General"><a href="/config">General</a></li>
 	<li id="sidebar_PDUs"><a href="/pdus">PDUs</a></li>
-	<li id="sidebar_Servers">Servers</li>
+	<li id="sidebar_Servers"><a href="/servers">Servers</a></li>
 	<li id="sidebar_Controlers">Controlers</li>
 	<li id="sidebar_Testers"> <a href="/testers">Testers</a></li>
 	</ul>

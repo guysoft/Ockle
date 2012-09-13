@@ -21,6 +21,7 @@ from testers.TemplateTester import TemplateTester
 
 from common.Exceptions import OutletTypeNotFound
 from common.Exceptions import TesterTypeNotFound
+from networkTree.Exceptions import DependencyException
 
 config,ETC_DIR = loadConfig()
 
@@ -31,7 +32,7 @@ class ServerNetworkFactory(object):
     A class to take the config file folder and turn it in to a server network
     @param MainDaemon: the singletron, only used for debug output
     '''
-    def __init__(self,MainDaemon):
+    def __init__(self,MainDaemon,reportDependencyexceptions=True):
         '''
         Constructor
         '''
@@ -98,7 +99,12 @@ class ServerNetworkFactory(object):
                 dependencies=[]
             
             for dependency in dependencies:
-                self.servers.addDependency(server, dependency)
+                try:
+                    self.servers.addDependency(server, dependency)
+                except DependencyException as e:
+                    if DependencyException:
+                        self.mainDaemon.debug(e.msg +":" + str(e.list))
+                    raise e
         return self.servers
     
     #TODO fix nasty code repetition here with Test and make

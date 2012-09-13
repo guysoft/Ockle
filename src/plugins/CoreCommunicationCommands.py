@@ -16,6 +16,9 @@ from common.common import iniToDict
 from collections import OrderedDict
 
 from outlets.OutletTemplate import OutletOpState
+from networkTree.ServerNetworkFactory import ServerNetworkFactory
+from networkTree.Exceptions import DependencyException
+from pygraph.classes.exceptions import AdditionError
 
 import json
 
@@ -126,6 +129,33 @@ class CoreCommunicationCommands(ModuleTemplate):
             returnValue[outlet]["doc"] = ""
         return {"serverTesters" : json.dumps(returnValue)}
     
+    def _getServerDependencyMap(self,serverName):
+        ''' Returns a dict of available servers to be added as dependencies
+        @param server: The current server we are looking at
+        @return: A dict with the keys available, disabled and existing according to what is possible. The disabled value is the cycle caused by the dependency
+        '''
+        
+        factory = ServerNetworkFactory(self.mainDaemon)
+        serversNetwork=factory.buildNetwork(self.mainDaemon.ETC_DIR)
+        
+        returnValue = {}
+        returnValue['available'] = {}
+        returnValue['disabled'] = {}
+        returnValue['existing'] = {}
+        
+        for possibleServer in serversNetwork.getSortedNodeListIndex():
+            if possibleServer != serverName:
+                returnValue['available'][possibleServer] = iniToDict(os.path.join(self.mainDaemon.SERVERS_DIR,possibleServer + ".ini"))["server"]["comment"]
+                try:
+                    serversNetwork.addDependency(serverName, possibleServer)
+                except DependencyException as e:
+                    returnValue['available'].pop(possibleServer)
+                    returnValue['disabled'][possibleServer] = e.list
+                except AdditionError:
+                    #Happens if dependency already exists
+                    returnValue['existing'][possibleServer] = returnValue['available'].pop(possibleServer)
+        return {"dependencyMap": json.dumps(returnValue)}
+    
     def run(self):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
@@ -136,7 +166,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
-
+        self.mainDaemon.communicationHandler.AddCommandToList("getServerDependencyMap",lambda dataDict: self._getServerDependencyMap(dataDict["server"]))
         return 
 
 if __name__ == "__main__":

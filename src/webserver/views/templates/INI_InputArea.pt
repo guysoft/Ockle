@@ -222,8 +222,11 @@
 								  // When the document is ready set up our sortable with it's inherant function(s)
 								  
 								  function update_${section}$${item}(){
-									  var order = $('#sortable_${section}_${item}').sortable("toArray");
 									  
+									  var order = $('#sortable_${section}_${item}').sortable("toArray");
+									  if (order === undefined){
+										  var order = [];
+									  }
 									  newOrder=[];
 									  for (var i = 0, len = order.length; i < len; i++ ) {
 										  if (document.getElementById("${section}$${item}*" +  order[i]).checked){
@@ -235,11 +238,12 @@
 								  }
 								  $(document).ready(function() {
 									  
-									  
 								    $("#sortable_${section}_${item}").sortable({
 								      handle : '.handle',
 								      update : update_${section}$${item}
 								    });
+								    
+								    update_${section}$${item}();
 								});
 								</script>
 	        				

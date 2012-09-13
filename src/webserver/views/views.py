@@ -32,6 +32,7 @@ from ockle_client.ClientCalls import loadINIFileConfig
 from ockle_client.ClientCalls import getOutletFolder
 from ockle_client.ClientCalls import getTesterFolder
 from ockle_client.ClientCalls import getServerFolder
+from ockle_client.ClientCalls import getServerDependencyMap
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import sortDict
@@ -233,17 +234,11 @@ def server_edit_view(request):
     
     INIFileDict = fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
-    '''
-    #Remove the outlet params if exist, we handle them in the server section
-    try:
-        INIFileTemplate.pop("testerParams")
-    except:
-        pass
-    '''
     
     multiListChoices = _makeMultichoice("server","testers",lambda: getAvailableServerTesters(serverName),INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
     
+    multiListChoices = _makeMultichoice("server","dependencies",lambda: getServerDependencyMap(serverName),INIFileDict,multiListChoices)
     
     #multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
 
@@ -534,7 +529,7 @@ def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiLi
     ''' Generate a multilist format for a template. So it can be rendered on a template
     @param section: The option section in the ini file
     @param option: The name of the option in the ini file
-    @param multiListChoicesCallback: a callback function the returns a dict of the avilable options
+    @param multiListChoicesCallback: a callback function the returns a dict of the available options
     @param INIFileDict: An INI file dict that holds the list of selected choices
     @param multiListChoices: If there is a multiListChoices dict you want to append the existing configuration to
     @return: a multiListChoices dict ready to be rendred in a template
@@ -546,11 +541,15 @@ def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiLi
         multiListChoices[section]=OrderedDict()
     
     #build list of checked plugins multilist
-    selectedPlugins = json.loads(INIFileDict[section][option])
+    selectedPlugins = []
+    try:
+        selectedPlugins = json.loads(INIFileDict[section][option])
+    except:
+        selectedPlugins = [INIFileDict[section][option]]
     
     multiListChoices[section][option]=multiListChoicesCallback()
     for key in multiListChoices[section][option].keys():
-        multiListChoices[section][option][key] = { "doc" : multiListChoices[section][option][key]["doc"] }
+        multiListChoices[section][option][key] = { "doc" : multiListChoices[section][option][key] }
     
     for pluginName in multiListChoices[section][option].keys():
         if pluginName in selectedPlugins:
