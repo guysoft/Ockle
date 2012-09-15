@@ -18,7 +18,7 @@
     <p>Click on a ${ObjectName} below to access its properties:</p>
 		<ol>
 		<li tal:repeat="ObjectVar ObjectList.keys()">
-			<a href="/${ObjectName.lower()}/${ObjectVar}/edit"><p tal:replace="ObjectVar"></p></a> - <p tal:replace="ObjectList[ObjectVar][ObjectClassName]['comment']"></p>
+			<a href="${ObjectURLCallback(ObjectName,ObjectVar)}"><p tal:replace="ObjectVar"></p></a> - <p tal:replace="ObjectList[ObjectVar][ObjectClassName]['comment']"></p>
 		</li>
 		</ol>
 		

@@ -95,6 +95,7 @@
     
     
   	<script type="text/javascript">
+  	$(document).ready(function() {
 		$(".numeric").numeric();
 		$(".integer").numeric(false, function() { alert("Integers only"); this.value = ""; this.focus(); });
 		$(".positive").numeric({ negative: false }, function() { alert("No negative values"); this.value = ""; this.focus(); });
@@ -106,6 +107,7 @@
 		$(".numeric,.integer,.positive").removeNumeric();
 		}
 		);
+  	});
 	</script>
 	
 	
@@ -188,10 +190,19 @@
 	        			
 	        			<td tal:case="'multilist'">
 	        				<tal:block tal:condition="not INIFileTemplate[section][item][1]">
+	        				
+	        				<script type="text/javascript">
+	        				function update_${section}$${item}(){
+	        					var order = $('#sortable_${section}_${item}').sortable("toArray");
+	        					alert(JSON.stringify(order));
+	        				}
+	        				</script>
+	        				
 			        			<div tal:repeat="checkItem multiListChoices[section][item]">
-			        			<input type="checkbox" name="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
+			        			<input type="checkbox" id="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]' onclick="javascript:update_${section}$${item}()"/>
 			        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
 			        			</div>
+			        			<input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}">
 	        				</tal:block>
 	        				
 	        				<tal:block tal:condition="INIFileTemplate[section][item][1]">
@@ -242,6 +253,7 @@
 								      handle : '.handle',
 								      update : update_${section}$${item}
 								    });
+
 								    
 								    update_${section}$${item}();
 								});
@@ -267,6 +279,13 @@
 	        			
 	        			<td tal:case="'name'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}" id="${section}$${item}" onblur="return check_name();"/><div id="ajaxNameCheck" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div></td>
 	        			
+	        			<td tal:case="'intrange'" class="styled-select">
+	        			 <select name="${section}$${item}">
+	        			 <tal:block tal:repeat="number range(int(INIFileTemplate[section][item][2].split('-')[0]),int(INIFileTemplate[section][item][2].split('-')[1]) + 1)">
+						  <option value="${number}" tal:attributes='selected python: number == INIFileDict[section][item]'>${number}</option>
+						 </tal:block>
+						</select></td>
+	        			
 	        			
 	        		</tal:block>
 	        		</tr>
@@ -274,7 +293,7 @@
 			 </tal:block>
 			 <tr><td>
 			 <input type="submit" value="submit"><td><div id="formLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="formStatus">Saving</div></td>
-			 </td></tr>
+			 </tr>
 			 </table>
 			 </form>
 		</div>

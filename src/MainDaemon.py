@@ -57,7 +57,7 @@ class MainDaemon(object):
         
         factory = ServerNetworkFactory(self)
         self.servers=factory.buildNetwork(ETC_DIR)
-        self.servers.allOff()
+        #self.servers.allOff()
         #servers.initiateStartup()
         
         #Communication handling system

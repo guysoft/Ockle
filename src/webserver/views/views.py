@@ -222,7 +222,7 @@ def server_edit_view(request):
             "server_dict" : serverDict,
             "INIFileDict" : INIFileDict}
 '''
-@view_config(renderer="templates/pdu_tester_edit.pt",route_name='serverEdit')
+@view_config(renderer="templates/server_edit.pt",route_name='serverEdit')
 def server_edit_view(request):
     serverName = request.matchdict['serverName']
     
@@ -250,6 +250,7 @@ def server_edit_view(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
             "configPath" : configPath,
+            "serverName" : serverName,
             "multiListChoices" : multiListChoices,
             "page_title": "Server Edit: " + str(serverName)}
 
@@ -289,14 +290,23 @@ def about_view(request):
     return {"layout": site_layout(),
             "page_title": "About"}
 
+def objectEditUrl(ObjectName,ObjectVar):
+    ''' A callback that is used when return the object edit url path
+    Here to remove code repetition 
+    '''
+    return "/" + ObjectName.lower() + "/" + ObjectVar + "/edit"
+
 @view_config(renderer="templates/pdus_testers.pt", name="pdus")
 def pdus_view(request):
+    urlPattern="/${ObjectName.lower()}/${ObjectVar}/edit"
+    
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
             "config_sidebar_body" : config_sidebar_body(),
             "ObjectList" : getPDUDict(),
             "ObjectName" : "PDU",
             "ObjectClassName" : "outlet",
+            "ObjectURLCallback" : objectEditUrl,
             "page_title": "PDUs"}
 
 @view_config(renderer="templates/pdus_testers.pt", name="testers")
@@ -307,6 +317,7 @@ def testers_view(request):
             "ObjectList" : getTesterDict(),
             "ObjectName" : "tester",
             "ObjectClassName" : "tester",
+            "ObjectURLCallback" : objectEditUrl,
             "page_title": "Testers"}
     
 @view_config(renderer="templates/pdus_testers.pt", name="servers")
@@ -317,9 +328,28 @@ def servers_view(request):
             "ObjectList" : getServerDict(),
             "ObjectName" : "server",
             "ObjectClassName" : "server",
+            "ObjectURLCallback" : objectEditUrl,
             "page_title": "Servers"}
+    
+@view_config(renderer="templates/add_pdu_or_tester_list.pt", route_name="servers_outlet_add_list_view")
+def servers_outlet_add_list_view(request):
+    serverName = request.matchdict['serverName']
+    pduDict = getPDUDict()
+    
+    for key in pduDict.keys():
+        pduDict[key] = str(pduDict[key]["outlet"]["comment"])
 
-def fillINIwithTemplate(INIFileTemplate,INIFileDict):
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "TypeList" : pduDict,
+            "typeCreatePath" : "server/" + serverName + "/outletCreate",
+            "TypeCreateName" : "from which PDU the outlet is located",
+            "page_title": serverName + ": Add new Server outlet - Select PDU from list"
+            }
+
+def fillINIwithTemplate(INIFileTemplate,INIFileDict={}):
     ''' Fill missing values in an INI config file with ones that exist in the template
     @param INIFileTemplate: The config template as a dict
     @param INIFileDict: The config file dict
@@ -343,7 +373,7 @@ def pdu_add_list_view(request):
             "INI_InputArea_head" : INI_InputArea_head(),
             "TypeList" : TypeList,
             "typeCreatePath" : "pduCreate",
-            "TypeCreateName" : "PDU",
+            "TypeCreateName" : "type of PDU to create:",
             "page_title": "Add new PDU - Select type from list"
             }
     
@@ -357,7 +387,7 @@ def testers_add_list_view(request):
             "INI_InputArea_head" : INI_InputArea_head(),
             "TypeList" : TypeList,
             "typeCreatePath" : "testerCreate",
-            "TypeCreateName" : "Testers",
+            "TypeCreateName" : "type of Tester to create:",
             "page_title": "Add new Tester - Select type from list"
             }
 
@@ -444,6 +474,53 @@ def tester_create(request):
             
             "page_title": "Add new Tester: " + testerType
             }
+    
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
+def server_outlet_create_view(request):
+    serverName = request.matchdict['serverName']
+    PDU = request.matchdict['PDU']
+    
+    tmpName = "outletParams"
+    #serverName
+    pduType = _loadPDUConfig(PDU)["outlet"]["type"]
+    tmpINIFileTemplate = _loadOutletINITemplate(pduType)
+    
+    #Here we move the template dict to the right name
+    
+    INIFileTemplate = {}
+    INIFileTemplate[tmpName] = tmpINIFileTemplate["outletParams"]
+    INIFileTemplate[tmpName]["name"] =["name",""]
+    
+    #Remove the pdu params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("outlet")
+    except:
+        pass
+    
+    #INIFileDict[tmpName]["type"] = PDU
+    INIFileDict = fillINIwithTemplate(tmpINIFileTemplate)
+    
+    #work in progress here
+    print "yay"
+    print INIFileTemplate
+    print INIFileDict
+    
+    configPath= os.path.join(getServerFolder() , serverName + '.ini')
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),            
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "multiListChoices" : {},
+            
+            "configPath": configPath,
+            "existingOBJCallback" : "checkExistingServerOutlets" ,
+            
+            "page_title": serverName + ": Add new Outlet using " + PDU
+            }
 
 def _loadOutletINITemplate(outletType):
     ''' Get the outlet type template
@@ -462,12 +539,16 @@ def _loadServerINITemplate():
     @return: Server ini template dict'''
     return loadINIFileTemplate("serverNodes.ini")
 
+def _loadPDUConfig(PDUName):
+    configPath= os.path.join(getOutletFolder() , PDUName + '.ini')
+    return loadINIFileConfig(configPath)
+
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
 def pdu_edit_view(request):
     PDUName = request.matchdict['pduName']
     
     configPath= os.path.join(getOutletFolder() , PDUName + '.ini')
-    INIFileDict = loadINIFileConfig(configPath)
+    INIFileDict = _loadPDUConfig(PDUName)
     
     outletType = INIFileDict["outlet"]["type"]
     INIFileTemplate = _loadOutletINITemplate(outletType)
@@ -666,7 +747,14 @@ def sendOckleCommand(request):
         try:
             return {"reply" : dataDict["name"] in getTesterDict()}
         except:
-            return {"reply" : "Error"}        
+            return {"reply" : "Error"}
+        
+    #TODO write this!
+    if command == "checkExistingServerOutlets":
+        try:
+            return {"reply" : dataDict["name"] in getTesterDict()}
+        except:
+            return {"reply" : "Error"}
     
     if command == "switchOutlet":
         switchOutlet(dataDict)

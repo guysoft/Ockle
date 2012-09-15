@@ -1,28 +1,16 @@
 <!DOCTYPE html>
 <tal:block metal:use-macro="layout">
 	<tal:block metal:fill-slot="head_content">
+	<tal:block metal:use-macro="INI_InputArea_head"></tal:block>
 	</tal:block>
 
 
     <tal:block metal:fill-slot="content">
-	    <div class="secondary-a-6">
-	    <p style="float: right;"><a href="/server/${server_dict['Name']}">View</a></p>
-	    
-	    <div id="configForm" tal:repeat="section reversed(INIFileDict.keys())">
-	    <p><b>${INIFileDict[section]}</b></p><br/>
-	    </div>
-	    
-			<table>
-			<tr><td>
-			<p>Server data that would go in to a nice table:</p>
-			</td></tr>
-			<tr tal:repeat="serverVar reversed(server_dict.keys())">
-			<td tal:content="repeat.serverVar.number"></td>
-			   <td><p tal:replace="serverVar"></p></td>
-			      <td><p tal:replace="server_dict[serverVar]"></p></td>
-			   </tr>
-			</table>
-		</div>
+    <div style="float:right;"><a href="/server/${serverName}/outletCreate">+ add outlet to server</a> <br/><a href="/server/${serverName}/testerCreate">+ add tester to server</a></div>
+    <br/><br/>
+    <tal:block metal:use-macro="INI_InputArea_body"></tal:block>
+
+
    </tal:block>	
    
 </tal:block>
