@@ -191,18 +191,11 @@
 	        			<td tal:case="'multilist'">
 	        				<tal:block tal:condition="not INIFileTemplate[section][item][1]">
 	        				
-	        				<script type="text/javascript">
-	        				function update_${section}$${item}(){
-	        					var order = $('#sortable_${section}_${item}').sortable("toArray");
-	        					alert(JSON.stringify(order));
-	        				}
-	        				</script>
-	        				
 			        			<div tal:repeat="checkItem multiListChoices[section][item]">
-			        			<input type="checkbox" id="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]' onclick="javascript:update_${section}$${item}()"/>
+			        			<input type="checkbox" name="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]'/>
 			        			${checkItem} - ${multiListChoices[section][item][checkItem]["doc"]}
 			        			</div>
-			        			<input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}">
+			        			<input type="hidden" value="__null__" name="${section}$${item}*__null__">
 	        				</tal:block>
 	        				
 	        				<tal:block tal:condition="INIFileTemplate[section][item][1]">

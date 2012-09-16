@@ -691,7 +691,8 @@ def updates_view(request):
             if not item in iniDict[section]:
                 iniDict[section][item]=[]
             
-            iniDict[section][item].append(itemOption)
+            if itemOption != "__null__":
+                iniDict[section][item].append(itemOption)
             
         else: #normal non-multilist item
             iniDict[section][item] = rawiniDict[key] 
