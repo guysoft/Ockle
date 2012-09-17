@@ -71,10 +71,10 @@ class ServerNetworkFactory(object):
                 
             #Handle a list or single string testser
             testerList=[]
-            if serverConfig.has_option('server', 'testers'):
-                testers = serverConfig.get('server', 'testers')
+            if serverConfig.has_option('server', 'tests'):
+                testers = serverConfig.get('server', 'tests')
                 if testers.startswith("["):
-                    testers = json.loads(serverConfig.get("server","testers"))
+                    testers = json.loads(serverConfig.get("server","tests"))
                 else:
                     testers=[testers]
                 for tester in testers:
