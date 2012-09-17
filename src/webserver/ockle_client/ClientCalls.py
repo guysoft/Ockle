@@ -192,12 +192,12 @@ def loadINIFileConfig(configPath):
     INIFileDict = getINIstringtoDict(iniString)
     return INIFileDict
 
-def getAvailableOutletsList():
-    response = getDataFromServer("getAvailableOutletsList")
+def getAvailablePDUsList():
+    response = getDataFromServer("getAvailablePDUsList")
     if response == None:
         return {}
     else:
-        return json.loads(response["Outlets"])
+        return json.loads(response["PDUs"])
     return
 
 def getAvailableTestersList():

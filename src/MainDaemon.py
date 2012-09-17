@@ -63,7 +63,7 @@ class MainDaemon(object):
         #Communication handling system
         self.communicationHandler =CommunicationHandler(self)
         self.communicationHandler.AddCommandToList("getAvailablePluginsList", lambda dataDict: self.getAvailablePluginsListIndex(dataDict))
-        self.communicationHandler.AddCommandToList("getAvailableOutletsList", lambda dataDict: {"Outlets" : json.dumps(factory.getOutletsDictIndex())})
+        self.communicationHandler.AddCommandToList("getAvailablePDUsList", lambda dataDict: {"PDUs" : json.dumps(factory.getOutletsDictIndex())})
         self.communicationHandler.AddCommandToList("getAvailableTestersList", lambda dataDict: {"Testers" : json.dumps(factory.getTestersDictIndex())})
         self.communicationHandler.AddCommandToList("restart", lambda dataDict: self.reload(dataDict))
         

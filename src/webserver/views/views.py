@@ -20,7 +20,7 @@ from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
-from ockle_client.ClientCalls import getAvailableOutletsList
+from ockle_client.ClientCalls import getAvailablePDUsList
 from ockle_client.ClientCalls import getAvailableTestersList
 from ockle_client.ClientCalls import getAvailableServerOutlets
 from ockle_client.ClientCalls import getAvailableServerTesters
@@ -301,7 +301,7 @@ def pdus_view(request):
             "config_sidebar_body" : config_sidebar_body(),
             "ObjectList" : getPDUDict(),
             "ObjectName" : "PDU",
-            "ObjectClassName" : "outlet",
+            "ObjectClassName" : "pdu",
             "ObjectURLCallback" : _objectEditUrl,
             "page_title": "PDUs"}
 
@@ -379,7 +379,7 @@ def _obj_add_list_view(request,objGenerator,TypeList):
     
 @view_config(renderer="templates/add_pdu_or_tester_list.pt", name="pdus_add_list")
 def pdu_add_list_view(request):
-    return _obj_add_list_view(request,"PDU",sortDict(getAvailableOutletsList()))
+    return _obj_add_list_view(request,"PDU",sortDict(getAvailablePDUsList()))
     
 @view_config(renderer="templates/add_pdu_or_tester_list.pt", name="testers_add_list")
 def testers_add_list_view(request):
@@ -408,7 +408,7 @@ def _makeSelectMulitChoice(existingType,objectType,item,getObjectDict,multiListC
         multiListChoices[objectType][item][slectionName]["selected"] = (slectionName == existingType)
         
     return multiListChoices
-    
+ 
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="pduCreate")
 def pdu_create(request):
     PDUType = request.matchdict['pduType']
@@ -420,12 +420,12 @@ def pdu_create(request):
     except:
         pass
 
-    INIFileTemplate['outlet']["name"] =["name",""]
+    INIFileTemplate['pdu']["name"] =["name",""]
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,{})    
     
-    INIFileDict['outlet']["type"] = PDUType
-    multiListChoices = _makeSelectMulitChoice(PDUType,"outlet","type",getAvailableOutletsList)
+    INIFileDict['pdu']["type"] = PDUType
+    multiListChoices = _makeSelectMulitChoice(PDUType,"pdu","type",getAvailablePDUsList)
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -436,7 +436,7 @@ def pdu_create(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
             "multiListChoices" : multiListChoices,
-            "OBJnameSection" : "outlet",
+            "OBJnameSection" : "pdu",
             
             "configPathPrefix": getOutletFolder() + "/",
             "existingOBJCallback" : "checkExistingPDU" ,
@@ -478,34 +478,33 @@ def tester_create(request):
             
             "page_title": "Add new Tester: " + testerType
             }
-    
-@view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
-def server_outlet_create_view(request):
+
+def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGeneratorTemplateCallback,getObjGeneratorsCallback):
     serverName = request.matchdict['serverName']
-    PDU = request.matchdict['PDU']
+    PDU = request.matchdict[objGenerator]
     
-    tmpName = "outletParams"
+    tmpName =  obj +"Params"
     #serverName
-    pduType = _loadPDUConfig(PDU)["outlet"]["type"]
-    tmpINIFileTemplate = _loadOutletINITemplate(pduType)
+    pduType = objGeneratorConfigCallback(PDU)[obj]["type"]
+    tmpINIFileTemplate = objGeneratorTemplateCallback(pduType)
     
     #Here we move the template dict to the right name
     
     INIFileTemplate = {}
-    INIFileTemplate[tmpName] = tmpINIFileTemplate["outletParams"]
+    INIFileTemplate[tmpName] = tmpINIFileTemplate[obj +"Params"]
     INIFileTemplate[tmpName]["name"] =["name",""]
-    INIFileTemplate[tmpName]["outlet"] =["select",True]
+    INIFileTemplate[tmpName][obj] =["select",True]
     
     
     #Remove the pdu params if exist, we handle them in the server section
     try:
-        INIFileTemplate.pop("outlet")
+        INIFileTemplate.pop(obj)
     except:
         pass
     
     INIFileDict = __fillINIwithTemplate(tmpINIFileTemplate)
-    INIFileDict[tmpName]["outlet"] = PDU
-    multiListChoices= _makeSelectMulitChoice(PDU,tmpName,"outlet",getPDUDict)
+    INIFileDict[tmpName][obj] = PDU
+    multiListChoices= _makeSelectMulitChoice(PDU,tmpName,obj,getObjGeneratorsCallback)
     
     configPath= os.path.join(getServerFolder() , serverName + '.ini')
     return {"layout": site_layout(),
@@ -523,8 +522,12 @@ def server_outlet_create_view(request):
             "configPath": configPath,
             "existingOBJCallback" : "checkExistingServerOutlets" ,
             
-            "page_title": serverName + ": Add new Outlet using " + PDU
+            "page_title": serverName + ": Add new " + obj +" using " + PDU
             }
+    
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
+def server_outlet_create_view(request):
+    return _server_obj_create(request,"outlet","PDU",_loadPDUConfig,_loadOutletINITemplate,getPDUDict)
 
 def _loadOutletINITemplate(outletType):
     ''' Get the outlet type template
@@ -554,7 +557,7 @@ def pdu_edit_view(request):
     configPath= os.path.join(getOutletFolder() , PDUName + '.ini')
     INIFileDict = _loadPDUConfig(PDUName)
     
-    outletType = INIFileDict["outlet"]["type"]
+    outletType = INIFileDict["pdu"]["type"]
     INIFileTemplate = _loadOutletINITemplate(outletType)
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
@@ -565,7 +568,7 @@ def pdu_edit_view(request):
     except:
         pass
     
-    multiListChoices = _makeSelectMulitChoice(outletType,"outlet","type",getAvailableOutletsList)
+    multiListChoices = _makeSelectMulitChoice(outletType,"pdu","type",getAvailablePDUsList)
 
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
