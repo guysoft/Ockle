@@ -116,7 +116,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         return returnValue
     
     def getAvailableServerOutlets(self,server):
-        returnValue = self._getAvailableServerObjs(server,"outlet")
+        returnValue = self._getAvailableServerObjs(server,"pdu")
         for outlet in returnValue.keys():
             returnValue[outlet]["doc"] = ""
         return {"serverOutlets" : json.dumps(returnValue)}

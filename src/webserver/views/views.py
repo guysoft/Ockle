@@ -29,7 +29,7 @@ from ockle_client.ClientCalls import getTesterDict
 from ockle_client.ClientCalls import getServerDict
 from ockle_client.ClientCalls import loadINIFileTemplate
 from ockle_client.ClientCalls import loadINIFileConfig
-from ockle_client.ClientCalls import getOutletFolder
+from ockle_client.ClientCalls import getPDUFolder
 from ockle_client.ClientCalls import getTesterFolder
 from ockle_client.ClientCalls import getServerFolder
 from ockle_client.ClientCalls import getServerDependencyMap
@@ -346,10 +346,10 @@ def _servers_obj_add_list_view(request,obj,objDict,objGenerator):
 
 @view_config(renderer="templates/add_pdu_or_tester_list.pt", route_name="servers_outlet_add_list_view")
 def servers_outlet_add_list_view(request):
-    return _servers_obj_add_list_view(request,"outlet",getPDUDict(),"PDU")
+    return _servers_obj_add_list_view(request,"outlet",getPDUDict(),"pdu")
 
 @view_config(renderer="templates/add_pdu_or_tester_list.pt", route_name="servers_test_add_list_view")
-def servers_tester_add_list_view(request):
+def servers_test_add_list_view(request):
     return _servers_obj_add_list_view(request,"test",getTesterDict(),"tester")
 
 def __fillINIwithTemplate(INIFileTemplate,INIFileDict={}):
@@ -438,7 +438,7 @@ def pdu_create(request):
             "multiListChoices" : multiListChoices,
             "OBJnameSection" : "pdu",
             
-            "configPathPrefix": getOutletFolder() + "/",
+            "configPathPrefix": getPDUFolder() + "/",
             "existingOBJCallback" : "checkExistingPDU" ,
             
             "page_title": "Add new PDU: " + PDUType
@@ -485,7 +485,7 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
     
     tmpName =  obj +"Params"
     #serverName
-    pduType = objGeneratorConfigCallback(PDU)[obj]["type"]
+    pduType = objGeneratorConfigCallback(PDU)[objGenerator.lower()]["type"]
     tmpINIFileTemplate = objGeneratorTemplateCallback(pduType)
     
     #Here we move the template dict to the right name
@@ -493,18 +493,18 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
     INIFileTemplate = {}
     INIFileTemplate[tmpName] = tmpINIFileTemplate[obj +"Params"]
     INIFileTemplate[tmpName]["name"] =["name",""]
-    INIFileTemplate[tmpName][obj] =["select",True]
+    INIFileTemplate[tmpName][objGenerator.lower()] =["select",True]
     
     
     #Remove the pdu params if exist, we handle them in the server section
     try:
-        INIFileTemplate.pop(obj)
+        INIFileTemplate.pop(objGenerator.lower())
     except:
         pass
     
     INIFileDict = __fillINIwithTemplate(tmpINIFileTemplate)
-    INIFileDict[tmpName][obj] = PDU
-    multiListChoices= _makeSelectMulitChoice(PDU,tmpName,obj,getObjGeneratorsCallback)
+    INIFileDict[tmpName][objGenerator.lower()] = PDU
+    multiListChoices= _makeSelectMulitChoice(PDU,tmpName,objGenerator.lower(),getObjGeneratorsCallback)
     
     configPath= os.path.join(getServerFolder() , serverName + '.ini')
     return {"layout": site_layout(),
@@ -518,6 +518,7 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
             "multiListChoices" : multiListChoices,
             "OBJnameSection" : tmpName,
             "matchdict" : json.dumps(request.matchdict),
+            "changeSavePathToName" : 'false',
             
             "configPath": configPath,
             "existingOBJCallback" : "checkExistingServerOutlets" ,
@@ -528,6 +529,10 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
 def server_outlet_create_view(request):
     return _server_obj_create(request,"outlet","PDU",_loadPDUConfig,_loadOutletINITemplate,getPDUDict)
+
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_testCreate_view")
+def server_test_create_view(request):
+    return _server_obj_create(request,"test","tester",_loadTesterConfig,_loadTesterINITemplate,getTesterDict)
 
 def _loadOutletINITemplate(outletType):
     ''' Get the outlet type template
@@ -547,14 +552,18 @@ def _loadServerINITemplate():
     return loadINIFileTemplate("serverNodes.ini")
 
 def _loadPDUConfig(PDUName):
-    configPath= os.path.join(getOutletFolder() , PDUName + '.ini')
+    configPath= os.path.join(getPDUFolder() , PDUName + '.ini')
+    return loadINIFileConfig(configPath)
+
+def _loadTesterConfig(testerName):
+    configPath= os.path.join(getTesterFolder() , testerName + '.ini')
     return loadINIFileConfig(configPath)
 
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
 def pdu_edit_view(request):
     PDUName = request.matchdict['pduName']
     
-    configPath= os.path.join(getOutletFolder() , PDUName + '.ini')
+    configPath= os.path.join(getPDUFolder() , PDUName + '.ini')
     INIFileDict = _loadPDUConfig(PDUName)
     
     outletType = INIFileDict["pdu"]["type"]
@@ -586,7 +595,7 @@ def tester_edit_view(request):
     TesterName = request.matchdict['testerName']
     
     configPath= os.path.join(getTesterFolder() , TesterName + '.ini')
-    INIFileDict = loadINIFileConfig(configPath)
+    INIFileDict = _loadTesterConfig(TesterName)
     
     testerType = INIFileDict["tester"]["type"]
     INIFileTemplate = _loadTesterINITemplate(testerType)
@@ -711,6 +720,7 @@ def updates_view(request):
     #convert sections that were nameless on creation
     if "outletParams" in iniDict.keys():
         iniDict[iniDict["outletParams"]["name"]] = iniDict[section]
+        iniDict[iniDict["outletParams"]["name"]].pop("name")
         iniDict.pop("outletParams")   
     
     #Add sections that were dropped

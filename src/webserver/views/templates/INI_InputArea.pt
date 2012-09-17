@@ -20,6 +20,7 @@
 	var configPath = "";
 	var existingOBJCallback ="";
 	var matchdict={};
+	var changeSavePathToName = true;
 	</script>
 	<script tal:condition='exists: configPathPrefix' type="text/javascript">
 	var configPathPrefix = '${configPathPrefix}';
@@ -32,6 +33,9 @@
 	</script>
 	<script tal:condition='exists: matchdict' type="text/javascript">
 	var matchdict = ${structure: matchdict};
+	</script>
+	<script tal:condition='exists: changeSavePathToName' type="text/javascript">
+	var changeSavePathToName = ${changeSavePathToName};
 	</script>
 
 	
@@ -157,7 +161,9 @@
 	       					$('#ajaxNameCheck').show();
        					} if (! response["reply"]){
        						$('#ajaxNameCheck').html("<font color='green'>Name available</font>");
-       						configPath = OBJname + ".ini";
+       						if (changeSavePathToName){
+       							configPath = OBJname + ".ini";
+       						}
        						$('#ajaxNameCheck').show();
 	       				}
        				}

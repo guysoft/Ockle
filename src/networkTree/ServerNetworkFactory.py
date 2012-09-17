@@ -120,7 +120,7 @@ class ServerNetworkFactory(object):
         outletParams = turpleList2Dict(serverConfig.items(outlet))
         
         #get outlet type so we can pull its config data
-        outletConfig=serverConfig.get(outlet, "outlet")
+        outletConfig=serverConfig.get(outlet, "pdu")
         outletConfigPath = os.path.join(self.mainDaemon.OUTLETS_DIR,outletConfig + ".ini")
         outletConfig = SafeConfigParser()
         
@@ -129,11 +129,11 @@ class ServerNetworkFactory(object):
         outletConfigDict={}
         self.mainDaemon.debug("Loading:"+str(outletConfigPath))
         for section in outletConfig.sections(): 
-            outletConfigDict[section] = turpleList2Dict(outletConfig.items('outlet'))
+            outletConfigDict[section] = turpleList2Dict(outletConfig.items('pdu'))
         
         #Find from type the kind of outlet
         outlets = load(OUTLETS_PACKAGE,subclasses=OutletTemplate)
-        outletType = outletConfigDict['outlet']['type']
+        outletType = outletConfigDict['pdu']['type']
         for outletClass in outlets:
             if outletClass.__name__ == outletType:
                 return outletClass(outlet,outletConfigDict,outletParams)

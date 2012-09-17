@@ -236,7 +236,7 @@ def getServerDependencyMap(server):
         depMap = json.loads(response["dependencyMap"])
         return mergeDicts(depMap["available"], depMap["existing"])
 
-def getOutletFolder():
+def getPDUFolder():
     return loadINIFileConfig("config.ini")['main']['outlet_dir']
 
 def getTesterFolder():
