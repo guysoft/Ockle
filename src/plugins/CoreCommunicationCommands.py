@@ -61,16 +61,14 @@ class CoreCommunicationCommands(ModuleTemplate):
             return {} #no server found
         server.getName()
         outlets={}
-        outletNumber=1;
         for outlet in server.getOutlets():
-            outletIndex="outlet"+str(outletNumber)
+            outletIndex="outlet"+outlet.getName()
             outlets[outletIndex] ={} 
             outlets[outletIndex]["type"] = outlet.getOutletType()
             outlets[outletIndex]["OpState"] = outlet.getOpState()
             outlets[outletIndex]["state"] = outlet.getState()
             outlets[outletIndex]["data"] = outlet.getData()
             outlets[outletIndex]["name"] = outlet.getName()
-            outletNumber=outletNumber+1
             
         return {"Name" :  server.getName(),
                 "OpState" : server.getOpState(),

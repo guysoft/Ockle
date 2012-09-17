@@ -152,11 +152,9 @@ class ServerNode():
         @return: A dict with each outlet name, and a dict of its data
         '''
         returnValue = {}
-        outletNumber=1
         for outlet in self.getOutlets():
-            returnValue["outlet" + str(outletNumber)] = outlet.getData()
-            returnValue["outlet" + str(outletNumber)]["name"] = outlet.getName()
-            outletNumber = outletNumber + 1
+            returnValue["outlet" + outlet.getName()] = outlet.getData()
+            returnValue["outlet" + outlet.getName()]["name"] = outlet.getName()
         return returnValue
     
     def turnOn(self):

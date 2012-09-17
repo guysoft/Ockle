@@ -6,8 +6,8 @@
 
 
     <tal:block metal:fill-slot="content">
-    <div style="float:right;"><a href="/server/${serverName}/outletCreate">+ add outlet to server</a> <br/><a href="/server/${serverName}/testerCreate">+ add tester to server</a></div>
-    <br/><br/>
+    <div style="float:right;"><a href="/server/${serverName}">View server</a><br/><a href="/server/${serverName}/outletCreate">+ add outlet to server</a> <br/><a href="/server/${serverName}/testerCreate">+ add tester to server</a></div>
+    <br/><br/><br/>
     <tal:block metal:use-macro="INI_InputArea_body"></tal:block>
 
 

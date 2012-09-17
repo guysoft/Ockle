@@ -10,6 +10,8 @@ from ConfigParser import SafeConfigParser
 
 from sqlalchemy import  create_engine
 
+from collections import OrderedDict
+
 import json
 
 config = SafeConfigParser()
@@ -37,10 +39,10 @@ class Reader():
         
         connection = self.engine.connect()
         if server==None:
-            sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=?"
+            sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=? ORDER BY time"
             variables = (fromTime,toTime)
         else:
-            sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=? AND server=?"
+            sql = "SELECT * FROM " + self.Log.__tablename__ + " WHERE time>=? AND time<=? AND server=? ORDER BY time"
             #print sql
             variables = (fromTime,toTime,server)
             
@@ -68,7 +70,7 @@ class Reader():
             result = self.getDBInfo(None, dataDict["fromTime"], dataDict["toTime"])
         
         #Convert RowProxy type to dict
-        returnValue = {}
+        returnValue = OrderedDict()
         i=0
         for row in result:
             returnValue[str(i)] = dict(row)

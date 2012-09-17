@@ -115,7 +115,6 @@ def serverPage_view(request):
     ## Build data for the statistics display ##
     dataLog=[]
     serverLog = getServerStatistics(serverName,time.time() - STATISTICS_WINDOW,time.time()+1)
-    
     #get the last data entry
     dataDictHead = {}
     if not serverLog.keys() == []:
@@ -172,7 +171,6 @@ def serverPage_view(request):
                 
     #Build outlet switches dict
     outlets={}
-    print serverDict
     outletsServerDict = json.loads(serverDict["outlets"])
     for outlet in outletsServerDict:
         outlets[outlet] ={}
@@ -391,19 +389,26 @@ def testers_add_list_view(request):
             "page_title": "Add new Tester - Select type from list"
             }
 
-def _makeObjectTypeMulitChoice(existingType,objectType,getObjectCallback,multiListChoices=None):
+def _makeObjectTypeMulitChoice(existingType,objectType,item,getObjectCallback,multiListChoices=None):
+    ''' Make a multi select option for the select type
+    @param existingType: 
+    @param objectType: The section to update
+    @getObjectCallback:
+    @param multiListChoices: an existing multiListChoices dict (optional)
+    @return: The updated multiListChoices dict
+    '''
     #Create a multi-choice box for the outlets
     if multiListChoices == None:
         multiListChoices={}
     if not objectType in multiListChoices:
         multiListChoices[objectType]=OrderedDict()
-    multiListChoices[objectType]["type"]=OrderedDict()
+    multiListChoices[objectType][item]=OrderedDict()
     #getAvailableOutletsList
     for slectionName in getObjectCallback().keys():
-        multiListChoices[objectType]["type"][slectionName]={}
+        multiListChoices[objectType][item][slectionName]={}
     
-    for slectionName in multiListChoices[objectType]["type"].keys():
-        multiListChoices[objectType]["type"][slectionName]["selected"] = (slectionName == existingType)
+    for slectionName in multiListChoices[objectType][item].keys():
+        multiListChoices[objectType][item][slectionName]["selected"] = (slectionName == existingType)
         
     return multiListChoices
     
@@ -423,7 +428,7 @@ def pdu_create(request):
     INIFileDict = fillINIwithTemplate(INIFileTemplate,{})    
     
     INIFileDict['outlet']["type"] = PDUType
-    multiListChoices = _makeObjectTypeMulitChoice(PDUType,"outlet",getAvailableOutletsList)
+    multiListChoices = _makeObjectTypeMulitChoice(PDUType,"outlet","type",getAvailableOutletsList)
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -457,7 +462,7 @@ def tester_create(request):
     INIFileDict = fillINIwithTemplate(INIFileTemplate,{})    
     
     INIFileDict['tester']["type"] = testerType
-    multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
+    multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester","type",getAvailableTestersList)
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -490,6 +495,8 @@ def server_outlet_create_view(request):
     INIFileTemplate = {}
     INIFileTemplate[tmpName] = tmpINIFileTemplate["outletParams"]
     INIFileTemplate[tmpName]["name"] =["name",""]
+    INIFileTemplate[tmpName]["outlet"] =["select",True]
+    
     
     #Remove the pdu params if exist, we handle them in the server section
     try:
@@ -497,13 +504,9 @@ def server_outlet_create_view(request):
     except:
         pass
     
-    #INIFileDict[tmpName]["type"] = PDU
     INIFileDict = fillINIwithTemplate(tmpINIFileTemplate)
-    
-    #work in progress here
-    print "yay"
-    print INIFileTemplate
-    print INIFileDict
+    INIFileDict[tmpName]["outlet"] = PDU
+    multiListChoices= _makeObjectTypeMulitChoice(PDU,tmpName,"outlet",getPDUDict)
     
     configPath= os.path.join(getServerFolder() , serverName + '.ini')
     return {"layout": site_layout(),
@@ -514,7 +517,7 @@ def server_outlet_create_view(request):
             "INI_InputArea_body" : INI_InputArea_body(),            
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
-            "multiListChoices" : {},
+            "multiListChoices" : multiListChoices,
             
             "configPath": configPath,
             "existingOBJCallback" : "checkExistingServerOutlets" ,
@@ -561,7 +564,7 @@ def pdu_edit_view(request):
     except:
         pass
     
-    multiListChoices = _makeObjectTypeMulitChoice(outletType,"outlet",getAvailableOutletsList)
+    multiListChoices = _makeObjectTypeMulitChoice(outletType,"outlet","type",getAvailableOutletsList)
 
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -592,7 +595,7 @@ def tester_edit_view(request):
     except:
         pass
     
-    multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester",getAvailableTestersList)
+    multiListChoices = _makeObjectTypeMulitChoice(testerType,"tester","type",getAvailableTestersList)
 
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -671,8 +674,6 @@ def updates_view(request):
     jsonData = request.json_body["configINI"]
     iniFilePath = request.json_body["path"]
     
-    print "wee"
-    print jsonData
     for i in jsonData:
         rawiniDict[i["name"]] =i["value"]
     
@@ -703,14 +704,17 @@ def updates_view(request):
                 iniDict[section][item]=json.dumps(iniDict[section][item])
     
     
+    #convert sections that were nameless on creation
+    if "outletParams" in iniDict.keys():
+        iniDict[iniDict["outletParams"]["name"]] = iniDict[section]
+        iniDict.pop("outletParams")   
+    
     #Add sections that were dropped
     oldINIDict = loadINIFileConfig(iniFilePath)
     for section in oldINIDict.keys():
         if not section in iniDict:
             iniDict[section] = oldINIDict[section]
-    
-    #TODO: if a multilist if empty, it does not get sent
-    #updateINIfile(iniDict,iniFilePath) 
+            
     
     result =  setINIFile(iniFilePath,iniDict)
     
