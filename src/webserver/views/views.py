@@ -716,12 +716,15 @@ def updates_view(request):
             if type(iniDict[section][item]) == list:
                 iniDict[section][item]=json.dumps(iniDict[section][item])
     
-    
+
     #convert sections that were nameless on creation
-    if "outletParams" in iniDict.keys():
-        iniDict[iniDict["outletParams"]["name"]] = iniDict[section]
-        iniDict[iniDict["outletParams"]["name"]].pop("name")
-        iniDict.pop("outletParams")   
+    #TODO find a way to make this not hard-coded
+    PARAMS_LIST=["outletParams","testParams"]
+    for param in PARAMS_LIST:
+        if param in iniDict.keys():
+            iniDict[iniDict[param]["name"]] = iniDict[section]
+            iniDict[iniDict[param]["name"]].pop("name")
+            iniDict.pop(param)
     
     #Add sections that were dropped
     oldINIDict = loadINIFileConfig(iniFilePath)
