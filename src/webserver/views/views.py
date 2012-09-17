@@ -439,6 +439,7 @@ def pdu_create(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
             "multiListChoices" : multiListChoices,
+            "OBJnameSection" : "outlet",
             
             "configPathPrefix": getOutletFolder() + "/",
             "existingOBJCallback" : "checkExistingPDU" ,
@@ -473,6 +474,7 @@ def tester_create(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
             "multiListChoices" : multiListChoices,
+            "OBJnameSection" : "tester",
             
             "configPathPrefix": getTesterFolder() + "/",
             "existingOBJCallback" : "checkExistingTesters" ,
@@ -518,6 +520,8 @@ def server_outlet_create_view(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
             "multiListChoices" : multiListChoices,
+            "OBJnameSection" : tmpName,
+            "matchdict" : json.dumps(request.matchdict),
             
             "configPath": configPath,
             "existingOBJCallback" : "checkExistingServerOutlets" ,
@@ -757,7 +761,7 @@ def sendOckleCommand(request):
     #TODO write this!
     if command == "checkExistingServerOutlets":
         try:
-            return {"reply" : dataDict["name"] in getTesterDict()}
+            return {"reply" : dataDict["name"] in getAvailableServerOutlets(dataDict["matchdict"]["serverName"])}
         except:
             return {"reply" : "Error"}
     

@@ -19,6 +19,7 @@
 	var configPathPrefix ="";
 	var configPath = "";
 	var existingOBJCallback ="";
+	var matchdict={};
 	</script>
 	<script tal:condition='exists: configPathPrefix' type="text/javascript">
 	var configPathPrefix = '${configPathPrefix}';
@@ -29,6 +30,10 @@
 	<script tal:condition='exists: existingOBJCallback' type="text/javascript">
 	var existingOBJCallback = '${existingOBJCallback}';
 	</script>
+	<script tal:condition='exists: matchdict' type="text/javascript">
+	var matchdict = ${structure: matchdict};
+	</script>
+
 	
 	<script type="text/javascript">
 	NOTY_MEESAGE_LAYOUT = 'top';
@@ -117,19 +122,17 @@
     		loadHTML = $('#ajaxNameCheck').html();
     	});
     	
+
+		</script>
+		<script tal:condition='exists: existingOBJCallback'>
+    	
     	function check_name(){
     		
-    		//TODO: there should be a better way to do this
     		try{
-    			var OBJname = document.forms["configINI"].outlet$name.value || "";
+    			var OBJname = document.forms["configINI"].${OBJnameSection}$name.value || "";
     		}
     		catch(e){
-    			try{
-    				var OBJname = document.forms["configINI"].tester$name.value || "";
-    			}
-    			catch(e){
-    				
-    			}
+    			
     		}
     		
     		if(OBJname.length > 2){
@@ -141,7 +144,8 @@
     		        'url': "/sendOckleCommand.json",
     		        'contentType': 'application/json',
     		        'data': JSON.stringify({"command": existingOBJCallback,
-					"dataDict" : {"name": OBJname}}),
+					"dataDict" : {"name": OBJname,
+						"matchdict" : matchdict }}),
     		        'dataType': 'json',
     		        'success': function(response){
     		        	
@@ -162,7 +166,6 @@
     			return false;
     		}
     	}
-    	 
 	</script>
 </tal:block>
 
@@ -270,15 +273,15 @@
 						<input type="hidden" value="${INIFileDict[section][item]}" name="${section}$${item}">
 	        			</td>
 	        			
-	        			<td tal:case="'name'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}" id="${section}$${item}" onblur="return check_name();"/><div id="ajaxNameCheck" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div></td>
-	        			
 	        			<td tal:case="'intrange'" class="styled-select">
 	        			 <select name="${section}$${item}">
 	        			 <tal:block tal:repeat="number range(int(INIFileTemplate[section][item][2].split('-')[0]),int(INIFileTemplate[section][item][2].split('-')[1]) + 1)">
 						  <option value="${number}" tal:attributes='selected python: number == INIFileDict[section][item]'>${number}</option>
 						 </tal:block>
 						</select></td>
-	        			
+						
+						<!-- Special cases, unique fields -->
+						<td tal:case="'name'"><input type="text" value="${INIFileDict[section][item]}" name="${section}$${item}" id="${section}$${item}" onblur="return check_name();"/><div id="ajaxNameCheck" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div></td>
 	        			
 	        		</tal:block>
 	        		</tr>
