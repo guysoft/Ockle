@@ -282,7 +282,7 @@
 	        			<td tal:case="'intrange'" class="styled-select">
 	        			 <select name="${section}$${item}">
 	        			 <tal:block tal:repeat="number range(int(INIFileTemplate[section][item][2].split('-')[0]),int(INIFileTemplate[section][item][2].split('-')[1]) + 1)">
-						  <option value="${number}" tal:attributes='selected python: number == INIFileDict[section][item]'>${number}</option>
+						  <option value="${number}" tal:attributes='selected python: number == int(INIFileDict[section][item])'>${number}</option>
 						 </tal:block>
 						</select></td>
 						

@@ -224,8 +224,8 @@ def server_edit_view(request):
 def server_edit_view(request):
     serverName = request.matchdict['serverName']
     
-    configPath= os.path.join(getServerFolder() , serverName + '.ini')
-    INIFileDict = loadINIFileConfig(configPath)
+    configPath= _getServerConfigPath(serverName)
+    INIFileDict = _loadServerConfig(serverName)
     
     #testerType = INIFileDict["tester"]["type"]
     INIFileTemplate = _loadServerINITemplate()
@@ -412,7 +412,7 @@ def _makeSelectMulitChoice(existingType,objectType,item,getObjectDict,multiListC
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="pduCreate")
 def pdu_create(request):
     PDUType = request.matchdict['pduType']
-    INIFileTemplate = _loadOutletINITemplate(PDUType)
+    INIFileTemplate = _loadPDUINITemplate(PDUType)
 
     #Remove the outlet params if exist, we handle them in the server section
     try:
@@ -525,16 +525,78 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
             
             "page_title": serverName + ": Add new " + obj +" using " + PDU
             }
+
+def _get_server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,getObjGeneratorsCallback,objGeneratorTemplateCallback):
+    ''' Get the edit dict of a server object (like outlet, tester, etc)
+    @param obj: the name of the object in the server (eg. outlet)
+    @param objGenerator: the name of the object generator (eg. pdu)
+    @param objGeneratorConfigCallback: a callback the returns the object's config dict 
+    @param getObjGeneratorsCallback: A callback that gets the available object generators
+    @param objGeneratorTemplateCallback: A callback that gets the template dict of the object generator
+    @return: dict for the edit view
+    '''
+    serverName = request.matchdict['serverName']
+    objName = request.matchdict[obj]
+    objParam = "outletParams"
     
+    configPath= _getServerConfigPath(serverName)
+    tmpINIFileDict = _loadServerConfig(serverName)
+    INIFileDict = OrderedDict() 
+    INIFileDict[objName] = tmpINIFileDict[objName]
+    objGeneratorName =  INIFileDict[objName][objGenerator.lower()]
+    
+    objType = objGeneratorConfigCallback(objGeneratorName)[objGenerator.lower()]["type"]
+    INIFileTemplate = objGeneratorTemplateCallback(objType)
+    
+    #pop the main dict
+    INIFileTemplate.pop(objGenerator.lower())
+
+    #add the type name
+    INIFileTemplate[objParam][objGenerator.lower()] =["select",True]
+    
+    #Move outlet Params to the right name
+    INIFileTemplate[objName] = INIFileTemplate[objParam]
+    INIFileTemplate.pop(objParam)
+    
+    multiListChoices= _makeSelectMulitChoice(objName,objName,objGenerator.lower(),getObjGeneratorsCallback)
+    INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
+    
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),            
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "multiListChoices" : multiListChoices,
+            "OBJnameSection" : objName,
+            "matchdict" : json.dumps(request.matchdict),
+            "changeSavePathToName" : 'false',
+            
+            "configPath": configPath,
+            "existingOBJCallback" : "checkExistingServerOutlets" ,
+            
+            "page_title": serverName + ": Edit " + obj +" " + objName
+            }
+
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="servers_outletEdit_view")
+def server_outlet_edit_view(request):
+    return _get_server_obj_edit_view(request,"outlet","PDU",_loadPDUConfig,getPDUDict,_loadPDUINITemplate)
+
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="servers_testEdit_view")
+def server_test_edit_view(request):
+    return _get_server_obj_edit_view(request,"test","tester",_loadTesterConfig,getTesterDict,_loadTesterINITemplate)
+
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
 def server_outlet_create_view(request):
-    return _server_obj_create(request,"outlet","PDU",_loadPDUConfig,_loadOutletINITemplate,getPDUDict)
+    return _server_obj_create(request,"outlet","PDU",_loadPDUConfig,_loadPDUINITemplate,getPDUDict)
 
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_testCreate_view")
 def server_test_create_view(request):
     return _server_obj_create(request,"test","tester",_loadTesterConfig,_loadTesterINITemplate,getTesterDict)
 
-def _loadOutletINITemplate(outletType):
+def _loadPDUINITemplate(outletType):
     ''' Get the outlet type template
     @param outletType: The type of the outlet 
     @return: Outlet ini template dict'''
@@ -559,6 +621,13 @@ def _loadTesterConfig(testerName):
     configPath= os.path.join(getTesterFolder() , testerName + '.ini')
     return loadINIFileConfig(configPath)
 
+def _getServerConfigPath(serverName):
+    return os.path.join(getServerFolder() , serverName + '.ini')
+
+def _loadServerConfig(serverName):
+    configPath= _getServerConfigPath(serverName)
+    return loadINIFileConfig(configPath)
+
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
 def pdu_edit_view(request):
     PDUName = request.matchdict['pduName']
@@ -567,7 +636,7 @@ def pdu_edit_view(request):
     INIFileDict = _loadPDUConfig(PDUName)
     
     outletType = INIFileDict["pdu"]["type"]
-    INIFileTemplate = _loadOutletINITemplate(outletType)
+    INIFileTemplate = _loadPDUINITemplate(outletType)
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
@@ -770,8 +839,7 @@ def sendOckleCommand(request):
             return {"reply" : dataDict["name"] in getTesterDict()}
         except:
             return {"reply" : "Error"}
-        
-    #TODO write this!
+    
     if command == "checkExistingServerOutlets":
         try:
             return {"reply" : dataDict["name"] in getAvailableServerOutlets(dataDict["matchdict"]["serverName"])}
