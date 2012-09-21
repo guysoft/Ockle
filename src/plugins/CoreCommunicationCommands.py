@@ -117,14 +117,10 @@ class CoreCommunicationCommands(ModuleTemplate):
     
     def getAvailableServerOutlets(self,server):
         returnValue = self._getAvailableServerObjs(server,"pdu")
-        for outlet in returnValue.keys():
-            returnValue[outlet]["doc"] = ""
         return {"serverOutlets" : json.dumps(returnValue)}
     
     def getAvailableServerTesters(self,server):
         returnValue = self._getAvailableServerObjs(server,"tester")
-        for outlet in returnValue.keys():
-            returnValue[outlet]["doc"] = ""
         return {"serverTesters" : json.dumps(returnValue)}
     
     def _getServerDependencyMap(self,serverName):

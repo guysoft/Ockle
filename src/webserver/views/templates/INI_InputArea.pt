@@ -263,7 +263,14 @@
 	        				
 	        					<ul id="sortable_${section}_${item}">
 				        			<tal:block tal:repeat="checkItem multiListChoices[section][item]">
-				        			<li id="${checkItem}"><img src="/static/jquery-sortable/arrow.png" alt="move" width="16" height="16" class="handle" /><input type="checkbox" id="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]' onclick="javascript:update_${section}$${item}()"/><strong>${checkItem}</strong> - ${multiListChoices[section][item][checkItem]["doc"]}</li>
+				        			<li id="${checkItem}"><img src="/static/jquery-sortable/arrow.png" alt="move" width="16" height="16" class="handle" />
+				        				<input type="checkbox" id="${section}$${item}*${checkItem}" tal:attributes='checked python:multiListChoices[section][item][checkItem]["checked"]' onclick="javascript:update_${section}$${item}()"/>
+				        				<strong>
+				        					<tal:block tal:condition='not: exists: INIFileTemplate[section][item][2]'>${checkItem}</tal:block>
+				        					<tal:block tal:condition='exists: INIFileTemplate[section][item][2]'><a href="${INIFileTemplate[section][item][2].replace('~~name~~',checkItem)}">${checkItem}</a></tal:block>
+				        				</strong>
+				        				<tal:block tal:condition='multiListChoices[section][item][checkItem]["doc"] != ""'> - ${multiListChoices[section][item][checkItem]["doc"]}</tal:block>
+				        			</li>
 				        			</tal:block>
 				        		</ul>
 				        		<input type="hidden" value="${INIFileDict[section][item]}" name="${section}$${item}">

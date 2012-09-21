@@ -215,7 +215,7 @@ def getAvailableServerOutlets(server):
     else:
         outletDict =  json.loads(response["serverOutlets"],object_pairs_hook=OrderedDict)
         for key in outletDict.keys():
-            outletDict[key] = outletDict[key]["doc"]
+            outletDict[key] = ""
     return outletDict
 
 def getAvailableServerTesters(server):
@@ -225,7 +225,7 @@ def getAvailableServerTesters(server):
     else:
         testerDict =  json.loads(response["serverTesters"],object_pairs_hook=OrderedDict)
         for key in testerDict.keys():
-            testerDict[key] = testerDict[key]['doc']
+            testerDict[key] = ""
     return testerDict
 
 def getServerDependencyMap(server):
