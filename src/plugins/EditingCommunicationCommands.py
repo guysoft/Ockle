@@ -66,11 +66,32 @@ class EditingCommunicationCommands(ModuleTemplate):
         #print newConfig
         return {"succeeded": True}
     
+    def deleteINIFileCommand(self,path):
+        path = os.path.join(self.mainDaemon.ETC_DIR,path)
+        
+        #DEBUG for now
+        try:
+            backPath = os.path.join(self.mainDaemon.ETC_DIR,"serversBack")
+            os.system("mkdir -p " +backPath)
+            shutil.copy(path,backPath)
+        except:
+            pass
+        
+        returnValue = {"succeeded": True}
+        
+        try:
+            os.remove(path)
+        except OSError as e:
+            returnValue["succeeded"] = False
+            returnValue["error"] = str(e)
+        return returnValue
+        return {"succeeded": True}
+    
     def run(self):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("getINIFile",lambda dataDict: self.getINIFileCommand(dataDict["Path"]))
         self.mainDaemon.communicationHandler.AddCommandToList("setINIFile",lambda dataDict: self.setINIFile(dataDict))
-
+        self.mainDaemon.communicationHandler.AddCommandToList("deleteINIFile",lambda dataDict: self.deleteINIFileCommand(dataDict["Path"]))
         return
 
 if __name__ == "__main__":

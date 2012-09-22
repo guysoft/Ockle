@@ -147,6 +147,9 @@ def getAvailablePluginsList():
 def setINIFile(iniPath,iniDict):
     return getDataFromServer("setINIFile",{"Path":iniPath, "iniDict" : json.dumps(iniDict)})
 
+def deleteINIFile(iniPath):
+    return getDataFromServer("deleteINIFile",{"Path":iniPath})
+
 def restartOckle():
     return getDataFromServer("restart",{},True)
 
@@ -235,6 +238,14 @@ def getServerDependencyMap(server):
     else:
         depMap = json.loads(response["dependencyMap"])
         return mergeDicts(depMap["available"], depMap["existing"])
+
+def serversDependent(server):
+    response = getDataFromServer("getServerDependencyMap",{"server": server})
+    if response == None:
+        return {}
+    else:
+        depMap = json.loads(response["dependencyMap"])
+        return depMap["disabled"].keys()
 
 def getPDUFolder():
     return loadINIFileConfig("config.ini")['main']['outlet_dir']

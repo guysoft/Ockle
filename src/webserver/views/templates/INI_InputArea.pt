@@ -37,12 +37,15 @@
 	<script tal:condition='exists: changeSavePathToName' type="text/javascript">
 	var changeSavePathToName = ${changeSavePathToName};
 	</script>
+	<script tal:condition='exists: deleteCallback' type="text/javascript">
+	var deleteCallback = "${deleteCallback}";
+	</script>	
 
 	
 	<script type="text/javascript">
 	NOTY_MEESAGE_LAYOUT = 'top';
 	
-	  function nottyQuestion(message,button1,button2) {
+	  function nottyQuestion(message,button1,button2,redirect=null) {
 		    var n = noty({
 		      text: message,
 		      type: 'warning',
@@ -61,13 +64,21 @@
 		        		data: JSON.stringify({"command":"restart"})
 		        		});
 		            
-		            setTimeout(location.reload,7000);
+		            if (redirect == null){
+		            	setTimeout(location.reload,7000);
+		            }
+		            else{
+		            	setTimeout(function() {window.location.replace(redirect);},7000);
+		            }
 		            
 		          }
 		        },
 		        {addClass: 'btn btn-danger', text: button2, onClick: function($noty) {
 		            $noty.close();
-		            //noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'You clicked "Cancel" button', type: 'error'});
+		            noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'You clicked "Cancel" button', type: 'error'});
+		            if (redirect != null){
+		            	window.location.replace(redirect);
+		            }
 		          }
 		        }
 		      ]
@@ -100,6 +111,12 @@
         $('#formStatus').hide();
         
         });
+    </script>
+    <script tal:condition="exists: deleteCallback" type="text/javascript">
+    $(document).ready(function(){    
+    	$('#deleteLoader').hide();
+    	$('#deleteStatus').hide();
+    });
     </script>
     
     
@@ -305,6 +322,14 @@
 			 </tr>
 			 </table>
 			 </form>
+			 
+			 <div id="deleteDiv" align="right" tal:condition="exists: deleteCallback">
+			 <form id="deleteINI">
+				 <table>
+				 <tr><td><div id="deleteLoader"><img src="/static/ajax/ajax-send.gif"/></div><div id="deleteStatus">Deleting</div></td><td><input id="deletebutton" type="submit" value="delete"><td></td></tr>
+				 </table>
+			 </form>
+			 </div>
 		</div>
 		
 		
@@ -350,6 +375,50 @@
 	    	$('#formStatus').show();
 	    	  return false;
     	})
-    </script>
+    	
+    	
+    	
 
+    	
+    </script>
+    <script tal:condition="exists: deleteCallback" type="text/javascript">
+    
+    $('#deleteINI').submit(function() {    	
+    	jQuery.ajaxSetup({
+  		  beforeSend: function() {
+  		     $('#deleteLoader').show();
+  		  },
+  		  complete: function(){
+  		     $('#deleteLoader').hide();
+  		  },
+  		  success: function() {}
+  		});
+	$.ajax({ 
+		type: "POST",  
+		url: "/sendOckleCommand.json",
+		contentType: "application/json; charset=utf-8",
+		data: JSON.stringify({"command": "deleteObject",
+			"dataDict" : {"name" : "${objectName}",  "object": deleteCallback, "path": configPathPrefix + configPath}}),
+
+				
+		  success: function(data) {  
+		    //display message back to user here  
+	            var target = $('#deleteStatus');
+	            target.empty();
+	            target.append("<font color='" +data["color"] + "'>" + data["message"] + "</font>");
+	            if (data["color"] == "green"){
+	            	nottyMessage('success',data["message"]);
+	            	nottyQuestion("Restart of Ockle is required for changes to take effect. Restart now?","Restart","Later","${redirectURL}");
+	            }
+	            else{
+	            	nottyMessage('error',data["message"]);
+	            }
+		  }  
+		});
+
+	
+    	$('#deleteStatus').show();
+    	  return false;
+	});
+    </script>
 </tal:block>

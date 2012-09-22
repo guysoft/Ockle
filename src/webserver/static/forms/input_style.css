@@ -46,3 +46,7 @@
 	    background-repeat: repeat-x;
 	    background-position: top;
 }
+
+#deletebutton{
+	width: 50px !important;
+}

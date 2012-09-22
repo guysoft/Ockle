@@ -18,6 +18,7 @@ from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
+from ockle_client.ClientCalls import deleteINIFile
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getAvailablePDUsList
@@ -33,6 +34,7 @@ from ockle_client.ClientCalls import getPDUFolder
 from ockle_client.ClientCalls import getTesterFolder
 from ockle_client.ClientCalls import getServerFolder
 from ockle_client.ClientCalls import getServerDependencyMap
+from ockle_client.ClientCalls import serversDependent
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
 from common.common import sortDict
@@ -250,6 +252,10 @@ def server_edit_view(request):
             "configPath" : configPath,
             "serverName" : serverName,
             "multiListChoices" : multiListChoices,
+            "deleteCallback" : "server",
+            "objectName" : str(serverName),
+            "redirectURL" : "/",
+            
             "page_title": "Server Edit: " + str(serverName)}
 
 @view_config(renderer="templates/index.pt")
@@ -814,6 +820,34 @@ def updates_view(request):
         returnValue["message"] ="Configuration failed"
     return returnValue
 
+def serverDelete(name,objectName,path):
+    dependent = serversDependent(name)
+    if len(dependent) == 0:
+        return True
+    return "The following servers are dependent on it: " +", ".join(serversDependent(name))
+
+def deleteObject(dataDict):
+    DELETE_CALLBACK = {"server":serverDelete}
+    
+    returnValue = {}
+    outcome = DELETE_CALLBACK[dataDict["object"]](dataDict["name"],dataDict["object"],dataDict["path"],)
+    if outcome != True:
+        returnValue["color"] = "red" 
+        returnValue["message"] = "Can't delete " + dataDict["object"] + ".  " + outcome
+    else:
+        out = deleteINIFile(dataDict["path"])
+        if out["succeeded"] == "True":
+            returnValue["color"] = "green"
+            returnValue["message"] = dataDict["name"] + " deleted successfully"
+        else:
+            returnValue["color"] = "red"
+            try:
+                returnValue["message"] = "Can't delete. " + out["error"]
+            except:
+                returnValue["message"] = "Can't delete, unknown error"
+    return returnValue
+
+
 @view_config(renderer="json", name="sendOckleCommand.json")
 def sendOckleCommand(request):
     command = request.json_body["command"]
@@ -845,6 +879,9 @@ def sendOckleCommand(request):
             return {"reply" : dataDict["name"] in getAvailableServerOutlets(dataDict["matchdict"]["serverName"])}
         except:
             return {"reply" : "Error"}
+    
+    if command == "deleteObject":
+        return deleteObject(dataDict)
     
     if command == "switchOutlet":
         switchOutlet(dataDict)
