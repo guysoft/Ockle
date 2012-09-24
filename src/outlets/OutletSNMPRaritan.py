@@ -42,12 +42,12 @@ class Raritan(OutletTemplate):
         #    )
         
         #Store config data
-        self.hostname = outletConfigDict['outlet']["pdu_ip"]
-        self.hostnameport = int(outletConfigDict['outlet']["pdu_port"])
+        self.hostname = outletConfigDict['pdu']["pdu_ip"]
+        self.hostnameport = int(outletConfigDict['pdu']["pdu_port"])
         self.outletNumber= int(outletParams["socket"])
-        self.agentName= outletConfigDict['outlet']["agent_name"]
-        self.ReadCommunity = outletConfigDict['outlet']["read_community"]
-        self.WriteCommunity = outletConfigDict['outlet']["write_community"]
+        self.agentName= outletConfigDict['pdu']["agent_name"]
+        self.ReadCommunity = outletConfigDict['pdu']["read_community"]
+        self.WriteCommunity = outletConfigDict['pdu']["write_community"]
         
         OutletTemplate.__init__(self,name,outletConfigDict,outletParams)
         self.updateState()
