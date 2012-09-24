@@ -45,7 +45,8 @@
 	<script type="text/javascript">
 	NOTY_MEESAGE_LAYOUT = 'top';
 	
-	  function nottyQuestion(message,button1,button2,redirect=null) {
+	  function nottyQuestion(message,button1,button2,redirect) {
+		  redirect = redirect || "";
 		    var n = noty({
 		      text: message,
 		      type: 'warning',
@@ -64,7 +65,7 @@
 		        		data: JSON.stringify({"command":"restart"})
 		        		});
 		            
-		            if (redirect == null){
+		            if (redirect == ""){
 		            	setTimeout(location.reload,7000);
 		            }
 		            else{
@@ -76,7 +77,7 @@
 		        {addClass: 'btn btn-danger', text: button2, onClick: function($noty) {
 		            $noty.close();
 		            noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'You clicked "Cancel" button', type: 'error'});
-		            if (redirect != null){
+		            if (redirect != ""){
 		            	window.location.replace(redirect);
 		            }
 		          }
