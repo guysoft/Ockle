@@ -308,6 +308,7 @@ def pdus_view(request):
             "ObjectList" : getPDUDict(),
             "ObjectName" : "PDU",
             "ObjectClassName" : "pdu",
+            "AddURL" : "/pdus_add_list",
             "ObjectURLCallback" : _objectEditUrl,
             "page_title": "PDUs"}
 
@@ -319,6 +320,7 @@ def testers_view(request):
             "ObjectList" : getTesterDict(),
             "ObjectName" : "tester",
             "ObjectClassName" : "tester",
+            "AddURL" : "/testers_add_list",
             "ObjectURLCallback" : _objectEditUrl,
             "page_title": "Testers"}
     
@@ -330,6 +332,7 @@ def servers_view(request):
             "ObjectList" : getServerDict(),
             "ObjectName" : "server",
             "ObjectClassName" : "server",
+            "AddURL" : "/server_add",
             "ObjectURLCallback" : _objectEditUrl,
             "page_title": "Servers"}
     
@@ -483,6 +486,48 @@ def tester_create(request):
             "existingOBJCallback" : "checkExistingTesters" ,
             
             "page_title": "Add new Tester: " + testerType
+            }
+
+@view_config(renderer="templates/pdu_tester_create.pt", name="server_add")
+def server_create(request):
+    INIFileTemplate = _loadServerINITemplate()
+    
+    '''
+    #Remove the tester params if exist, we handle them in the server section
+    try:
+        INIFileTemplate.pop("testerParams")
+    except:
+        pass
+    '''
+    
+    INIFileTemplate['server']["name"] =["name",""]
+    
+    INIFileDict = __fillINIwithTemplate(INIFileTemplate,{})    
+    
+    
+    
+    INIFileDict['server']["testers"] =[]
+    INIFileDict['server']["outlets"] =[]
+    INIFileDict['server']["dependencies"] =[]
+    
+    multiListChoices = _makeMultichoice("server","testers",lambda: {},INIFileDict)
+    multiListChoices = _makeMultichoice("server","outlets",lambda: {},INIFileDict,multiListChoices)
+    multiListChoices = _makeMultichoice("server","dependencies",lambda: {},INIFileDict,multiListChoices)
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+
+            "INI_InputArea_head" : INI_InputArea_head(),
+            "INI_InputArea_body" : INI_InputArea_body(),            
+            "INIFileDict" : INIFileDict,
+            "INIFileTemplate" : INIFileTemplate,
+            "multiListChoices" : {},
+            "OBJnameSection" : "tester",
+            
+            "configPathPrefix": getServerFolder() + "/",
+            "existingOBJCallback" : "checkExistingTesters" ,
+            
+            "page_title": "Add new Server"
             }
 
 def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGeneratorTemplateCallback,getObjGeneratorsCallback):

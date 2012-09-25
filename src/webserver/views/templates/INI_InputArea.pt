@@ -46,7 +46,7 @@
 	NOTY_MEESAGE_LAYOUT = 'top';
 	
 	  function nottyQuestion(message,button1,button2,redirect) {
-		  redirect = redirect || "";
+		  redirect = redirect || "";// set default variable in a strange javascript way
 		    var n = noty({
 		      text: message,
 		      type: 'warning',

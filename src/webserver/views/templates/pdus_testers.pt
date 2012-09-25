@@ -14,7 +14,7 @@
 
     <div metal:fill-slot="content"  class="secondary-a-6">
     
-    <p style="float: right"><a href="/${ObjectName.lower()}s_add_list">+ Add new ${ObjectName}</a></p>
+    <p style="float: right"><a href="${AddURL}">+ Add new ${ObjectName}</a></p>
     <p>Click on a ${ObjectName} below to access its properties:</p>
 		<ol>
 		<li tal:repeat="ObjectVar ObjectList.keys()">
