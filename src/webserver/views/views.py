@@ -234,6 +234,7 @@ def server_edit_view(request):
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
+    INIFileTemplate['server']["name"] =["name",""]
     
     multiListChoices = _makeMultichoice("server","testers",lambda: getAvailableServerTesters(serverName),INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
@@ -255,6 +256,10 @@ def server_edit_view(request):
             "deleteCallback" : "server",
             "objectName" : str(serverName),
             "redirectURL" : "/",
+            
+            "OBJnameSection" : "server",
+            "configPathPrefix": getServerFolder() + "/",
+            "existingOBJCallback" : "checkExistingServers" ,
             
             "page_title": "Server Edit: " + str(serverName)}
 
@@ -489,16 +494,8 @@ def tester_create(request):
             }
 
 @view_config(renderer="templates/pdu_tester_create.pt", name="server_add")
-def server_create(request):
+def server_create_view(request):
     INIFileTemplate = _loadServerINITemplate()
-    
-    '''
-    #Remove the tester params if exist, we handle them in the server section
-    try:
-        INIFileTemplate.pop("testerParams")
-    except:
-        pass
-    '''
     
     INIFileTemplate['server']["name"] =["name",""]
     
@@ -521,11 +518,11 @@ def server_create(request):
             "INI_InputArea_body" : INI_InputArea_body(),            
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
-            "multiListChoices" : {},
-            "OBJnameSection" : "tester",
+            "multiListChoices" : multiListChoices,
+            "OBJnameSection" : "server",
             
             "configPathPrefix": getServerFolder() + "/",
-            "existingOBJCallback" : "checkExistingTesters" ,
+            "existingOBJCallback" : "checkExistingServers" ,
             
             "page_title": "Add new Server"
             }
@@ -763,6 +760,7 @@ def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiLi
         selectedPlugins = json.loads(INIFileDict[section][option])
     except:
         selectedPlugins = [INIFileDict[section][option]]
+
     
     multiListChoices[section][option]=multiListChoicesCallback()
     for key in multiListChoices[section][option].keys():
@@ -924,6 +922,13 @@ def sendOckleCommand(request):
             return {"reply" : dataDict["name"] in getAvailableServerOutlets(dataDict["matchdict"]["serverName"])}
         except:
             return {"reply" : "Error"}
+        
+    if command == "checkExistingServers":
+        try:
+            return {"reply" : dataDict["name"] in getServerDict()}            
+        except:
+            return {"reply" : "Error"}
+            
     
     if command == "deleteObject":
         return deleteObject(dataDict)
