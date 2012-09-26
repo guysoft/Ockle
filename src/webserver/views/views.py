@@ -99,6 +99,11 @@ def serverPage_view(request):
         return Min,Max
     
     serverName = request.matchdict['serverName']
+    
+    #fix strange bug that servers with spaces get " symbols on the canviz tree
+    if serverName.startswith('"'):
+        serverName = serverName[1:-1]
+        
     serverDict = getServerView(serverName)
     
     if type(serverDict) == dict:
@@ -234,8 +239,6 @@ def server_edit_view(request):
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
-    INIFileTemplate['server']["name"] =["name",""]
-    
     multiListChoices = _makeMultichoice("server","testers",lambda: getAvailableServerTesters(serverName),INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
     
@@ -256,10 +259,6 @@ def server_edit_view(request):
             "deleteCallback" : "server",
             "objectName" : str(serverName),
             "redirectURL" : "/",
-            
-            "OBJnameSection" : "server",
-            "configPathPrefix": getServerFolder() + "/",
-            "existingOBJCallback" : "checkExistingServers" ,
             
             "page_title": "Server Edit: " + str(serverName)}
 
@@ -465,7 +464,7 @@ def tester_create(request):
     
     #Remove the tester params if exist, we handle them in the server section
     try:
-        INIFileTemplate.pop("testerParams")
+        INIFileTemplate.pop("testParams")
     except:
         pass
 
@@ -585,7 +584,7 @@ def _get_server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallbac
     '''
     serverName = request.matchdict['serverName']
     objName = request.matchdict[obj]
-    objParam = "outletParams"
+    objParam = obj +  "Params"
     
     configPath= _getServerConfigPath(serverName)
     tmpINIFileDict = _loadServerConfig(serverName)
@@ -606,7 +605,7 @@ def _get_server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallbac
     INIFileTemplate[objName] = INIFileTemplate[objParam]
     INIFileTemplate.pop(objParam)
     
-    multiListChoices= _makeSelectMulitChoice(objName,objName,objGenerator.lower(),getObjGeneratorsCallback)
+    multiListChoices= _makeSelectMulitChoice(objGeneratorName,objName,objGenerator.lower(),getObjGeneratorsCallback)
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
     return {"layout": site_layout(),
@@ -676,25 +675,35 @@ def _loadServerConfig(serverName):
     configPath= _getServerConfigPath(serverName)
     return loadINIFileConfig(configPath)
 
-@view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
-def pdu_edit_view(request):
-    PDUName = request.matchdict['pduName']
+def _objGenerator_edit_view(request,objName,objGenerator,objURLName,getObjGenertorFolderCallback,objGeneratorConfigCallback,objGeneratorTemplateCallback,getAvilableObjGenetorsList):   
+    ''' Make an edit view for an object generator (like a PDU or tester)
+    @param request: The request from pyramid
+    @param objName: the object name
+    @param objGenerator: The name of the object generator
+    @param objURLName: The url name that holds the name of the current object we are editing
+    @param getObjGenertorFolderCallback: A function that returns the path of the object generator folder
+    @param objGeneratorConfigCallback: A function the returns the object generator config
+    @param objGeneratorTemplateCallback: A function that returns the template of the current object generator
+    @param getAvilableObjGenetorsList: A callback that returns the current available object generators
+    @return: A ready to render dict for the edit page
+    '''
+    PDUName = request.matchdict[objURLName]
     
-    configPath= os.path.join(getPDUFolder() , PDUName + '.ini')
-    INIFileDict = _loadPDUConfig(PDUName)
+    configPath= os.path.join(getObjGenertorFolderCallback() , PDUName + '.ini')
+    INIFileDict = objGeneratorConfigCallback(PDUName)
     
-    outletType = INIFileDict["pdu"]["type"]
-    INIFileTemplate = _loadPDUINITemplate(outletType)
+    outletType = INIFileDict[objGenerator.lower()]["type"]
+    INIFileTemplate = objGeneratorTemplateCallback(outletType)
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
-    #Remove the outlet params if exist, we handle them in the server section
+    #Remove the obj params if exist, we handle them in the server section
     try:
-        INIFileTemplate.pop("outletParams")
+        INIFileTemplate.pop(objName + "Params")
     except:
         pass
     
-    multiListChoices = _makeSelectMulitChoice(outletType,"pdu","type",getAvailablePDUsList)
+    multiListChoices = _makeSelectMulitChoice(outletType,objGenerator.lower(),"type",getAvilableObjGenetorsList)
 
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -705,39 +714,20 @@ def pdu_edit_view(request):
             "INIFileTemplate" : INIFileTemplate,
             "configPath" : configPath,
             "multiListChoices" : multiListChoices,
-            "page_title": "PDU Edit: " + str(PDUName)}
+            "page_title": objGenerator + " Edit: " + str(PDUName),
+            
+            #delete-variables
+            "deleteCallback" : objGenerator.lower(),
+            "objectName" : PDUName,
+            "redirectURL" : "/" + objGenerator.lower()  +"s"}
+
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="pduEdit")
+def pdu_edit_view(request):
+    return _objGenerator_edit_view(request,"outlet","PDU",'pduName',getPDUFolder,_loadPDUConfig,_loadPDUINITemplate,getAvailablePDUsList) 
 
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="testerEdit")
 def tester_edit_view(request):
-    TesterName = request.matchdict['testerName']
-    
-    configPath= os.path.join(getTesterFolder() , TesterName + '.ini')
-    INIFileDict = _loadTesterConfig(TesterName)
-    
-    testerType = INIFileDict["tester"]["type"]
-    INIFileTemplate = _loadTesterINITemplate(testerType)
-    
-    INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
-    
-    #Remove the outlet params if exist, we handle them in the server section
-    try:
-        INIFileTemplate.pop("testerParams")
-    except:
-        pass
-    
-    multiListChoices = _makeSelectMulitChoice(testerType,"tester","type",getAvailableTestersList)
-
-    return {"layout": site_layout(),
-            "config_sidebar_head" : config_sidebar_head(),
-            "config_sidebar_body" : config_sidebar_body(),
-            "INI_InputArea_head" : INI_InputArea_head(),
-            "INI_InputArea_body" : INI_InputArea_body(),
-            "INIFileDict" : INIFileDict,
-            "INIFileTemplate" : INIFileTemplate,
-            "configPath" : configPath,
-            "multiListChoices" : multiListChoices,
-            "page_title": "Tester Edit: " + str(TesterName)}
-
+    return _objGenerator_edit_view(request,"test","Tester",'testerName',getTesterFolder,_loadTesterConfig,_loadTesterINITemplate,getAvailableTestersList)
 
 def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiListChoices=None):
     ''' Generate a multilist format for a template. So it can be rendered on a template
@@ -869,8 +859,41 @@ def serverDelete(name,objectName,path):
         return True
     return "The following servers are dependent on it: " +", ".join(serversDependent(name))
 
+def pduDelete(name,objectName,path):
+    return _objectGenertorDelete("PDU",name,objectName,path)
+
+def testerDelete(name,objectName,path):
+    return _objectGenertorDelete("tester",name,objectName,path)
+
+def _objectGenertorDelete(objectGenerator,name,objectName,path):
+    serversUsing = {}
+    servers = getServerDict()
+    for serverName in servers.keys():
+        for section in servers[serverName]:
+            
+            #Try to see if we have a section at all
+            try:
+                if servers[serverName][section][objectGenerator.lower()] == name:
+                    if not serverName in serversUsing.keys():
+                        serversUsing[serverName] = []
+                    serversUsing[serverName].append(section)
+            except:
+                pass
+    #formatting
+    for serverName in serversUsing.keys():
+        serversUsing[serverName] = ",".join(serversUsing[serverName])
+        
+    if len(serversUsing.keys()) == 0:
+        return True
+    returnString =""
+    for server in serversUsing:
+        returnString = returnString +  server + " in: " + serversUsing[serverName] + ". "
+    return objectGenerator + " is being used in these servers - " + returnString
+
 def deleteObject(dataDict):
-    DELETE_CALLBACK = {"server":serverDelete}
+    DELETE_CALLBACK = {"server":serverDelete,
+                       "pdu" : pduDelete,
+                       "tester" : testerDelete}
     
     returnValue = {}
     outcome = DELETE_CALLBACK[dataDict["object"]](dataDict["name"],dataDict["object"],dataDict["path"],)

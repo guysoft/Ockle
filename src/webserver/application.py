@@ -15,7 +15,7 @@ def main():
     config.add_route('servers_outletCreate_view', '/server/{serverName}/outletCreate/{PDU}')
     config.add_route('servers_testCreate_view', '/server/{serverName}/testCreate/{tester}')
     config.add_route('servers_outletEdit_view', '/server/{serverName}/outlet/{outlet}/edit')
-    config.add_route('servers_testEdit_view', '/server/{serverName}/outlet/{test}/edit')
+    config.add_route('servers_testEdit_view', '/server/{serverName}/test/{test}/edit')
     config.add_route('pduCreate', '/pduCreate/{pduType}')
     config.add_route('testerCreate', '/testerCreate/{testerType}')
     
