@@ -95,12 +95,12 @@ def configToDict(config):
     @param config: A config file handler
     @return: A dict of the sections and the variables in it
     '''
-    returnValue={}
+    returnValue=OrderedDict()
     
-    for section in config.sections():
-        returnValue[section]={}
+    for section in reversed(config.sections()):
+        returnValue[section]=OrderedDict()
         sectionTurples = config.items(section)
-        for itemTurple in sectionTurples:
+        for itemTurple in reversed(sectionTurples):
             returnValue[section][itemTurple[0]] = itemTurple[1]
     return returnValue
 
