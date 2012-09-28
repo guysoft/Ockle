@@ -158,9 +158,9 @@
 	<script tal:condition='exists: existingOBJCallback'>
     	
     	function check_name(){
-    		
     		try{
-    			var OBJname = document.forms["configINI"].${OBJnameSection}$name.value || "";
+    			var OBJname = document.forms["configINI"].${OBJnameSection}$name.value.replace(/[^\w\d]+/gim,"") || "";
+    			document.forms["configINI"].${OBJnameSection}$name.value = OBJname;
     		}
     		catch(e){
     			
