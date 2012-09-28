@@ -19,6 +19,7 @@ from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import deleteINIFile
+from ockle_client.ClientCalls import deleteINISection
 from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getAvailablePDUsList
@@ -239,7 +240,7 @@ def server_edit_view(request):
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,INIFileDict)
     
-    multiListChoices = _makeMultichoice("server","testers",lambda: getAvailableServerTesters(serverName),INIFileDict)
+    multiListChoices = _makeMultichoice("server","tests",lambda: getAvailableServerTesters(serverName),INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
     
     multiListChoices = _makeMultichoice("server","dependencies",lambda: getServerDependencyMap(serverName),INIFileDict,multiListChoices)
@@ -573,7 +574,7 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
             "page_title": serverName + ": Add new " + obj +" using " + PDU
             }
 
-def _get_server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,getObjGeneratorsCallback,objGeneratorTemplateCallback):
+def _server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,getObjGeneratorsCallback,objGeneratorTemplateCallback):
     ''' Get the edit dict of a server object (like outlet, tester, etc)
     @param obj: the name of the object in the server (eg. outlet)
     @param objGenerator: the name of the object generator (eg. pdu)
@@ -621,19 +622,27 @@ def _get_server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallbac
             "matchdict" : json.dumps(request.matchdict),
             "changeSavePathToName" : 'false',
             
+            #Name field variables
             "configPath": configPath,
             "existingOBJCallback" : "checkExistingServerOutlets" ,
+            
+            #delete variables
+            "deleteCallback" : "outlet",
+            "objectName" : objName,
+            "redirectURL" : "/server/" + serverName + "/edit" ,
+            #section delete stuff
+            "sectionDelete" : json.dumps({"sectionDelete" : objName}), #we are deleting a section only
             
             "page_title": serverName + ": Edit " + obj +" " + objName
             }
 
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="servers_outletEdit_view")
 def server_outlet_edit_view(request):
-    return _get_server_obj_edit_view(request,"outlet","PDU",_loadPDUConfig,getPDUDict,_loadPDUINITemplate)
+    return _server_obj_edit_view(request,"outlet","PDU",_loadPDUConfig,getPDUDict,_loadPDUINITemplate)
 
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="servers_testEdit_view")
 def server_test_edit_view(request):
-    return _get_server_obj_edit_view(request,"test","tester",_loadTesterConfig,getTesterDict,_loadTesterINITemplate)
+    return _server_obj_edit_view(request,"test","tester",_loadTesterConfig,getTesterDict,_loadTesterINITemplate)
 
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
 def server_outlet_create_view(request):
@@ -890,18 +899,44 @@ def _objectGenertorDelete(objectGenerator,name,objectName,path):
         returnString = returnString +  server + " in: " + serversUsing[serverName] + ". "
     return objectGenerator + " is being used in these servers - " + returnString
 
+def _serverObjectDelete(objectType,name,objectName,path):
+    item = objectType+ "s"
+    serverDict = loadINIFileConfig(path)
+    
+    if not serverDict["server"][item].startswith("["):
+        serverDict["server"][item] = '["' + serverDict["server"][item] + '"]'
+        
+    enabledOutlets = json.loads(serverDict["server"][item])
+    if name in enabledOutlets:
+        return "Please uncheck " + objectType + "in server before deleting."
+    return True
+
+
+def serverOutletDelete(name,objectName,path):
+    return _serverObjectDelete("outlet",name,objectName,path)
+
+def serverTestDelete(name,objectName,path):
+    return _serverObjectDelete("test",name,objectName,path)
+
 def deleteObject(dataDict):
-    DELETE_CALLBACK = {"server":serverDelete,
-                       "pdu" : pduDelete,
-                       "tester" : testerDelete}
+    DELETE_CALLBACK = {"server": serverDelete,
+                       "pdu"   : pduDelete,
+                       "tester": testerDelete,
+                       "outlet": serverOutletDelete,
+                       "test"  : serverTestDelete}
     
     returnValue = {}
-    outcome = DELETE_CALLBACK[dataDict["object"]](dataDict["name"],dataDict["object"],dataDict["path"],)
+    outcome = DELETE_CALLBACK[dataDict["object"]](dataDict["name"],dataDict["object"],dataDict["path"])
     if outcome != True:
         returnValue["color"] = "red" 
         returnValue["message"] = "Can't delete " + dataDict["object"] + ".  " + outcome
     else:
-        out = deleteINIFile(dataDict["path"])
+        out={}
+        if "sectionDelete" in dataDict:
+            out = deleteINISection(dataDict["sectionDelete"],dataDict["path"])
+        else:
+            out = deleteINIFile(dataDict["path"])
+            
         if out["succeeded"] == "True":
             returnValue["color"] = "green"
             returnValue["message"] = dataDict["name"] + " deleted successfully"

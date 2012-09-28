@@ -42,11 +42,13 @@ class EditingCommunicationCommands(ModuleTemplate):
     def getINIFileCommand(self,path):
         return {"File" :  self._getINIFile(path)}
     
-    def setINIFile(self,dataDict):
-        path = dataDict["Path"]
+    def setINIFileCommand(self,dataDict):
+        iniDict = json.loads(dataDict["iniDict"])
+        return self._setINIFile(dataDict["Path"],iniDict)
+    
+    def _setINIFile(self,path,iniDict):
         path = os.path.join(self.mainDaemon.ETC_DIR,path)
         
-        iniDict = json.loads(dataDict["iniDict"])
         iniSource =  getINIstringtoDict(self._getINIFile(path))
         newConfig={}
         
@@ -85,13 +87,27 @@ class EditingCommunicationCommands(ModuleTemplate):
             returnValue["succeeded"] = False
             returnValue["error"] = str(e)
         return returnValue
-        return {"succeeded": True}
+    
+    def deleteINISectionCommand(self,path,section):
+        try:
+            iniFileDict = getINIstringtoDict(self._getINIFile(path))
+            iniFileDict.pop(section)
+            self._setINIFile(path,iniFileDict)
+            return {"succeeded" : True}
+        except:
+            pass
+        return {"succeeded" : False,
+                "error" : "Failed remove section " + section + " in file " + path}
+    
+    
     
     def run(self):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("getINIFile",lambda dataDict: self.getINIFileCommand(dataDict["Path"]))
-        self.mainDaemon.communicationHandler.AddCommandToList("setINIFile",lambda dataDict: self.setINIFile(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("setINIFile",lambda dataDict: self.setINIFileCommand(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("deleteINIFile",lambda dataDict: self.deleteINIFileCommand(dataDict["Path"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("deleteINIFile",lambda dataDict: self.deleteINIFileCommand(dataDict["Path"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("deleteINISection",lambda dataDict: self.deleteINISectionCommand(dataDict["Path"],dataDict["Section"]))
         return
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@
 	var existingOBJCallback ="";
 	var matchdict={};
 	var changeSavePathToName = true;
+	var deleteSection = {};
 	</script>
 	<script tal:condition='exists: configPathPrefix' type="text/javascript">
 	var configPathPrefix = '${configPathPrefix}';
@@ -40,8 +41,11 @@
 	<script tal:condition='exists: deleteCallback' type="text/javascript">
 	var deleteCallback = "${deleteCallback}";
 	</script>	
+	<script tal:condition='exists: sectionDelete' type="text/javascript">
+	var deleteSection = ${structure: sectionDelete};
+	</script>
 
-	
+	<!-- Handle restart after save dialog -->
 	<script type="text/javascript">
 	NOTY_MEESAGE_LAYOUT = 'top';
 	
@@ -76,7 +80,7 @@
 		        },
 		        {addClass: 'btn btn-danger', text: button2, onClick: function($noty) {
 		            $noty.close();
-		            noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'You clicked "Cancel" button', type: 'error'});
+		            //noty({dismissQueue: true, force: true, layout: NOTY_MEESAGE_LAYOUT, theme: 'default', text: 'You clicked "Cancel" button', type: 'error'});
 		            if (redirect != ""){
 		            	window.location.replace(redirect);
 		            }
@@ -113,6 +117,8 @@
         
         });
     </script>
+    
+    <!-- Handle Delete button -->
     <script tal:condition="exists: deleteCallback" type="text/javascript">
     $(document).ready(function(){    
     	$('#deleteLoader').hide();
@@ -121,6 +127,7 @@
     </script>
     
     
+    <!-- Handle numeric-only fields -->
   	<script type="text/javascript">
   	$(document).ready(function() {
 		$(".numeric").numeric();
@@ -137,16 +144,18 @@
   	});
 	</script>
 	
-	
-	    <script>
+	<!-- Handle name check in special name field -->
+	<script>
     	$(document).ready(function() {
     		$('#ajaxNameCheck').hide();
     		loadHTML = $('#ajaxNameCheck').html();
     	});
     	
 
-		</script>
-		<script tal:condition='exists: existingOBJCallback'>
+	</script>
+	
+	<!-- Handle name check handle callback -->
+	<script tal:condition='exists: existingOBJCallback'>
     	
     	function check_name(){
     		
@@ -332,10 +341,9 @@
 			 </form>
 			 </div>
 		</div>
-		
-		
-		
-		<script type="text/javascript">
+	
+	<!-- Handle Saving of files -->
+	<script type="text/javascript">
     
     $('#configINI').submit(function() {    	
     	jQuery.ajaxSetup({
@@ -376,12 +384,9 @@
 	    	$('#formStatus').show();
 	    	  return false;
     	})
-    	
-    	
-    	
-
-    	
     </script>
+    
+    <!-- Handle delete button -->
     <script tal:condition="exists: deleteCallback" type="text/javascript">
     
     $('#deleteINI').submit(function() {    	
@@ -394,14 +399,15 @@
   		  },
   		  success: function() {}
   		});
+    	
+    	$.extend(deleteSection, {"name" : "${objectName}",  "object": deleteCallback, "path": configPathPrefix + configPath});
 	$.ajax({ 
 		type: "POST",  
 		url: "/sendOckleCommand.json",
 		contentType: "application/json; charset=utf-8",
 		data: JSON.stringify({"command": "deleteObject",
-			"dataDict" : {"name" : "${objectName}",  "object": deleteCallback, "path": configPathPrefix + configPath}}),
-
-				
+			"dataDict" : deleteSection}),
+ 
 		  success: function(data) {  
 		    //display message back to user here  
 	            var target = $('#deleteStatus');

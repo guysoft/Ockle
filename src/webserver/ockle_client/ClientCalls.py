@@ -150,6 +150,9 @@ def setINIFile(iniPath,iniDict):
 def deleteINIFile(iniPath):
     return getDataFromServer("deleteINIFile",{"Path":iniPath})
 
+def deleteINISection(section,iniPath):
+    return getDataFromServer("deleteINISection",{"Path":iniPath, "Section": section})
+
 def restartOckle():
     return getDataFromServer("restart",{},True)
 
