@@ -16,6 +16,22 @@ from plugins.ModuleTemplate import ModuleTemplate
 from outlets.OutletTemplate import OutletOpState
 from networkTree.ServerNode import ServerNodeOpState
 
+import threading
+ 
+class FuncThread(threading.Thread):
+    '''
+    A class to make functions threadable
+    '''
+    def __init__(self, target, *args):
+        self._target = target
+        self._args = args
+        threading.Thread.__init__(self)
+        return
+ 
+    def run(self):
+        self._target(*self._args)
+        return
+
 class AutoControl(ModuleTemplate):
     ''' Automatic on/off Control of servers'''
     def __init__(self,MainDaemon):
@@ -27,6 +43,7 @@ class AutoControl(ModuleTemplate):
         
         #Communication commands
         self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict["state"]))
         return
     
     def setEnabled(self,state):
@@ -41,7 +58,9 @@ class AutoControl(ModuleTemplate):
         return self.enabled
     
     def run(self):
-        self.turnOnSequence()
+        t1 = FuncThread(self.turnOnSequence)
+        t1.start()
+        t1.join()
                         
         '''
         
@@ -90,7 +109,13 @@ class AutoControl(ModuleTemplate):
         else:
             return {'status' : 'off'}
         return {}
-        
+    
+    def setAutoControlStatusCommand(self,state):
+        if state == "true":
+            self.setEnabled(True)
+        else:
+            self.setEnabled(False)
+        return {"succeeded" : True}
 
 if __name__ == "__main__":
     a = AutoControl(None)
