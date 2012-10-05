@@ -16,6 +16,7 @@ from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import switchOutlet
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
+from ockle_client.ClientCalls import setAutoControlStatus
 from ockle_client.ClientCalls import getINIFile
 from ockle_client.ClientCalls import setINIFile
 from ockle_client.ClientCalls import deleteINIFile
@@ -278,7 +279,7 @@ def index_view(request):
     gv.node_attr.update(href="server/\\\N")
     gv.node_attr.update(title="server/\\\N")
     gv.node_attr.update(style="filled")
-    gv.node_attr.update(fillcolor="#E9E9E9")
+    gv.node_attr.update(fillcolor="#CBE6FF")
     gv.node_attr.update(name="bla")
     
     for node in gv.nodes():
@@ -987,11 +988,13 @@ def sendOckleCommand(request):
         except:
             return {"reply" : "Error"}
             
-    
     if command == "deleteObject":
         return deleteObject(dataDict)
     
     if command == "switchOutlet":
         switchOutlet(dataDict)
+    
+    if command == "setAutoControlStatus":
+        return setAutoControlStatus(dataDict)
         
     return dataDict

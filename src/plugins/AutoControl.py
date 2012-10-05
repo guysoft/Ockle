@@ -39,11 +39,11 @@ class AutoControl(ModuleTemplate):
         self.WAIT_TIME = self.getConfigVar("WAIT_TIME")
         self.MAX_START_ATTEPMTS = self.getConfigVar("MAX_START_ATTEPMTS")
         
-        self.setEnabled(True) 
+        self.setEnabled(True)
         
         #Communication commands
         self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict))
-        self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict["state"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))
         return
     
     def setEnabled(self,state):
@@ -97,6 +97,8 @@ class AutoControl(ModuleTemplate):
             if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS) or self.mainDaemon.servers.isAllOn():
                 self.setEnabled(False)
             time.sleep(float(self.WAIT_TIME))
+            
+            self.runningState = "standby"
         return
     
     def getAutoControlStatus(self,dataDict):
@@ -111,11 +113,12 @@ class AutoControl(ModuleTemplate):
         return {}
     
     def setAutoControlStatusCommand(self,state):
-        if state == "true":
+        if state == "True":
             self.setEnabled(True)
+                
         else:
             self.setEnabled(False)
-        return {"succeeded" : True}
+        return {"succeeded" : True,"state": self.isEnabled()}
 
 if __name__ == "__main__":
     a = AutoControl(None)

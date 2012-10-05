@@ -138,6 +138,9 @@ def getServerView(serverName):
 def getAutoControlStatus():
     return _getDataFromServerWithFail("getAutoControlStatus",{},{"status":"N/A"})
 
+def setAutoControlStatus(dataDict):
+    return _getDataFromServerWithFail("setAutoControlStatus",dataDict,{"status":"N/A"}) 
+
 def getINIFile(iniPath):
     return getDataFromServer("getINIFile",{"Path":iniPath})["File"]
 

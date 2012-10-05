@@ -5,43 +5,112 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="/static/canviz/styles_inner.css" />
 	<!--[if IE]><script type="text/javascript" src="/static/canviz/excanvas/excanvas.js"></script><![endif]-->
-	<script type="text/javascript" src="/static/canviz/prototype/prototype.js"></script>
+	
+	<script src="/static/prototype_iPhoneCheckbox/prototype/prototype.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/prototype_iPhoneCheckbox/prototype/scriptaculous.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/prototype_iPhoneCheckbox/prototype/iphone-style-checkboxes.js" type="text/javascript" charset="utf-8"></script>
+	<link rel="stylesheet" href="/static/prototype_iPhoneCheckbox/style_fixed.css" type="text/css" media="screen" charset="utf-8" />
+ 
 	<script type="text/javascript" src="/static/canviz/path/path.js"></script>
 	<script type="text/javascript" src="/static/canviz/canviz.js"></script>
 	<script type="text/javascript" src="/static/canviz/scripts_common.js"></script>
+  	
 	<script type="text/javascript">
 	document.observe('dom:loaded', function() {
-	var graph_in_xdot='${structure: xdottree}';
-	if (graph_in_xdot != "Error connecting to Ockle server"){
-		graphRender=new Canviz('canviz');
-		graphRender.parse(graph_in_xdot);
-		
-		height = $('canviz_canvas_1').readAttribute('height');
-		width = $('canviz_canvas_1').readAttribute('width');
-		$('canviswrapper').setStyle({
-			minHeight: height+ "px",
-			minWidth: width+ "px"
-			});
-	}
-	else{
-	alert("fail to connect");
-	}
-});
+		var graph_in_xdot='${structure: xdottree}';
+		if (graph_in_xdot != "Error connecting to Ockle server"){
+			graphRender=new Canviz('canviz');
+			
+			graphRender.parse(graph_in_xdot);
+			
+			height = $('canviz_canvas_1').readAttribute('height');
+			width = $('canviz_canvas_1').readAttribute('width');
+			width = $('canviz').readAttribute('width');
+			$('canviswrapper').setStyle({
+				minHeight: height+ "px",
+				minWidth: width+ "px"
+				});
+	
+		} else{
+			alert("fail to connect");
+		}
+	});
 	</script>
+  	
+   <script type="text/javascript" charset="utf-8">
+   switch_settings = {
+		   statusChange: function(){
+			   $('autoControlLoader').show();
+			   $('autoControlStatus').hide();
+				var url = '/sendOckleCommand.json';
+				// notice the use of a proxy to circumvent the Same Origin Policy.
+
+				state = $("autoControl").checked;
+				new Ajax.Request(url, {
+				  method: 'PSOT',
+				  contentType:'application/json',
+				  postBody: JSON.stringify({"command": "setAutoControlStatus",
+						"dataDict" : {"server": "",
+							"state" : state
+				}}),
+				  onSuccess: function(transport) {
+					  var response = transport.responseText || "no response text";
+					  $('autoControlLoader').hide();
+					  $('autoControlStatus').show();
+					  
+					  responseState = JSON.parse(response)["state"]
+					  if (responseState == "True"){
+						  responseState = "On"
+					  } else {
+						  responseState = "Off"
+					  }
+					  $('autoControlStatus').update(responseState);
+				  }
+				});
+
+		   }
+		 };
+   document.observe("dom:loaded", function() {
+	     
+	   //Auto Control switch setup
+ 	   $('autoControlLoader').hide();
+ 	   $('autoControlStatus').hide();
+       new iPhoneStyle('.autoControl_switch input[type=checkbox]',switch_settings);
+   });
+
+  </script>
+  
+  <style>
+    	table{
+		/* border: solid 1px #85b1de; */
+		background-color:#d6e5f4;
+		}
+		
+		td
+		{
+		border: solid 1px #85b1de;
+		background-color:#F4F4F4;
+		}
+		</style>
  </tal:block>
+ 
     <div metal:fill-slot="content">
-        <h2>Server Network</h2>
-     <table>
-     <tr><td>
-     <div id="canviswrapper" style="background-color:red;min-height:1000px;">
-     	<div id="canviz"></div>
-     </div>
-	</td>
-	<td>
-	<br/>
-	<p>Auto Control Status: ${autoControlStatus}</p>
-	</td></tr>
-	</table>
-<div id="debug_output"></div>
+    
+        <h2>Server Network</h2>	
+	     <table>
+	     <tr><td rowspan="42">
+	     <div id="canviswrapper" style="min-height:1000px;">
+	     	<div id="canviz"></div>
+	     </div>
+		</td></tr>
+		<tr><td class="autoControl_switch" style="min-width:200px;"> 
+      	<label for="on_off_on">Auto Control Status:</label>
+      	<div id="autoControlLoader" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div><div style="float : right" id="autoControlStatus"></div>
+      	<input type="checkbox" tal:attributes='checked python: autoControlStatus == "on"' id="autoControl"/>
+		</td></tr>
+		</table>
+		
+		<div id="debug_output"></div>
+		
     </div>
 </tal:block>
