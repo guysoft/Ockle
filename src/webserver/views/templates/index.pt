@@ -7,7 +7,6 @@
 	<!--[if IE]><script type="text/javascript" src="/static/canviz/excanvas/excanvas.js"></script><![endif]-->
 	<script type="text/javascript" src="/static/canviz/prototype/prototype.js"></script>
 	<script type="text/javascript" src="/static/canviz/path/path.js"></script>
-	<script type="text/javascript" src="/static/canviz/adapters/prototype.js"></script>
 	<script type="text/javascript" src="/static/canviz/canviz.js"></script>
 	<script type="text/javascript" src="/static/canviz/scripts_common.js"></script>
 	<script type="text/javascript">
@@ -16,18 +15,18 @@
 	if (graph_in_xdot != "Error connecting to Ockle server"){
 		graphRender=new Canviz('canviz');
 		graphRender.parse(graph_in_xdot);
+		
 		height = $('canviz_canvas_1').readAttribute('height');
 		width = $('canviz_canvas_1').readAttribute('width');
 		$('canviswrapper').setStyle({
 			minHeight: height+ "px",
 			minWidth: width+ "px"
 			});
-		alert("yay");
-		} else{
-			alert("fail to connect");
-		}
-	});
-
+	}
+	else{
+	alert("fail to connect");
+	}
+});
 	</script>
  </tal:block>
     <div metal:fill-slot="content">
