@@ -3,6 +3,7 @@
  * $Id: canviz.js 265 2009-05-19 13:35:13Z ryandesign.com $
  */
 
+notFirst = false;
 var CanvizTokenizer = Class.create({
 	initialize: function(str) {
 		this.str = str;
@@ -294,10 +295,14 @@ var CanvizEntity = Class.create({
 							return;
 					}
 					if (path) {
-						this.canviz.drawPath(ctx, path, filled, dashStyle);
-						if (!redrawCanvasOnly) this.bbRect.expandToInclude(path.getBB());
-						path = undefined;
+						if (notFirst){
+							this.canviz.drawPath(ctx, path, filled, dashStyle);
+							if (!redrawCanvasOnly) this.bbRect.expandToInclude(path.getBB());
+							path = undefined;
+						}
+						notFirst = true;
 					}
+					
 					token = tokenizer.takeChars();
 				}
 				if (!redrawCanvasOnly) {
@@ -647,7 +652,7 @@ var Canviz = Class.create({
 		this.ctx.save();
 		this.ctx.lineCap = 'round';
 		this.ctx.fillStyle = this.bgcolor.canvasColor;
-		this.ctx.fillRect(0, 0, width, height);
+		//this.ctx.fillRect(0, 0, width, height);
 		this.ctx.translate(this.padding, this.padding);
 		this.ctx.scale(ctxScale, ctxScale);
 		this.graphs[0].draw(this.ctx, ctxScale, redrawCanvasOnly);

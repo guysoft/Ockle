@@ -278,7 +278,7 @@ def index_view(request):
     gv.node_attr.update(href="server/\\\N")
     gv.node_attr.update(title="server/\\\N")
     gv.node_attr.update(style="filled")
-    gv.node_attr.update(fillcolor="#dbdbdb")
+    gv.node_attr.update(fillcolor="#E9E9E9")
     gv.node_attr.update(name="bla")
     
     for node in gv.nodes():
@@ -503,11 +503,11 @@ def server_create_view(request):
     
     
     
-    INIFileDict['server']["testers"] =[]
+    INIFileDict['server']["tests"] =[]
     INIFileDict['server']["outlets"] =[]
     INIFileDict['server']["dependencies"] =[]
     
-    multiListChoices = _makeMultichoice("server","testers",lambda: {},INIFileDict)
+    multiListChoices = _makeMultichoice("server","tests",lambda: {},INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: {},INIFileDict,multiListChoices)
     multiListChoices = _makeMultichoice("server","dependencies",lambda: {},INIFileDict,multiListChoices)
     return {"layout": site_layout(),
