@@ -424,23 +424,30 @@ def _makeSelectMulitChoice(existingType,objectType,item,getObjectDict,multiListC
         
     return multiListChoices
  
-@view_config(renderer="templates/pdu_tester_create.pt", route_name="pduCreate")
-def pdu_create(request):
-    PDUType = request.matchdict['pduType']
-    INIFileTemplate = _loadPDUINITemplate(PDUType)
+def _objGenerator_create(request,objName,objGenerator,loadObjGeneratorTemplate,getAvailableObjGeneratorsList,getObjGeneretorFolder):
+    ''' Create a dict for an object Generator page
+    @param objName: The name of the Server Object
+    @param objGenerator: The name of the Server Object Generator
+    @param loadObjGeneratorTemplate:  a callback to get the template of the object Generator
+    @param getAvailableObjGeneratorsList: Get a list of the object generators
+    @param getObjGeneretorFolder: Get the folder of the object generator
+    @return: a dict ready to be rendered
+    '''
+    PDUType = request.matchdict[objGenerator.lower() + 'Type']
+    INIFileTemplate = loadObjGeneratorTemplate(PDUType)
 
     #Remove the outlet params if exist, we handle them in the server section
     try:
-        INIFileTemplate.pop("outletParams")
+        INIFileTemplate.pop(objName +"Params")
     except:
         pass
 
-    INIFileTemplate['pdu']["name"] =["name",""]
+    INIFileTemplate[objGenerator.lower()]["name"] =["name",""]
     
     INIFileDict = __fillINIwithTemplate(INIFileTemplate,{})    
     
-    INIFileDict['pdu']["type"] = PDUType
-    multiListChoices = _makeSelectMulitChoice(PDUType,"pdu","type",getAvailablePDUsList)
+    INIFileDict[objGenerator.lower()]["type"] = PDUType
+    multiListChoices = _makeSelectMulitChoice(PDUType,objGenerator.lower(),"type",getAvailableObjGeneratorsList)
     
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -451,48 +458,21 @@ def pdu_create(request):
             "INIFileDict" : INIFileDict,
             "INIFileTemplate" : INIFileTemplate,
             "multiListChoices" : multiListChoices,
-            "OBJnameSection" : "pdu",
+            "OBJnameSection" : objGenerator.lower(),
             
-            "configPathPrefix": getPDUFolder() + "/",
-            "existingOBJCallback" : "checkExistingPDU" ,
+            "configPathPrefix": getObjGeneretorFolder() + "/",
+            "existingOBJCallback" : "checkExisting"+ objGenerator +"s" ,
             
-            "page_title": "Add new PDU: " + PDUType
-            }
+            "page_title": "Add new "+ objGenerator + ": " + PDUType
+            }    
+
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="pduCreate")
+def pdu_create(request):
+    return _objGenerator_create(request,"outlet","PDU",_loadPDUINITemplate,getAvailablePDUsList,getPDUFolder)
 
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="testerCreate")
 def tester_create(request):
-    testerType = request.matchdict['testerType']
-    INIFileTemplate = _loadTesterINITemplate(testerType)
-    
-    #Remove the tester params if exist, we handle them in the server section
-    try:
-        INIFileTemplate.pop("testParams")
-    except:
-        pass
-
-    INIFileTemplate['tester']["name"] =["name",""]
-    
-    INIFileDict = __fillINIwithTemplate(INIFileTemplate,{})    
-    
-    INIFileDict['tester']["type"] = testerType
-    multiListChoices = _makeSelectMulitChoice(testerType,"tester","type",getAvailableTestersList)
-    
-    return {"layout": site_layout(),
-            "config_sidebar_head" : config_sidebar_head(),
-            "config_sidebar_body" : config_sidebar_body(),
-
-            "INI_InputArea_head" : INI_InputArea_head(),
-            "INI_InputArea_body" : INI_InputArea_body(),            
-            "INIFileDict" : INIFileDict,
-            "INIFileTemplate" : INIFileTemplate,
-            "multiListChoices" : multiListChoices,
-            "OBJnameSection" : "tester",
-            
-            "configPathPrefix": getTesterFolder() + "/",
-            "existingOBJCallback" : "checkExistingTesters" ,
-            
-            "page_title": "Add new Tester: " + testerType
-            }
+    return _objGenerator_create(request,"test","Tester",_loadTesterINITemplate,getAvailableTestersList,getTesterFolder)
 
 @view_config(renderer="templates/pdu_tester_create.pt", name="server_add")
 def server_create_view(request):
@@ -964,7 +944,7 @@ def sendOckleCommand(request):
     if command == "restart":
         restartOckle()
     
-    if command == "checkExistingPDU":
+    if command == "checkExistingPDUs":
         try:
             return {"reply" : dataDict["name"] in getPDUDict()}
         except:
