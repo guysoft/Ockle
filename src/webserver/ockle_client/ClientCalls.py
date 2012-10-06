@@ -167,6 +167,10 @@ def getTesterDict():
     reply = json.loads(getDataFromServer("getTesterDict")["testers"])
     return reply
 
+def getControllerDict():
+    reply = json.loads(getDataFromServer("getControllerDict")["controllers"])
+    return reply
+
 def getServerDict():
     reply = json.loads(getDataFromServer("getServerDict")["servers"])
     return reply
@@ -217,6 +221,14 @@ def getAvailableTestersList():
         return json.loads(response["Testers"])
     return
 
+def getAvailableControllersList():
+    response = getDataFromServer("getAvailableControllersList")
+    if response == None:
+        return {}
+    else:
+        return json.loads(response["Controllers"])
+    return
+
 def getAvailableServerOutlets(server):
     response = getDataFromServer("getAvailableServerOutlets",{"server": server})
     if response == None:
@@ -236,6 +248,16 @@ def getAvailableServerTesters(server):
         for key in testerDict.keys():
             testerDict[key] = ""
     return testerDict
+
+def getAvailableServerControls(server):
+    response = getDataFromServer("getAvailableServerControls",{"server": server})
+    if response == None:
+        return {}
+    else:
+        controlDict =  json.loads(response["serverControls"],object_pairs_hook=OrderedDict)
+        for key in controlDict.keys():
+            controlDict[key] = ""
+    return controlDict
 
 def getServerDependencyMap(server):
     response = getDataFromServer("getServerDependencyMap",{"server": server})
@@ -258,6 +280,9 @@ def getPDUFolder():
 
 def getTesterFolder():
     return loadINIFileConfig("config.ini")['main']['tester_dir']
+
+def getControllerFolder():
+    return loadINIFileConfig("config.ini")['main']['controller_dir']
 
 def getServerFolder():
     return loadINIFileConfig("config.ini")['main']['server_dir']

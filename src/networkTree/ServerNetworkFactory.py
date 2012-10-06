@@ -18,15 +18,20 @@ from common.common import turpleList2Dict
 from straight.plugin import load
 from outlets.OutletTemplate import OutletTemplate
 from testers.TemplateTester import TemplateTester
+from controllers.ControllerTemplate import ControllerTemplate
 
 from common.Exceptions import OutletTypeNotFound
 from common.Exceptions import TesterTypeNotFound
+from common.Exceptions import ControllerTypeNotFound
 from networkTree.Exceptions import DependencyException
+from ConfigParser import NoOptionError
 
 config,ETC_DIR = loadConfig()
 
 TESTERS_PACKAGE="testers"
 OUTLETS_PACKAGE="outlets"
+CONTROLLERS_PACKAGE="controllers"
+
 class ServerNetworkFactory(object):
     '''
     A class to take the config file folder and turn it in to a server network
@@ -66,9 +71,13 @@ class ServerNetworkFactory(object):
                 @return: A list of the server objects 
                 '''
                 #Handle a list or single string outlet
-                outlets = serverConfig.get('server', objNames)
+                try:
+                    outlets = serverConfig.get('server', objNames)
+                except NoOptionError:
+                    outlets = "[]" 
+                    
                 if outlets.startswith("["):
-                    outlets = json.loads(serverConfig.get("server",objNames))
+                    outlets = json.loads(outlets)
                 else:
                     outlets=[outlets]
                 outletList=[]
@@ -78,9 +87,11 @@ class ServerNetworkFactory(object):
             
             outletList = buildServerObj('outlets',self.__makeOutlet)
             testerList = buildServerObj('tests',self.__makeTester)
+            controlList = buildServerObj('controls',self.__makeControl)
+            
                         
             #Make the server with the outlets and testers
-            self.servers.addServer(ServerNode(server,outletList,testerList))
+            self.servers.addServer(ServerNode(server,outletList,testerList,controlList))
         
         #add dependencies to our server forest
         for serverConfigFile in serverConfigFileList:
@@ -155,10 +166,16 @@ class ServerNetworkFactory(object):
     def getTestersDictIndex(self):
         return self._getClassDictIndex(TESTERS_PACKAGE,TemplateTester)
     
+    def getControllersDictIndex(self):
+        return self._getClassDictIndex(CONTROLLERS_PACKAGE,ControllerTemplate)
+    
     def __makeOutlet(self,serverConfig,outlet,serverConfigPath):
         return self.__makeServerObj("pdu",self.mainDaemon.OUTLETS_DIR,OUTLETS_PACKAGE,OutletTemplate,OutletTypeNotFound,serverConfig,outlet,serverConfigPath)
     
     def __makeTester(self,serverConfig,tester,serverConfigPath):
         return self.__makeServerObj("tester",self.mainDaemon.TESTERS_DIR,TESTERS_PACKAGE,TemplateTester,TesterTypeNotFound,serverConfig,tester,serverConfigPath)
+    
+    def __makeControl(self,serverConfig,control,serverConfigPath):
+        return self.__makeServerObj("controller",self.mainDaemon.CONTROLLERS_DIR,CONTROLLERS_PACKAGE,ControllerTemplate,ControllerTypeNotFound,serverConfig,control,serverConfigPath)
     
     

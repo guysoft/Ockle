@@ -25,15 +25,19 @@ from ockle_client.ClientCalls import restartOckle
 from ockle_client.ClientCalls import getAvailablePluginsList
 from ockle_client.ClientCalls import getAvailablePDUsList
 from ockle_client.ClientCalls import getAvailableTestersList
+from ockle_client.ClientCalls import getAvailableControllersList
 from ockle_client.ClientCalls import getAvailableServerOutlets
 from ockle_client.ClientCalls import getAvailableServerTesters
+from ockle_client.ClientCalls import getAvailableServerControls
 from ockle_client.ClientCalls import getPDUDict
 from ockle_client.ClientCalls import getTesterDict
+from ockle_client.ClientCalls import getControllerDict
 from ockle_client.ClientCalls import getServerDict
 from ockle_client.ClientCalls import loadINIFileTemplate
 from ockle_client.ClientCalls import loadINIFileConfig
 from ockle_client.ClientCalls import getPDUFolder
 from ockle_client.ClientCalls import getTesterFolder
+from ockle_client.ClientCalls import getControllerFolder
 from ockle_client.ClientCalls import getServerFolder
 from ockle_client.ClientCalls import getServerDependencyMap
 from ockle_client.ClientCalls import serversDependent
@@ -210,25 +214,7 @@ def serverPage_view(request):
             #outlets data
             "outletsDict" : json.dumps(outlets),
             "outlets" : outlets}
-'''
-@view_config(route_name='serverEdit',renderer="templates/server_edit.pt")
-def server_edit_view(request):
-    serverName = request.matchdict['serverName']
-    
-    SERVER_DIR = ClientCalls.config.get('main', 'SERVER_DIR')
-    
-    configPath =  os.path.join(SERVER_DIR,serverName) + ".ini"
-    iniString = getINIFile(configPath)
-    print iniString
-    INIFileDict = getINIstringtoDict(iniString)
-    
-    serverDict = getServerView(serverName)
-    
-    return {"layout": site_layout(),
-            "page_title" : "Server Edit: " + str(serverName),
-            "server_dict" : serverDict,
-            "INIFileDict" : INIFileDict}
-'''
+
 @view_config(renderer="templates/server_edit.pt",route_name='serverEdit')
 def server_edit_view(request):
     serverName = request.matchdict['serverName']
@@ -243,6 +229,7 @@ def server_edit_view(request):
     
     multiListChoices = _makeMultichoice("server","tests",lambda: getAvailableServerTesters(serverName),INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
+    multiListChoices = _makeMultichoice("server","controls",lambda: getAvailableServerControls(serverName),INIFileDict,multiListChoices)
     
     multiListChoices = _makeMultichoice("server","dependencies",lambda: getServerDependencyMap(serverName),INIFileDict,multiListChoices)
     
@@ -330,6 +317,18 @@ def testers_view(request):
             "ObjectURLCallback" : _objectEditUrl,
             "page_title": "Testers"}
     
+@view_config(renderer="templates/pdus_testers.pt", name="controllers")
+def controllers_view(request):
+    return {"layout": site_layout(),
+            "config_sidebar_head" : config_sidebar_head(),
+            "config_sidebar_body" : config_sidebar_body(),
+            "ObjectList" : getControllerDict(),
+            "ObjectName" : "controller",
+            "ObjectClassName" : "controller",
+            "AddURL" : "/controllers_add_list",
+            "ObjectURLCallback" : _objectEditUrl,
+            "page_title": "Controllers"}
+    
 @view_config(renderer="templates/pdus_testers.pt", name="servers")
 def servers_view(request):
     return {"layout": site_layout(),
@@ -367,6 +366,10 @@ def servers_outlet_add_list_view(request):
 def servers_test_add_list_view(request):
     return _servers_obj_add_list_view(request,"test",getTesterDict(),"tester")
 
+@view_config(renderer="templates/add_pdu_or_tester_list.pt", route_name="servers_control_add_list_view")
+def servers_control_add_list_view(request):
+    return _servers_obj_add_list_view(request,"control",getControllerDict(),"controller")
+
 def __fillINIwithTemplate(INIFileTemplate,INIFileDict={}):
     ''' Fill missing values in an INI config file with ones that exist in the template
     @param INIFileTemplate: The config template as a dict
@@ -399,6 +402,10 @@ def pdu_add_list_view(request):
 @view_config(renderer="templates/add_pdu_or_tester_list.pt", name="testers_add_list")
 def testers_add_list_view(request):
     return _obj_add_list_view(request,"tester",sortDict(getAvailableTestersList()))
+
+@view_config(renderer="templates/add_pdu_or_tester_list.pt", name="controllers_add_list")
+def controllers_add_list_view(request):
+    return _obj_add_list_view(request,"controller",sortDict(getAvailableControllersList()))
 
 def _makeSelectMulitChoice(existingType,objectType,item,getObjectDict,multiListChoices=None):
     ''' Make a multi select option for the select type
@@ -474,6 +481,10 @@ def pdu_create(request):
 def tester_create(request):
     return _objGenerator_create(request,"test","Tester",_loadTesterINITemplate,getAvailableTestersList,getTesterFolder)
 
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="controllerCreate")
+def controller_create(request):
+    return _objGenerator_create(request,"control","Controller",_loadControllerINITemplate,getAvailableControllersList,getControllerFolder)
+
 @view_config(renderer="templates/pdu_tester_create.pt", name="server_add")
 def server_create_view(request):
     INIFileTemplate = _loadServerINITemplate()
@@ -508,7 +519,7 @@ def server_create_view(request):
             "page_title": "Add new Server"
             }
 
-def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGeneratorTemplateCallback,getObjGeneratorsCallback):
+def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGeneratorTemplateCallback,getObjGeneratorsCallback,objNameExistJavascriptCallback):
     serverName = request.matchdict['serverName']
     PDU = request.matchdict[objGenerator]
     
@@ -550,7 +561,7 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
             "changeSavePathToName" : 'false',
             
             "configPath": configPath,
-            "existingOBJCallback" : "checkExistingServerOutlets" ,
+            "existingOBJCallback" : objNameExistJavascriptCallback,
             
             "page_title": serverName + ": Add new " + obj +" using " + PDU
             }
@@ -558,10 +569,12 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
 def _server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,getObjGeneratorsCallback,objGeneratorTemplateCallback):
     ''' Get the edit dict of a server object (like outlet, tester, etc)
     @param obj: the name of the object in the server (eg. outlet)
+    @param objName: The name of the object
     @param objGenerator: the name of the object generator (eg. pdu)
     @param objGeneratorConfigCallback: a callback the returns the object's config dict 
     @param getObjGeneratorsCallback: A callback that gets the available object generators
     @param objGeneratorTemplateCallback: A callback that gets the template dict of the object generator
+    @param existingOBJJavascriptCallback: The ockle javascript command to check if 
     @return: dict for the edit view
     '''
     serverName = request.matchdict['serverName']
@@ -605,10 +618,10 @@ def _server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,ge
             
             #Name field variables
             "configPath": configPath,
-            "existingOBJCallback" : "checkExistingServerOutlets" ,
+            #"existingOBJCallback" : existingOBJJavascriptCallback,
             
             #delete variables
-            "deleteCallback" : "outlet",
+            "deleteCallback" : obj,
             "objectName" : objName,
             "redirectURL" : "/server/" + serverName + "/edit" ,
             #section delete stuff
@@ -625,13 +638,21 @@ def server_outlet_edit_view(request):
 def server_test_edit_view(request):
     return _server_obj_edit_view(request,"test","tester",_loadTesterConfig,getTesterDict,_loadTesterINITemplate)
 
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="servers_controlEdit_view")
+def server_control_edit_view(request):
+    return _server_obj_edit_view(request,"control","controller",_loadControllerConfig,getControllerDict,_loadControllerINITemplate)
+
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_outletCreate_view")
 def server_outlet_create_view(request):
-    return _server_obj_create(request,"outlet","PDU",_loadPDUConfig,_loadPDUINITemplate,getPDUDict)
+    return _server_obj_create(request,"outlet","PDU",_loadPDUConfig,_loadPDUINITemplate,getPDUDict,"checkExistingServerOutlets")
 
 @view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_testCreate_view")
 def server_test_create_view(request):
-    return _server_obj_create(request,"test","tester",_loadTesterConfig,_loadTesterINITemplate,getTesterDict)
+    return _server_obj_create(request,"test","tester",_loadTesterConfig,_loadTesterINITemplate,getTesterDict,"checkExistingServerTests")
+
+@view_config(renderer="templates/pdu_tester_create.pt", route_name="servers_controlCreate_view")
+def server_control_create_view(request):
+    return _server_obj_create(request,"control","controller",_loadControllerConfig,_loadControllerINITemplate,getControllerDict,"checkExistingServerControls")
 
 def _loadPDUINITemplate(outletType):
     ''' Get the outlet type template
@@ -645,6 +666,12 @@ def _loadTesterINITemplate(testerType):
     @return: Tester ini template dict'''
     return loadINIFileTemplate(['conf_testers/' + testerType + '.ini'] + ["testers.ini"])
 
+def _loadControllerINITemplate(controllerType):
+    ''' Get the outlet type template
+    @param outletType: The type of the tester
+    @return: Tester ini template dict'''
+    return loadINIFileTemplate(['conf_controllers/' + controllerType + '.ini'] + ["controllers.ini"])
+
 def _loadServerINITemplate():
     ''' Get the serverNode template
     @return: Server ini template dict'''
@@ -656,6 +683,10 @@ def _loadPDUConfig(PDUName):
 
 def _loadTesterConfig(testerName):
     configPath= os.path.join(getTesterFolder() , testerName + '.ini')
+    return loadINIFileConfig(configPath)
+
+def _loadControllerConfig(controllerName):
+    configPath= os.path.join(getControllerFolder() , controllerName + '.ini')
     return loadINIFileConfig(configPath)
 
 def _getServerConfigPath(serverName):
@@ -718,6 +749,10 @@ def pdu_edit_view(request):
 @view_config(renderer="templates/pdu_tester_edit.pt", route_name="testerEdit")
 def tester_edit_view(request):
     return _objGenerator_edit_view(request,"test","Tester",'testerName',getTesterFolder,_loadTesterConfig,_loadTesterINITemplate,getAvailableTestersList)
+
+@view_config(renderer="templates/pdu_tester_edit.pt", route_name="controllerEdit")
+def controller_edit_view(request):
+    return _objGenerator_edit_view(request,"control","Controller",'controllerName',getControllerFolder,_loadControllerConfig,_loadControllerINITemplate,getAvailableControllersList)
 
 def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiListChoices=None):
     ''' Generate a multilist format for a template. So it can be rendered on a template
@@ -817,7 +852,7 @@ def updates_view(request):
 
     #convert sections that were nameless on creation
     #TODO find a way to make this not hard-coded
-    PARAMS_LIST=["outletParams","testParams"]
+    PARAMS_LIST=["outletParams","testParams","controlParams"]
     for param in PARAMS_LIST:
         if param in iniDict.keys():
             iniDict[iniDict[param]["name"]] = iniDict[section]
@@ -854,6 +889,9 @@ def pduDelete(name,objectName,path):
 
 def testerDelete(name,objectName,path):
     return _objectGenertorDelete("tester",name,objectName,path)
+
+def controllerDelete(name,objectName,path):
+    return _objectGenertorDelete("controller",name,objectName,path)
 
 def _objectGenertorDelete(objectGenerator,name,objectName,path):
     serversUsing = {}
@@ -899,12 +937,17 @@ def serverOutletDelete(name,objectName,path):
 def serverTestDelete(name,objectName,path):
     return _serverObjectDelete("test",name,objectName,path)
 
+def serverControlDelete(name,objectName,path):
+    return _serverObjectDelete("control",name,objectName,path)
+
 def deleteObject(dataDict):
     DELETE_CALLBACK = {"server": serverDelete,
                        "pdu"   : pduDelete,
                        "tester": testerDelete,
+                       "controller": controllerDelete,
                        "outlet": serverOutletDelete,
-                       "test"  : serverTestDelete}
+                       "test"  : serverTestDelete,
+                       "control"  : serverControlDelete}
     
     returnValue = {}
     outcome = DELETE_CALLBACK[dataDict["object"]](dataDict["name"],dataDict["object"],dataDict["path"])
@@ -959,6 +1002,18 @@ def sendOckleCommand(request):
     if command == "checkExistingServerOutlets":
         try:
             return {"reply" : dataDict["name"] in getAvailableServerOutlets(dataDict["matchdict"]["serverName"])}
+        except:
+            return {"reply" : "Error"}
+    
+    if command == "checkExistingServerTests":
+        try:
+            return {"reply" : dataDict["name"] in getAvailableServerTesters(dataDict["matchdict"]["serverName"])}
+        except:
+            return {"reply" : "Error"}
+    
+    if command == "checkExistingServerControls":
+        try:
+            return {"reply" : dataDict["name"] in getAvailableServerControls(dataDict["matchdict"]["serverName"])}
         except:
             return {"reply" : "Error"}
         

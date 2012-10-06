@@ -11,25 +11,28 @@ class Error(Exception):
     def debug(self,message):
         print "Error: " + self.__class__.__name__ + ": " + str(message)
         return
-
-class OutletTypeNotFound(Error):
-    '''Exception raised when an outlet type was not found
+class _ObjGeneratorTypeNotFound(Error):
+    '''Exception raised when an obj Generator type was not found
 
     Attributes:
         @param iniFile : Path to ini file contains the declaration
         @param type: the type of outlet declared
+        @param objGenerator: the object Generator
     '''
-    def __init__(self, iniFile,type):
-        self.debug("Outlet type '" + type + "' specified in " + iniFile + " does not exist")
+    def __init__(self, objGenerator, iniFile, objType):
+        self.debug(objGenerator + " type '" + objType + "' specified in " + iniFile + " does not exist")
+        
+class OutletTypeNotFound(_ObjGeneratorTypeNotFound):
+    def __init__(self, iniFile, objType):
+        _ObjGeneratorTypeNotFound.__init__(self,"PDU", iniFile, objType)
+    
 class TesterTypeNotFound(Error):
-    '''Exception raised when a tester type was not found
+    def __init__(self, iniFile, objType):
+        _ObjGeneratorTypeNotFound.__init__(self,"Tester", iniFile, objType)    
 
-    Attributes:
-        @param iniFile : Path to ini file contains the declaration
-        @param type: the type of tester declared
-    '''
-    def __init__(self, iniFile,type):
-        self.debug("Tester type '" + type + "' specified in " + iniFile + " does not exist")
+class ControllerTypeNotFound(Error):
+    def __init__(self, iniFile, objType):
+        _ObjGeneratorTypeNotFound.__init__(self,"Controller", iniFile, objType)
                     
 class MultipleDeclerationInConfig(Error):
     '''Exception raised for multiple declaration in same config file,

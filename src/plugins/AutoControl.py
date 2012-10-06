@@ -39,6 +39,9 @@ class AutoControl(ModuleTemplate):
         self.WAIT_TIME = self.getConfigVar("WAIT_TIME")
         self.MAX_START_ATTEPMTS = self.getConfigVar("MAX_START_ATTEPMTS")
         
+        #list of worker threads
+        self.workers=[]
+        
         self.setEnabled(True)
         
         #Communication commands

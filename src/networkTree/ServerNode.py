@@ -12,6 +12,7 @@ from common.common import OpState
 from common.common import loadConfig
 from outlets.OutletTemplate import OutletOpState
 from testers.TemplateTester import TesterOpState
+from controllers.ControllerTemplate import ControllerOpState
 
 config,ETC_DIR = loadConfig()
 MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
@@ -30,7 +31,7 @@ class ServerNode():
     def getName(self):
         return self.name
     
-    def __init__(self,name,outlets=[],testers=[]):
+    def __init__(self,name,outlets=[],tests=[],controls=[]):
         '''Constructor
         
         @param name: node name (string)
@@ -39,7 +40,8 @@ class ServerNode():
         '''
         self.setName(name)
         self.outlets = outlets #list of outlets types for the server
-        self.testers = testers #list of testers to make sure server is preforming right
+        self.tests = tests #list of tests to make sure server is performing right
+        self.controls = controls #list of controllers to control the server dirctly
         #self.setOutletsOpState(OutletOpState.INIT) #server state
         self.setOpState(ServerNodeOpState.INIT)
         self.startAttempts = 0 #reset startup attempts
@@ -114,7 +116,10 @@ class ServerNode():
         return failedTests
     
     def getTesters(self):
-        return self.testers
+        return self.tests
+    
+    def getControls(self):
+        return self.controls
     
     def setOpState(self,state):
         ''' Set the operating state of the server

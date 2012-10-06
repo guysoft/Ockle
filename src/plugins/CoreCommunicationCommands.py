@@ -33,6 +33,10 @@ class CoreCommunicationCommands(ModuleTemplate):
         return {"Dot" :  dot}
     
     def _getObjectDict(self,returnVariable,objectFolder):
+        #Sanitize if the folder does not exist
+        if not os.path.isdir(objectFolder):
+            return {returnVariable : "{}"}
+        
         returnValue = {}
         for obj in os.listdir(objectFolder):
             obj = os.path.join(objectFolder,obj)
@@ -47,6 +51,9 @@ class CoreCommunicationCommands(ModuleTemplate):
     def getTesterDict(self):
         return self._getObjectDict("testers",self.mainDaemon.TESTERS_DIR)
     
+    def getControllerDict(self):
+        return self._getObjectDict("controllers",self.mainDaemon.CONTROLLERS_DIR)
+        
     def getServerDict(self):
         return self._getObjectDict("servers",self.mainDaemon.SERVERS_DIR)
     
@@ -123,6 +130,10 @@ class CoreCommunicationCommands(ModuleTemplate):
         returnValue = self._getAvailableServerObjs(server,"tester")
         return {"serverTesters" : json.dumps(returnValue)}
     
+    def getAvailableServerControls(self,server):
+        returnValue = self._getAvailableServerObjs(server,"controller")
+        return {"serverControls" : json.dumps(returnValue)}
+    
     def _getServerDependencyMap(self,serverName):
         ''' Returns a dict of available servers to be added as dependencies
         @param server: The current server we are looking at
@@ -156,10 +167,12 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.getServerInfo(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getPDUDict",lambda dataDict: self.getPDUDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getTesterDict",lambda dataDict: self.getTesterDict())
+        self.mainDaemon.communicationHandler.AddCommandToList("getControllerDict",lambda dataDict: self.getControllerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDict",lambda dataDict: self.getServerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerControls",lambda dataDict: self.getAvailableServerControls(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDependencyMap",lambda dataDict: self._getServerDependencyMap(dataDict["server"]))
         return 
 

@@ -49,6 +49,11 @@ class EditingCommunicationCommands(ModuleTemplate):
     def _setINIFile(self,path,iniDict):
         path = os.path.join(self.mainDaemon.ETC_DIR,path)
         
+        #create folder if does not exist
+        pathDir = os.path.dirname(path)
+        if not os.path.isdir(pathDir):
+            os.mkdir(pathDir)
+        
         iniSource =  getINIstringtoDict(self._getINIFile(path))
         newConfig={}
         

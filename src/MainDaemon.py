@@ -46,6 +46,9 @@ class MainDaemon(object):
         TESTER_DIR = config.get('main', 'TESTER_DIR')
         self.TESTERS_DIR = os.path.join(ETC_DIR,TESTER_DIR)
         
+        CONTROLLER_DIR = config.get('main', 'CONTROLLER_DIR')
+        self.CONTROLLERS_DIR = os.path.join(ETC_DIR,CONTROLLER_DIR) 
+        
         SERVER_DIR = config.get('main', 'SERVER_DIR')
         self.SERVERS_DIR = os.path.join(ETC_DIR,SERVER_DIR)
         
@@ -65,6 +68,7 @@ class MainDaemon(object):
         self.communicationHandler.AddCommandToList("getAvailablePluginsList", lambda dataDict: self.getAvailablePluginsListIndex(dataDict))
         self.communicationHandler.AddCommandToList("getAvailablePDUsList", lambda dataDict: {"PDUs" : json.dumps(factory.getOutletsDictIndex())})
         self.communicationHandler.AddCommandToList("getAvailableTestersList", lambda dataDict: {"Testers" : json.dumps(factory.getTestersDictIndex())})
+        self.communicationHandler.AddCommandToList("getAvailableControllersList", lambda dataDict: {"Controllers" : json.dumps(factory.getControllersDictIndex())})
         self.communicationHandler.AddCommandToList("restart", lambda dataDict: self.reload(dataDict))
         
         
