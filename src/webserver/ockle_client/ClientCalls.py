@@ -84,34 +84,6 @@ def getDataFromServer(command,paramsDict={},noReturn=False):
         if type(returnValue) == dict:
             returnValue = trimOneObjectListsFromDict(returnValue)
 
-    '''
-    returnValue=""
-    try:
-        #a = MessageClientSend(MessageAttr.listServers,{"yay":"yay"})
-        a = MessageClientSend(command,paramsDict)
-        #create an INET, STREAMing socket
-        s = socket.socket(
-            socket.AF_INET, socket.SOCK_STREAM)
-        #now connect to the web server on port 80
-        # - the normal http port
-        print "trying to connect"
-        print a.toxml()
-        s.connect((OCKLE_SERVER_HOSTNAME, PORT))
-        s.send(a.toxml())
-        #TODO find a way to determine the size of the transport
-        data = s.recv (MAX_RECIVE)
-        if data:
-            messageGen = Message()
-            print "got the following data"
-            print data
-            reply = messageGen.parse(data)
-            
-            reply.getCommand()
-            returnValue= reply.getDataDict()
-    except:
-        returnValue=None
-        s.close()
-    '''
     return returnValue
 
 def _getDataFromServerWithFail(command,dataDict,errorClass):
