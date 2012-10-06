@@ -151,16 +151,26 @@ class ServerNode():
         '''
         return self.startAttempts
     
+    def _getServerObjDataLog(self,objCallback,objName):
+        ''' get server object data that we can store in the db log
+        @param objCallback: A callback that gets the server object data
+        @return: a dict for the logger
+        '''
+        returnValue = {}
+        for serverObj in objCallback():
+            returnValue[objName + serverObj.getName()] = serverObj.getData()
+            returnValue[objName + serverObj.getName()]["name"] = serverObj.getName()
+        return returnValue
+    
+    def getControlsDataDict(self):
+        return self._getServerObjDataLog(self.getControls,"control") 
+    
     def getOutletsDataDict(self):
         ''' Returns a dict that holds all the outlets and their data dict.
         This gets sent to the logger
         @return: A dict with each outlet name, and a dict of its data
         '''
-        returnValue = {}
-        for outlet in self.getOutlets():
-            returnValue["outlet" + outlet.getName()] = outlet.getData()
-            returnValue["outlet" + outlet.getName()]["name"] = outlet.getName()
-        return returnValue
+        return self._getServerObjDataLog(self.getOutlets,"outlet")
     
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order

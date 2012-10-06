@@ -33,7 +33,10 @@ class ControllerTemplate(object):
     
     def getData(self):
         self.updateData()
-        return self.data
+        try:
+            return self.data
+        except AttributeError:
+            pass
     
     def updateData(self):
         pass

@@ -137,8 +137,8 @@ class ServerNetworkFactory(object):
         outletConfig.read(outletConfigPath)
         outletConfigDict={}
         self.mainDaemon.debug("Loading:"+str(outletConfigPath))
-        for objSection in outletConfig.sections(): 
-            outletConfigDict[objSection] = turpleList2Dict(outletConfig.items(objGeneratorName))
+        for section in outletConfig.sections(): 
+            outletConfigDict[section] = turpleList2Dict(outletConfig.items(objGeneratorName))
         
         #Find from type the kind of objSection
         outlets = load(objGeneratorPackageName,subclasses=objGeneratorSubclass)

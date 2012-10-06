@@ -19,6 +19,7 @@ p = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','common')
 sys.path.insert(0, p)
 
 from common.common import appendProjectPath
+from common.common import mergeDicts
 from plugins.ModuleTemplate import ModuleTemplate
 from outlets.OutletTemplate import OutletOpState
 from networkTree.ServerNode import ServerNodeOpState
@@ -55,7 +56,7 @@ class Logger(ModuleTemplate):
         
         while True:
             self.appendToLog()
-            self.debug("Appended server data to log")
+            #self.debug("Appended server data to log")
             time.sleep(self.LOG_RESOLUTION)
         return
     
@@ -66,7 +67,7 @@ class Logger(ModuleTemplate):
             connection = self.engine.connect()
             for server in self.mainDaemon.servers.getSortedNodeList():
                 sql = "insert into " + self.Log.__tablename__ + " values (?,?,?,?)"
-                variables = (None,server.getName(),json.dumps(server.getOutletsDataDict()),str(time.time()))
+                variables = (None,server.getName(),json.dumps(mergeDicts(server.getOutletsDataDict(),server.getControlsDataDict())),str(time.time()))
                 
                 connection.execute(sql,variables)
     

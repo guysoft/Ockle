@@ -10,8 +10,7 @@ from controllers.ControllerTemplate import ControllerTemplate
    
 class Dummy(ControllerTemplate):
     def __init__(self,name,controllerConfigDict={},controllerParams={}):
-        ControllerTemplate(name,controllerConfigDict={},controllerParams={})
-        
+        ControllerTemplate.__init__(self,name,controllerConfigDict={},controllerParams={})
         self.state=False
         return
     
