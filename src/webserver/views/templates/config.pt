@@ -18,8 +18,5 @@
         
         <tal:block metal:use-macro="INI_InputArea_body"></tal:block>
 		 
-		 ${multiListChoices["plugins"]["pluginlist"]}
-
-		 
     </div>
 </tal:block>

@@ -341,7 +341,7 @@
 			 </form>
 			 </div>
 		</div>
-	
+		<div style="min-height:20px;"></div>
 	<!-- Handle Saving of files -->
 	<script type="text/javascript">
     
