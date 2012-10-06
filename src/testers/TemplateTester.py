@@ -14,9 +14,16 @@ class TesterOpState():
     
 
 class TemplateTester(object):
-    def __init__(self,testerConfigDict,testerParams):
+    def __init__(self,name,testerConfigDict,testerParams):
         self.opState = TesterOpState.INIT
+        self.setName(name)
         return
+    
+    def getName(self):
+        return self.name
+    
+    def setName(self,name):
+        self.name = name
     
     def test(self):
         '''

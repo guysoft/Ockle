@@ -26,8 +26,8 @@ def ping(ip):
 class Ping(TemplateTester):
     ''' A simple ping test
     '''
-    def __init__(self,testerConfigDict={},testerParams={}):
-        TemplateTester.__init__(self, testerConfigDict, testerParams)
+    def __init__(self,name,testerConfigDict={},testerParams={}):
+        TemplateTester.__init__(self,name, testerConfigDict, testerParams)
         self.hostname = testerParams["hostname"]
         return
     

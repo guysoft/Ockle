@@ -59,27 +59,26 @@ class ServerNetworkFactory(object):
             #server = serverConfig.get('server', 'name')
             server = self._getNameFromFilePath(serverConfigFile)
             
-            #Handle a list or single string outlet
-            outlets = serverConfig.get('server', 'outlets')
-            if outlets.startswith("["):
-                outlets = json.loads(serverConfig.get("server","outlets"))
-            else:
-                outlets=[outlets]
-            outletList=[]
-            for outlet in outlets:
-                outletList.append(self.__makeOutlet(serverConfig,outlet,serverConfigPath))
-                
-            #Handle a list or single string testser
-            testerList=[]
-            if serverConfig.has_option('server', 'tests'):
-                testers = serverConfig.get('server', 'tests')
-                if testers.startswith("["):
-                    testers = json.loads(serverConfig.get("server","tests"))
+            def buildServerObj(objNames,builderCallback):
+                ''' Parse the serverObj field
+                @param objNames: the name of the field we are parsing
+                @param builderCallback: The function that takes the server config and name, building the object
+                @return: A list of the server objects 
+                '''
+                #Handle a list or single string outlet
+                outlets = serverConfig.get('server', objNames)
+                if outlets.startswith("["):
+                    outlets = json.loads(serverConfig.get("server",objNames))
                 else:
-                    testers=[testers]
-                for tester in testers:
-                    testerList.append(self.__makeTester(serverConfig,tester,serverConfigPath))
+                    outlets=[outlets]
+                outletList=[]
+                for outlet in outlets:
+                    outletList.append(builderCallback(serverConfig,outlet,serverConfigPath))
+                return outletList
             
+            outletList = buildServerObj('outlets',self.__makeOutlet)
+            testerList = buildServerObj('tests',self.__makeTester)
+                        
             #Make the server with the outlets and testers
             self.servers.addServer(ServerNode(server,outletList,testerList))
         
@@ -107,37 +106,36 @@ class ServerNetworkFactory(object):
                     raise e
         return self.servers
     
-    #TODO fix nasty code repetition here with Test and make
-    def __makeOutlet(self,serverConfig,outlet,serverConfigPath):
-        ''' Make an outlet from the config file path of an outlet, and the required socket
+    def __makeServerObj(self,objGeneratorName,objGeneratorFolder,objGeneratorPackageName,objGeneratorSubclass,objGeneratorNotFoundException,serverConfig,objSection,serverConfigPath):
+        ''' Make an objSection from the config file path of an objSection, and the required socket
         @param serverConfig config ini path to the socket
-        @param outlet a string to get the outlet section
+        @param objSection a string to get the objSection objSection
         @param serverConfigPath:
-        @returns an outlet type socket
+        @returns an objSection type socket
         '''
         
-        #get server specific config for outlet (socket number etc)
-        outletParams = turpleList2Dict(serverConfig.items(outlet))
+        #get server specific config for objSection (socket number etc)
+        outletParams = turpleList2Dict(serverConfig.items(objSection))
         
-        #get outlet type so we can pull its config data
-        outletConfig=serverConfig.get(outlet, "pdu")
-        outletConfigPath = os.path.join(self.mainDaemon.OUTLETS_DIR,outletConfig + ".ini")
+        #get objSection type so we can pull its config data
+        outletConfig=serverConfig.get(objSection, objGeneratorName)
+        outletConfigPath = os.path.join(objGeneratorFolder,outletConfig + ".ini")
         outletConfig = SafeConfigParser()
         
-        #Create the outlet with server params and outlet config 
+        #Create the objSection with server params and objSection config 
         outletConfig.read(outletConfigPath)
         outletConfigDict={}
         self.mainDaemon.debug("Loading:"+str(outletConfigPath))
-        for section in outletConfig.sections(): 
-            outletConfigDict[section] = turpleList2Dict(outletConfig.items('pdu'))
+        for objSection in outletConfig.sections(): 
+            outletConfigDict[objSection] = turpleList2Dict(outletConfig.items(objGeneratorName))
         
-        #Find from type the kind of outlet
-        outlets = load(OUTLETS_PACKAGE,subclasses=OutletTemplate)
-        outletType = outletConfigDict['pdu']['type']
+        #Find from type the kind of objSection
+        outlets = load(objGeneratorPackageName,subclasses=objGeneratorSubclass)
+        outletType = outletConfigDict[objGeneratorName]['type']
         for outletClass in outlets:
             if outletClass.__name__ == outletType:
-                return outletClass(outlet,outletConfigDict,outletParams)
-        raise OutletTypeNotFound(outletConfigPath,outletType)
+                return outletClass(objSection,outletConfigDict,outletParams)
+        raise objGeneratorNotFoundException(outletConfigPath,outletType)
     
     def _getClassDictIndex(self,package,subclass):
         ''' Get a list of modules
@@ -157,34 +155,10 @@ class ServerNetworkFactory(object):
     def getTestersDictIndex(self):
         return self._getClassDictIndex(TESTERS_PACKAGE,TemplateTester)
     
+    def __makeOutlet(self,serverConfig,outlet,serverConfigPath):
+        return self.__makeServerObj("pdu",self.mainDaemon.OUTLETS_DIR,OUTLETS_PACKAGE,OutletTemplate,OutletTypeNotFound,serverConfig,outlet,serverConfigPath)
+    
     def __makeTester(self,serverConfig,tester,serverConfigPath):
-        ''' Make a tester from the config file path of a tester, and the required tester-server info
-        @param testerConfigPath config ini path to the tester
-        @param tester a string to get the tester section
-        @param serverConfigPath: 
-        @returns a tester type class
-        '''
-        
-        #get server specific config for outlet (socket number etc)
-        testerParams = turpleList2Dict(serverConfig.items(tester))
-        
-        #get tester type so we can pull its config data
-        testerConfig=serverConfig.get(tester, "tester")
-        TESTER_DIR = config.get('main', 'TESTER_DIR') 
-        testerConfigPath = os.path.join(ETC_DIR,TESTER_DIR,testerConfig + ".ini")
-        testerConfig = SafeConfigParser()
-        
-        #Create the tester with server params and tester config 
-        testerConfig.read(testerConfigPath)
-        testerConfigDict={}
-        for section in testerConfig.sections(): 
-            testerConfigDict[section] = turpleList2Dict(testerConfig.items('tester'))
-                        
-        #Find from type the kind of tester
-        testers = load(TESTERS_PACKAGE,subclasses=TemplateTester)
-        testerType = testerConfigDict['tester']['type']
-        for tester in testers:
-            if tester.__name__ == testerType:
-                return tester(testerConfigDict,testerParams)
-        raise TesterTypeNotFound(testerConfigPath,testerType)
+        return self.__makeServerObj("tester",self.mainDaemon.TESTERS_DIR,TESTERS_PACKAGE,TemplateTester,TesterTypeNotFound,serverConfig,tester,serverConfigPath)
+    
     
