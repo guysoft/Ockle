@@ -144,43 +144,47 @@ def serverPage_view(request):
     minTick=[]
     maxTick=[]
     plotNumber=0
-    for outletKey in slicedict(dataDictHead,"outlet").keys():
-        for dataKey in dataDictHead[outletKey].keys():
-            if dataKey != "name":
-                #Init all the plot labels and lists
-                #TODO time pulling can be done at O(n) not O(n^2)
-                plotTitle.insert(plotNumber, dataKey + " graph for " + dataDictHead[outletKey]["name"])
-                plotYLabel.insert(plotNumber, dataKey + " " + DATA_NAME_TO_UNITS_NAME[dataKey])
-                plotYFormat.insert(plotNumber, DATA_NAME_TO_UNITS[dataKey])
-                plotsData.insert(plotNumber, [])
-                #plotsTicks.insert(plotNumber, [])
-                
-                #Retrieve data for this plot
-                for key in serverLog.keys(): #now we scan all keys
-                    #parse the database entry
-                    dataDict = json.loads(serverLog[key]["dataDict"])
+    
+    def generatePlot(keySlicePrefix,plotTitle,plotYFormat,plotYLabel,plotsData,minTick,maxTick,plotNumber):
+        for outletKey in slicedict(dataDictHead,keySlicePrefix).keys():
+            for dataKey in dataDictHead[outletKey].keys():
+                if dataKey != "name":
+                    #Init all the plot labels and lists
+                    #TODO time pulling can be done at O(n) not O(n^2)
+                    plotTitle.insert(plotNumber, dataKey + " graph for " + dataDictHead[outletKey]["name"])
+                    plotYLabel.insert(plotNumber, dataKey + " " + DATA_NAME_TO_UNITS_NAME[dataKey])
+                    plotYFormat.insert(plotNumber, DATA_NAME_TO_UNITS[dataKey])
+                    plotsData.insert(plotNumber, [])
+                    #plotsTicks.insert(plotNumber, [])
                     
-                    #save data point
-                    dataPointTime=serverLog[key]["time"]
-                    try:
-                        dataPoint=dataDict[outletKey][dataKey]
-                    except KeyError:
-                        dataPoint=0
+                    #Retrieve data for this plot
+                    for key in serverLog.keys(): #now we scan all keys
+                        #parse the database entry
+                        dataDict = json.loads(serverLog[key]["dataDict"])
+                        
+                        #save data point
+                        dataPointTime=serverLog[key]["time"]
+                        try:
+                            dataPoint=dataDict[outletKey][dataKey]
+                        except KeyError:
+                            dataPoint=0
+                        
+                        plotsData[plotNumber].append([unix2javascript(float(dataPointTime)),float(dataPoint)])
                     
-                    plotsData[plotNumber].append([unix2javascript(float(dataPointTime)),float(dataPoint)])
-                
-                #Build ticks
-                minTime,maxTime = getMinMaxListofLists(plotsData[plotNumber],0)
-                
-                minTime=  javascript2unix(minTime)
-                maxTime = javascript2unix(maxTime)
-                
-                minTick.insert(plotNumber,datetime.fromtimestamp(minTime).strftime("%Y-%m-%d %H:%M"))
-                maxTick.insert(plotNumber,datetime.fromtimestamp(maxTime).strftime("%Y-%m-%d %H:%M"))
-                #for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
-                #    plotsTicks[plotNumber].append(datetime.fromtimestamp(timestamp).strftime("%d %H:%M"))
-                
-                plotNumber=plotNumber+1
+                    #Build ticks
+                    minTime,maxTime = getMinMaxListofLists(plotsData[plotNumber],0)
+                    
+                    minTime=  javascript2unix(minTime)
+                    maxTime = javascript2unix(maxTime)
+                    
+                    minTick.insert(plotNumber,datetime.fromtimestamp(minTime).strftime("%Y-%m-%d %H:%M"))
+                    maxTick.insert(plotNumber,datetime.fromtimestamp(maxTime).strftime("%Y-%m-%d %H:%M"))
+                    #for timestamp in range(int(minTime),int(maxTime),PLOT_STEP):
+                    #    plotsTicks[plotNumber].append(datetime.fromtimestamp(timestamp).strftime("%d %H:%M"))
+                    
+                    plotNumber=plotNumber+1
+    generatePlot("outlet",plotTitle,plotYFormat,plotYLabel,plotsData,minTick,maxTick,plotNumber)
+    generatePlot("control",plotTitle,plotYFormat,plotYLabel,plotsData,minTick,maxTick,plotNumber)
                 
     #Build outlet switches dict
     outlets={}
@@ -531,7 +535,12 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
     #Here we move the template dict to the right name
     
     INIFileTemplate = {}
-    INIFileTemplate[tmpName] = tmpINIFileTemplate[obj +"Params"]
+    INIFileTemplate[tmpName] = {}
+    try:
+        INIFileTemplate[tmpName] = tmpINIFileTemplate[obj +"Params"]
+    except KeyError:
+        pass    
+    
     INIFileTemplate[tmpName]["name"] =["name",""]
     INIFileTemplate[tmpName][objGenerator.lower()] =["select",True]
     
@@ -539,11 +548,16 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
     #Remove the pdu params if exist, we handle them in the server section
     try:
         INIFileTemplate.pop(objGenerator.lower())
-    except:
+    except KeyError:
         pass
     
-    INIFileDict = __fillINIwithTemplate(tmpINIFileTemplate)
-    INIFileDict[tmpName][objGenerator.lower()] = PDU
+    INIFileDict = __fillINIwithTemplate(INIFileTemplate)
+    try:
+        INIFileDict[tmpName][objGenerator.lower()] = PDU
+    except KeyError:
+        INIFileDict[tmpName] = {}
+        INIFileDict[tmpName][objGenerator.lower()] = PDU
+        
     multiListChoices= _makeSelectMulitChoice(PDU,tmpName,objGenerator.lower(),getObjGeneratorsCallback)
     
     configPath= os.path.join(getServerFolder() , serverName + '.ini')
@@ -592,7 +606,10 @@ def _server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,ge
     
     #pop the main dict
     INIFileTemplate.pop(objGenerator.lower())
-
+    
+    if not objParam in INIFileTemplate:
+        INIFileTemplate[objParam] = {}
+    
     #add the type name
     INIFileTemplate[objParam][objGenerator.lower()] =["select",True]
     
@@ -927,7 +944,7 @@ def _serverObjectDelete(objectType,name,objectName,path):
         
     enabledOutlets = json.loads(serverDict["server"][item])
     if name in enabledOutlets:
-        return "Please uncheck " + objectType + "in server before deleting."
+        return "Please uncheck " + objectType + " in server before deleting."
     return True
 
 
