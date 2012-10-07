@@ -20,6 +20,7 @@ svn checkout http://networkx.lanl.gov/svn/pygraphviz/trunk pygraphviz
 ~/pythonenv/bin/easy_install pycrypto
 ~/pythonenv/bin/easy_install SQLAlchemy
 ~/pythonenv/bin/easy_install lxml
+~/pythonenv/bin/easy_install paramiko
 
 
 
