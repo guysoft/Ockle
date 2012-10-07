@@ -124,3 +124,16 @@ a:link {text-decoration:none;}
 a:visited {text-decoration:none;}
 a:hover {text-decoration:underline;}
 a:active {text-decoration:underline;}
+
+.styled-table table{
+	/* border: solid 1px #85b1de; */
+	background-color:#d6e5f4;
+	}
+	
+.styled-table td{
+	border: solid 1px #85b1de;
+	background-color:#F4F4F4;
+	padding:3px;
+}
+
+

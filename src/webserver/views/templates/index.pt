@@ -80,24 +80,12 @@
 
   </script>
   
-  <style>
-    	table{
-		/* border: solid 1px #85b1de; */
-		background-color:#d6e5f4;
-		}
-		
-		td
-		{
-		border: solid 1px #85b1de;
-		background-color:#F4F4F4;
-		}
-		</style>
  </tal:block>
  
     <div metal:fill-slot="content">
     
         <h2>Server Network</h2>	
-	     <table>
+	     <table class="styled-table">
 	     <tr><td rowspan="42">
 	     <div id="canviswrapper" style="min-height:1000px;">
 	     	<div id="canviz"></div>

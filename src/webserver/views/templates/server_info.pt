@@ -166,23 +166,32 @@
 	</tal:block>
 
 
-    <div metal:fill-slot="content" class="secondary-a-6">
+    <div metal:fill-slot="content">
+    <style>
+    td{
+    height:50px;
+    }
+    </style>
+    
     <p style="float: right;"><a href="/server/${server_dict['Name']}/edit">Edit</a></p>
-		<table>
+		<table class="styled-table" style="width:600px">
 			<tr>
-			<td>
+			<td colspan="2">
 			Server Status: <input type="checkbox" id="checkTwo" disabled="true"/>
 			</td>
 			</tr>
+			<tr>
+		    <td colspan="2">
+		      Server Operation state: ${server_dict["OpState"]}
+		    </td>
+		    </tr>
 		
 			<tr tal:repeat="outletVar outlets">
 		      <td>
 		      ${outlets[outletVar]["name"]} Status: <input type="checkbox" id="check_${outletVar}"/><div id="status_${outletVar}" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 		      </td>
-		    </tr>
-		    <tr>
-		    <td>
-		      OpState: ${server_dict["OpState"][0]}
+		      <td>
+		      Operation state: ${outlets[outletVar]["OpState"]}
 		      </td>
 		    </tr>
 		</table>
