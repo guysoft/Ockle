@@ -44,6 +44,10 @@ class AutoControl(ModuleTemplate):
         
         self.setEnabled(True)
         
+        #Add variable to all server Nodes
+        for server in self.mainDaemon.servers.getSortedNodeList():
+            server.desiredOpState=ServerNodeOpState.OK
+        
         #Communication commands
         self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))

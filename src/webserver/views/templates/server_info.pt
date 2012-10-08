@@ -59,20 +59,18 @@
 
 	// init the checkboxes at dom ready
 	var outletsDict = ${structure: outletsDict};
+	
+	//init controls when dom ready
+	var controlsDict = ${structure: controlsDict};
+	
+	//init tests when dom ready
+	var testsDict = ${structure: testsDict};
+	
 	$(document).ready( function () {
 		/*
-		* first example - defaults
+		* Server Switch options
 		*/
-		$('#checkOne').iCheckbox();
-		$('#checkOne').change(function(e){
-			if ( $('#checkOne').attr('checked') == true ) {
-				console.log('checkbox one checked: '+$(e.target).attr('checked'));
-			}
-		});
-		/*
-		* second example - custom
-		*/
-		var checkTwoOpts = {
+		var ServerCheckboxOpts = {
 			switch_container_src: '/static/iPhoneCheckbox/images/iphone_switch_container.gif',
 			class_container: 'iCheckbox_two_container',
 			class_switch: 'iCheckbox_two_switch',
@@ -82,6 +80,9 @@
 			checkbox_hide: false
 			};
 		
+		/*
+		* Outlet/Controller Switch options
+		*/
         var checkOutletOpts = {
                 switch_container_src: '/static/iPhoneCheckbox/images/bpm-frame.gif',
                 class_container: 'iCheckbox_Outlet_container',
@@ -95,38 +96,51 @@
 		
 		var initial_state = "${server_dict['Switch']}";
 		var initial_state_outlet = "${server_dict['Switch']}";
-		$('#checkTwo').iCheckbox(initial_state, checkTwoOpts );
-		$('#checkTwo').change(function(e){
-			if ( $('#checkTwo').attr('checked') == true ) {
+		$('#serverCheckbox').iCheckbox(initial_state, ServerCheckboxOpts );
+		$('#serverCheckbox').change(function(e){
+			if ( $('#serverCheckbox').attr('checked') == true ) {
 				console.log('checkbox two checked: '+$(e.target).attr('checked'));
 			}
 		});
 		
-		for(var outletKey in outletsDict){
-			$('#status_'+ outletKey).hide();
-			outletsDict[outletKey]["firstRun"] = true;
-			$('#check_' + outletKey).iCheckbox(outletsDict[outletKey]["Switch"], checkOutletOpts );
-
-			$('#check_' + outletKey).change(function(e){
-			outletID = e.currentTarget.getAttribute('id');
-			currentOutlet = outletID.split("_")[1];
-				if (!outletsDict[currentOutlet]["firstRun"]){
-				state = document.getElementById(outletID).checked;
-				
-				$('#status_'+ currentOutlet).show();
-				switchOutlet(currentOutlet,outletID,state);
-				
-				}
-
-				if (outletsDict[currentOutlet]["firstRun"]){
-					outletsDict[currentOutlet]["firstRun"]=false;
-				}
-			});
+		function setServerObjSwitch(obj,serverObjDict,ockleCommand){
+			for(var outletKey in serverObjDict){
+				$('#status_'+ outletKey).hide();
+				serverObjDict[outletKey]["firstRun"] = true;
+				$('#check_' + outletKey).iCheckbox(serverObjDict[outletKey]["Switch"], checkOutletOpts );
+	
+				$('#check_' + outletKey).change(function(e){
+				outletID = e.currentTarget.getAttribute('id');
+				currentOutlet = outletID.split("_")[1];
+					if (!serverObjDict[currentOutlet]["firstRun"]){
+						state = document.getElementById(outletID).checked;
+						
+						$('#' + obj +'status_'+ currentOutlet).show();
+						switchServerobj(currentOutlet,serverObjDict,outletID,state,ockleCommand,obj);
+					
+					}
+	
+					if (serverObjDict[currentOutlet]["firstRun"]){
+						serverObjDict[currentOutlet]["firstRun"]=false;
+					}
+				});
+			}
+		}
+	
+		function setServerObjButton(obj,serverObjDict){
+			for(var serverObjKey in serverObjDict){
+				$('#status_'+ serverObjKey).hide();
+			}
 		}
 		
+		$('#status_server').hide();
+		
+		setServerObjSwitch("outlet",outletsDict,"switchOutlet");
+		setServerObjSwitch("control",controlsDict,"switchControl");
+		setServerObjButton("test",testsDict);
 	});
 	
-	function switchOutlet(outlet,elementID,state){
+	function switchServerobj(outlet,objDict,elementID,state,ockleCommand,objType){
 		serverName = "${server_dict['Name']}";
 		//alert(outlet +  state + serverName);
 		if (state){
@@ -139,9 +153,9 @@
 	        'type': 'POST',
 	        'url': "/sendOckleCommand.json",
 	        'contentType': 'application/json',
-	        'data': JSON.stringify({"command": "switchOutlet",
+	        'data': JSON.stringify({"command": ockleCommand,
 			"dataDict" : {"server": serverName,
-						"outlet" : 	outletsDict[outlet]["name"],
+				"obj" : 	objDict[outlet]["name"],
 						"state" : state
 			}}),
 	        'dataType': 'json',
@@ -171,13 +185,30 @@
     td{
     height:50px;
     }
+    
+        .styled-button
+        {
+		    border: solid 1px #85b1de;
+		    background-image: url( '/static/forms/blue_bg.png' );
+		    background-repeat: repeat-x;
+		    background-position: top;
+		    
+		   	font-family: Arial, Sans-Serif;
+		    font-size: 13px;
+		    margin-bottom: 5px;
+		    margin-right: 5px;
+		    /* display: block; */
+		    padding: 4px;
+		    width: 70px;
+        }
     </style>
     
     <p style="float: right;"><a href="/server/${server_dict['Name']}/edit">Edit</a></p>
-		<table class="styled-table" style="width:600px">
+		<table class="styled-table" align="center" style="width:90%;">
+			<tr class="styled-table-title"><td colspan="2">Server</td></tr>
 			<tr>
 			<td colspan="2">
-			Server Status: <input type="checkbox" id="checkTwo" disabled="true"/>
+			Server Status: <input type="checkbox" id="serverCheckbox"/> (${server_dict['StartAttempts']})<div id="status_server" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 			</td>
 			</tr>
 			<tr>
@@ -185,13 +216,37 @@
 		      Server Operation state: ${server_dict["OpState"]}
 		    </td>
 		    </tr>
-		
+		    
+		    <tr tal:condition="len(outlets) > 0" class="styled-table-title"><td colspan="2">Outlets</td></tr>
 			<tr tal:repeat="outletVar outlets">
 		      <td>
-		      ${outlets[outletVar]["name"]} Status: <input type="checkbox" id="check_${outletVar}"/><div id="status_${outletVar}" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div>
+		      ${outlets[outletVar]["name"]} <div style="float:center;">Status: <input type="checkbox" id="check_${outletVar}"/></div>
+		      <div id="status_${outletVar}" style="float : right;"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 		      </td>
 		      <td>
 		      Operation state: ${outlets[outletVar]["OpState"]}
+		      </td>
+		    </tr>
+		    
+		    <tr tal:condition="len(controls) > 0" class="styled-table-title"><td colspan="2">Controls</td></tr>
+			<tr tal:repeat="controlVar controls">
+		      <td>
+		      ${controls[controlVar]["name"]} Status: <input type="checkbox" id="check_${controlVar}"/>
+		      <div id="status_${controlVar}" style="float : right;"><img src="/static/ajax/ajax-smallloader.gif"/></div>
+		      </td>
+		      <td>
+		      Operation state: ${controls[controlVar]["OpState"]}
+		      </td>
+		    </tr>
+		    
+		<tr tal:condition="len(tests) > 0" class="styled-table-title"><td colspan="2">Tests</td></tr>
+			<tr tal:repeat="testVar tests">
+		      <td>
+		      ${tests[testVar]["name"]} <input type="button" id="button_${testVar}" value="Run" style="float:right;" class="styled-button"/>
+		      <div id="status_${testVar}" style="float : right;"><img src="/static/ajax/ajax-smallloader.gif"/></div>
+		      </td>
+		      <td>
+		      Operation state: ${tests[testVar]["OpState"]}
 		      </td>
 		    </tr>
 		</table>

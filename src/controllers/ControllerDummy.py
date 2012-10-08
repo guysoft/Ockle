@@ -11,12 +11,19 @@ from controllers.ControllerTemplate import ControllerTemplate
 class Dummy(ControllerTemplate):
     def __init__(self,name,controllerConfigDict={},controllerParams={}):
         ControllerTemplate.__init__(self,name,controllerConfigDict={},controllerParams={})
-        self.state=False
+        self.setState(True)
         return
     
     def updateData(self):
         pass
     
-    def setSate(self,state):
+    def setState(self,state):
         self.state=True
         return
+    
+    def getState(self):
+        try:
+            return self.state
+        except:
+            self.state = True #init
+            return False

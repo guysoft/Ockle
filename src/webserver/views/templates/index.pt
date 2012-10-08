@@ -84,7 +84,7 @@
  
     <div metal:fill-slot="content">
     
-        <h2>Server Network</h2>	
+        <div id="fancy"><p>Server Network</p></div>	
 	     <table class="styled-table">
 	     <tr><td rowspan="42">
 	     <div id="canviswrapper" style="min-height:1000px;">

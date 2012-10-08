@@ -16,6 +16,7 @@ from common.common import iniToDict
 from collections import OrderedDict
 
 from outlets.OutletTemplate import OutletOpState
+from controllers.ControllerTemplate import ControllerOpState
 from networkTree.ServerNetworkFactory import ServerNetworkFactory
 from networkTree.Exceptions import DependencyException
 from pygraph.classes.exceptions import AdditionError
@@ -57,7 +58,7 @@ class CoreCommunicationCommands(ModuleTemplate):
     def getServerDict(self):
         return self._getObjectDict("servers",self.mainDaemon.SERVERS_DIR)
     
-    def getServerInfo(self,dataDict):
+    def ServerView(self,dataDict):
         ''' Get the data dict of a server
         @param dataDict: The data dict from the communication call, should contain the key "server"
         @return: the server information, empty dict if invalid request
@@ -67,30 +68,41 @@ class CoreCommunicationCommands(ModuleTemplate):
         except:
             return {} #no server found
         server.getName()
-        outlets={}
-        for outlet in server.getOutlets():
-            outletIndex="outlet"+outlet.getName()
-            outlets[outletIndex] ={} 
-            outlets[outletIndex]["type"] = outlet.getOutletType()
-            outlets[outletIndex]["OpState"] = outlet.getOpState()
-            outlets[outletIndex]["state"] = outlet.getState()
-            outlets[outletIndex]["data"] = outlet.getData()
-            outlets[outletIndex]["name"] = outlet.getName()
-            
+        
+        def getServerObjInfo(obj,objList,test=False):
+            objs={}
+            for outlet in objList:
+                outletIndex=obj +outlet.getName()
+                objs[outletIndex] ={} 
+                #outlets[outletIndex]["type"] = outlet.getOutletType()
+                objs[outletIndex]["OpState"] = outlet.getOpState()
+                if not test:
+                    objs[outletIndex]["state"] = outlet.getState()
+                    objs[outletIndex]["data"] = outlet.getData()
+                objs[outletIndex]["name"] = outlet.getName()
+            return objs
+        outlets = getServerObjInfo("outlet",server.getOutlets())
+        controls = getServerObjInfo("control",server.getControls())
+        tests = getServerObjInfo("test",server.getTests(),True)
+         
         return {"Name" :  server.getName(),
                 "OpState" : server.getOpState(),
                 "outlets" : json.dumps(outlets),
+                "controls" : json.dumps(controls),
+                "tests" : json.dumps(tests),
                 "StartAttempts" : server.getStartAttempts()
                 }
     
     def switchOutlet(self,dataDict):
+        print dataDict
+        print "weeee"
         ''' Swtich an outlet on or off
         @param dataDict: A dict with an entry for server, outlet and state
         @return: Empty dict for now
         '''
         #TODO: return a success of failed state, so we can move the switch back up in the GUI if failed
         serverName = dataDict["server"]
-        outletName = dataDict["outlet"]
+        outletName = dataDict["obj"]
         
         outletState = dataDict["state"] == "on" 
         
@@ -100,6 +112,26 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlet.setOpState(OutletOpState.forcedOn)
         else:
             outlet.setOpState(OutletOpState.forcedOff)
+        return {}
+    
+    #TODO: remove repition: same as switchOutlet, but we need to change getOutletByName to something we can pass
+    def switchControl(self,dataDict):
+        ''' Swtich an outlet on or off
+        @param dataDict: A dict with an entry for server, outlet and state
+        @return: Empty dict for now
+        '''
+        #TODO: return a success of failed state, so we can move the switch back up in the GUI if failed
+        serverName = dataDict["server"]
+        outletName = dataDict["obj"]
+        
+        outletState = dataDict["state"] == "on" 
+        
+        outlet = self.mainDaemon.servers.getServer(serverName).getControlByName(outletName)
+        outlet.setState(outletState)
+        if outletState:
+            outlet.setOpState(ControllerOpState.forcedOn)
+        else:
+            outlet.setOpState(ControllerOpState.forcedOff)
         return {}
     
     def _getAvailableServerObjs(self,server,obj):
@@ -164,12 +196,13 @@ class CoreCommunicationCommands(ModuleTemplate):
     def run(self):
         self.debug("\n")
         self.mainDaemon.communicationHandler.AddCommandToList("dotgraph",lambda dataDict: self.getDotGraph(dataDict))
-        self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.getServerInfo(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("ServerView",lambda dataDict: self.ServerView(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getPDUDict",lambda dataDict: self.getPDUDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getTesterDict",lambda dataDict: self.getTesterDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getControllerDict",lambda dataDict: self.getControllerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDict",lambda dataDict: self.getServerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("switchControl",lambda dataDict: self.switchControl(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerControls",lambda dataDict: self.getAvailableServerControls(dataDict["server"]))

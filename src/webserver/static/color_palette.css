@@ -41,6 +41,20 @@
    padding: 25px;
    margin: 0;
    
+	/* Mozilla Firefox */ 
+	background-image: -moz-linear-gradient(top, #1A1A1A 0%, #2E2E2E 100%);
+	
+	/* Opera */ 
+	background-image: -o-linear-gradient(top, #1A1A1A 0%, #2E2E2E 100%);
+	
+	/* Webkit (Safari/Chrome 10) */ 
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #1A1A1A), color-stop(1, #2E2E2E));
+	
+	/* Webkit (Chrome 11+) */ 
+	background-image: -webkit-linear-gradient(top, #1A1A1A 0%, #2E2E2E 100%);
+	
+	/* W3C Markup, IE10 Release Preview */ 
+	background-image: linear-gradient(to bottom, #1A1A1A 0%, #2E2E2E 100%);	
 	}
 h1 {
 	margin: 0.5em 0;
@@ -115,8 +129,47 @@ hr {
 	font-size: 24px; text-transform: uppercase;
 	color: #2E2E2E;
 	text-shadow: 0 0 10px #fff,
-	 0 0 20px #06DBFF, 0 0 30px #06DBFF, 0 0 40px #06DBFF, 0 0 70px #06DBFF,
+	 0 0 20px #000055, 20px 0 30px #06DBFF, 0 0 40px #06DBFF, 0 0 70px #06DBFF,
 	  0 0 80px #06DBFF, 0 0 100px #06DBFF, 0 0 150px #06DBFF;
+}
+
+#fancy h1{
+	margin: 0px;
+	padding: 4px;
+	text-align: center;
+	background:#fff;
+ font:normal 30pt Arial;
+ color:#1A1A1A;
+ text-shadow: 0 1px 0 #ccc,
+ 0 2px 0 #c9c9c9,
+ 0 3px 0 #bbb,
+ 0 4px 0 #b9b9b9,
+ 0 5px 0 #aaa,
+ 0 6px 1px rgba(0,0,0,.1),
+ 0 0 5px rgba(0,0,0,.1),
+ 0 1px 3px rgba(0,0,0,.3),
+ 0 3px 5px rgba(0,0,0,.2),
+ 0 5px 10px rgba(0,0,0,.25),
+ 0 10px 10px rgba(0,0,0,.2),
+ 0 20px 20px rgba(0,0,0,.15);
+}
+
+#fancy p{
+ font:normal 24pt Arial;
+ color:#FFFFFF;
+ 
+ text-shadow: 0 1px 0 #ccc,
+ 0 2px 0 #c9c9c9,
+ 0 3px 0 #bbb,
+ 0 4px 0 #b9b9b9,
+ 0 5px 0 #aaa,
+ 0 6px 1px rgba(0,0,0,.1),
+ 0 0 5px rgba(0,0,0,.1),
+ 0 1px 3px rgba(0,0,0,.3),
+ 0 3px 5px rgba(0,0,0,.2),
+ 0 5px 10px rgba(0,0,0,.25),
+ 0 10px 10px rgba(0,0,0,.2),
+ 0 20px 20px rgba(0,0,0,.15);
 }
 
 
@@ -136,4 +189,9 @@ a:active {text-decoration:underline;}
 	padding:3px;
 }
 
+.styled-table-title td{
+	text-align:center; 
+	height:30px;
+	border: solid 2px #33677F;
+}
 

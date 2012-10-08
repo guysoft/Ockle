@@ -261,3 +261,6 @@ def getServerFolder():
 
 def switchOutlet(dataDict):
     return getDataFromServer("switchOutlet",dataDict)
+
+def switchControl(dataDict):
+    return getDataFromServer("switchControl",dataDict)

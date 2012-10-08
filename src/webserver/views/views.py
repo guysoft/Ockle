@@ -14,6 +14,7 @@ from pyramid.response import Response
 from ockle_client import ClientCalls
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import switchOutlet
+from ockle_client.ClientCalls import switchControl
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import setAutoControlStatus
@@ -69,7 +70,7 @@ PLOT_STEP=3600 #What is the step length of the graph
 STATISTICS_WINDOW=60*60*3#How far back should the log show
 
 @view_config(route_name='serverView',renderer="templates/server_info.pt")
-def serverPage_view(request):
+def server_info_view(request):
     ''' Server View page 
     '''
     def unix2javascript(time):
@@ -185,20 +186,26 @@ def serverPage_view(request):
                     plotNumber=plotNumber+1
     generatePlot("outlet",plotTitle,plotYFormat,plotYLabel,plotsData,minTick,maxTick,plotNumber)
     generatePlot("control",plotTitle,plotYFormat,plotYLabel,plotsData,minTick,maxTick,plotNumber)
-                
-    #Build outlet switches dict
-    outlets={}
-    outletsServerDict = json.loads(serverDict["outlets"])
-    for outlet in outletsServerDict:
-        outlets[outlet] ={}
-        outlets[outlet]["name"] = dataDictHead[outlet]["name"]
-        outlets[outlet]["OpState"] = outletsServerDict[outlet]["OpState"]
-        
-        if outletsServerDict[outlet]["OpState"] ==  OpState.OK or outletsServerDict[outlet]["OpState"] == OpState.SwitchingOff:
-            outlets[outlet]["Switch"] = "on"
-        else:
-            outlets[outlet]["Switch"]="off"
     
+    def buildServerObjDict(objs):            
+        #Build outlet switches dict
+        outlets={}
+        outletsServerDict = json.loads(serverDict[objs])
+        for outlet in outletsServerDict:
+            outlets[outlet] ={}
+            outlets[outlet]["name"] = dataDictHead[outlet]["name"]
+            outlets[outlet]["OpState"] = outletsServerDict[outlet]["OpState"]
+            
+            onOpStates = [OpState.OK,OpState.SwitchingOff,OpState.forcedOn]
+            if outletsServerDict[outlet]["OpState"] in onOpStates:
+                outlets[outlet]["Switch"] = "on"
+            else:
+                outlets[outlet]["Switch"]="off"
+        return outlets
+    
+    outlets = buildServerObjDict("outlets")
+    controls = buildServerObjDict("controls")
+    tests = json.loads(serverDict["tests"])
     return {"layout": site_layout(),
             "xdottree" : "",
             "server_dict" : serverDict,
@@ -217,7 +224,16 @@ def serverPage_view(request):
             
             #outlets data
             "outletsDict" : json.dumps(outlets),
-            "outlets" : outlets}
+            "outlets" : outlets,
+            
+            #controls data
+            "controls": controls,
+            "controlsDict": json.dumps(controls),
+            
+            #tests Data
+            "tests": tests,
+            "testsDict": json.dumps(tests),
+            }
 
 @view_config(renderer="templates/server_edit.pt",route_name='serverEdit')
 def server_edit_view(request):
@@ -268,10 +284,14 @@ def index_view(request):
     #TODO: fix this ugly escape character, ie add a javascript variable wrapper
     #gv.node_attr.update(href="javascript:void(click_node(\\'\\\N\\'))")
     gv.node_attr.update(href="server/\\\N")
-    gv.node_attr.update(title="server/\\\N")
+    gv.node_attr.update(title="\\\N")
+    gv.node_attr.update(tooltip="\\\N")
+    gv.node_attr.update(shape="ellipse")
     gv.node_attr.update(style="filled")
     gv.node_attr.update(fillcolor="#CBE6FF")
-    gv.node_attr.update(name="bla")
+    gv.node_attr.update(fontname="Arial")
+    gv.graph_attr.update(bgcolor="#F4F4F4")
+
     
     for node in gv.nodes():
         print node.get_name()
@@ -1045,6 +1065,9 @@ def sendOckleCommand(request):
     
     if command == "switchOutlet":
         switchOutlet(dataDict)
+        
+    if command == "switchControl":
+        switchControl(dataDict)
     
     if command == "setAutoControlStatus":
         return setAutoControlStatus(dataDict)

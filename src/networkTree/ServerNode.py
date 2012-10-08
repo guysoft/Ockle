@@ -19,7 +19,7 @@ MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
 MAX_ATTEMPTS = int(config.get('servers', 'MAX_ATTEMPTS'))
 
 class ServerNodeOpState(OpState):
-    INIT=-1# Did not start yet
+    INIT="Did not initiate yet"# Did not start yet
 
 class ServerNode():
     '''
@@ -71,9 +71,15 @@ class ServerNode():
         return self.outlets
     
     def getOutletByName(self,outletSearchName):
+        return self.__getServerObjByName(outletSearchName,self.getOutlets())
+
+    def getControlByName(self,controlSearchName):
+        return self.__getServerObjByName(controlSearchName,self.getControls())
+    
+    def __getServerObjByName(self,outletSearchName,objs):
         ''' Get an outlet from a server, None if does not exist
         '''
-        for outlet in self.getOutlets():
+        for outlet in objs:
             if outlet.getName() == outletSearchName:
                 return outlet
         return None
@@ -115,7 +121,7 @@ class ServerNode():
         failedTests = []
         return failedTests
     
-    def getTesters(self):
+    def getTests(self):
         return self.tests
     
     def getControls(self):
@@ -197,7 +203,7 @@ class ServerNode():
             time.sleep(float(MAX_STARTUP_TIME))
         
         testersFailedList = []
-        for tester in self.getTesters():
+        for tester in self.getTests():
             tester.test()
             if tester.getOpState() == TesterOpState.FAILED:
                 testersFailedList.append(tester)

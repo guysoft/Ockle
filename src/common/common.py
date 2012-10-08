@@ -26,9 +26,10 @@ class OpState:
     permanentlyFailedToStart="Permanently failed to start"
     forcedOn="Forced on"
     forcedOff="Forced off"
-    
+
 COLOR_DICT={
             -1:"black",
+            "Did not initiate yet":"black",
             OpState.OK:"green",
            OpState.failedToStart:"orange",
            OpState.failedToStop:"yellow",

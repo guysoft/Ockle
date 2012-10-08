@@ -9,8 +9,8 @@ Created on Apr 25, 2012
 
 class TesterOpState():
     INIT=-1# Did not start yet
-    SUCCEEDED=0
-    FAILED=1
+    SUCCEEDED="SUCCEEDED"
+    FAILED="FAILED"
     
 
 class TemplateTester(object):
