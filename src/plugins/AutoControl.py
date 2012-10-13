@@ -145,7 +145,13 @@ class AutoControl(ModuleTemplate):
                         pass
                 elif isReadyCallback(serverName) and (not self.isWorker(serverName)):
                     self.debug("Turning "+ action +" " + serverName)
-                    self.addWorker(serverName,lambda: actionCallback(serverName))
+                    
+                    #TODO: BUG, commented line messes up order
+                    if action =="on":
+                        self.addWorker(serverName,server.turnOn)
+                    elif action == "off":
+                        self.addWorker(serverName,server.turnOff)                    
+                    #self.addWorker(serverName,server.turnOn)
                     attemptsToTurnOn = 0
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
