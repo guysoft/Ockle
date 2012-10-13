@@ -1,4 +1,4 @@
-i!/usr/bin/env python
+#!/usr/bin/env python
 """ Ockle PDU and servers manager
 A server node is a server with outlets,
 or a service with the list of outlets to its servers that run it
@@ -118,11 +118,22 @@ class ServerNode():
         @return: outlets that don't have a given state
         '''
         notOutletState = []
-        for outlet in self.outlets:
+        for outlet in self.getOutlets():
             if outlet.getOpState() != opState:
                 notOutletState.append(outlet)
         return notOutletState
-    
+
+    def getNotControlsOpState(self,opState):
+        ''' Returns controls that don't have a given opState
+        @param opState:  
+        @return: controls that don't have a given state
+        '''
+        notControlState = []
+        for control in self.getControls():
+            if control.getOpState() != opState:
+                notControlState.append(control)
+        return notControlState
+ 
     def getFailedTests(self):
         ''' return a list of failed tests
         '''
@@ -149,6 +160,15 @@ class ServerNode():
         '''
         for outlet in self.getOutlets():
             if outlet.getOpState() == OutletOpState.SwitcingOn:
+                return True
+        return False
+    
+    def controlsStillStarting(self):
+        '''
+        Return true if any control is still on SwitcingOn OpState
+        '''
+        for control in self.getControls():
+            if control.getOpState() == ControllerOpState.SwitcingOn:
                 return True
         return False
     
@@ -189,34 +209,39 @@ class ServerNode():
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
+        self.incrementStartAttempt()
+        
         #TODO: Add controls here
         self.setOpState(ServerNodeOpState.SwitcingOn)
         self.setOutletsOpState(OutletOpState.SwitcingOn)
         self.setControlOpState(ControllerOpState.SwitcingOn)
-        
-        nonWorkingOutlets = self.getNotOutletsOpState(OpState.OK)
-        outletsFailList=[]
        
-        while self.outletsStillStarting():
-            for outlet in nonWorkingOutlets:
-                if not outlet.setState(True): #TODO this should fork 
-                    #Failed, set outlet and server state
-                    outletsFailList.append(outlet)
-                    outlet.setOpState(OutletOpState.failedToStart)
-                    self.setOpState(ServerNodeOpState.failedToStart)
-                else:
-                    #Failed, set outlet state to ok
-                    outlet.setOpState(OutletOpState.OK)
-                    #self.setOpState(ServerNodeOpState.OK)
-                    
+        def serverObjSwitchOn(sillRunningCallback,objOpState,getNonWorkingObj):
+            nonWorkingObjs = getNonWorkingObj(OpState.OK)
+            failList=[]
+            while sillRunningCallback():
+                for obj in nonWorkingObjs:
+                    if not obj.setState(True): 
+                        #Failed, set outlet and server state
+                        failList.append(obj)
+                        obj.setOpState(objOpState.failedToStart)
+                        self.setOpState(ServerNodeOpState.failedToStart)
+                    else:
+                        #Failed, set obj state to ok
+                        obj.setOpState(objOpState.OK)
+                        #self.setOpState(ServerNodeOpState.OK
             time.sleep(float(MAX_STARTUP_TIME))
+                
+        outletsFailList  = serverObjSwitchOn(self.outletsStillStarting,OutletOpState,self.getNotOutletsOpState)
+        controlsFailList = serverObjSwitchOn(self.controlsStillStarting,ControllerOpState,self.getNotControlsOpState)          
+            
         
         testersFailedList = []
         for tester in self.getTests():
             tester.test()
             if tester.getOpState() == TesterOpState.FAILED:
                 testersFailedList.append(tester)
-        if outletsFailList or testersFailedList:
+        if outletsFailList or testersFailedList or controlsFailList:
             #if we failed to start
             if MAX_ATTEMPTS != 0 and self.getStartAttempts() >= MAX_ATTEMPTS :
                 self.setOpState(ServerNodeOpState.permanentlyFailedToStart)
@@ -226,4 +251,13 @@ class ServerNode():
             self.setOpState(ServerNodeOpState.OK)
             
         return
+    
+    def action(self,actionString):
+        if actionString == "on":
+            self.turnOn()
+        else:
+            self.turnOff()
+            
+    def turnOff(self):
+        pass
         

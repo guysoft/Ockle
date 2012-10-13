@@ -59,6 +59,9 @@ class AutoControl(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))
         return
     
+    def getWorkers(self):
+        return self.workers
+      
     def addWorker(self,workerID,func):
         ''' Add a worker thread
         @param workerID: A unique string for the worker, usually the server name
@@ -71,14 +74,23 @@ class AutoControl(ModuleTemplate):
         return t
     
     def isWorker(self,workerID):
-        for worker in self.workers:
+        for worker in self.getWorkers():
             if worker[ID] == workerID:
                 return True
         return False
     
+    def cleanDoneWorkers(self):
+        ''' Clears done workers and removes them from worker list
+        '''
+        for worker in self.getWorkers():
+            if not worker[THREAD].isAlive():
+                worker[THREAD].join()
+                self.workers.remove(worker)
+                
+    
     def waitForWorkers(self):
-        ''' Wait for all workers to finish'''
-        for worker in self.workers:
+        ''' Wait for all workers to finish '''
+        for worker in self.getWorkers():
             worker[THREAD].join()
         self.workers = []
     
@@ -155,6 +167,8 @@ class AutoControl(ModuleTemplate):
                     attemptsToTurnOn = 0
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
+            self.cleanDoneWorkers()
+            
             #Turn off loop
             if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS) or self.mainDaemon.servers.isAllOpState(goalOpState):
                 self.setEnabled(False)
