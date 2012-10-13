@@ -151,11 +151,17 @@ class ServerNetwork():
         print serverName
         return self.graph.node_attributes(serverName)
         
-    def isAllOn(self):
+    def isAllOpState(self,opState):
         ''' Check if all servers are ok
         @return: True if all servers are on
         '''
         for server in self.getSortedNodeList():
-            if server.getOpState() != ServerNodeOpState.OK:
+            if server.getOpState() != opState:
                 return False
         return True
+    
+    def turnOnServer(self,serverName):
+        ''' Turn a server on by name
+        @param serverName: The server name
+        '''
+        return self.getServer(serverName).turnOn()

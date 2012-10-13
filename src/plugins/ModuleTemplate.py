@@ -7,6 +7,12 @@ Created on Apr 26, 2012
 """
 from threading import Thread
 
+from networkTree.ServerNetworkFactory import ServerNetworkFactory
+from networkTree.Exceptions import DependencyException
+from pygraph.classes.exceptions import AdditionError
+from common.common import iniToDict
+import os.path
+
 class ModuleTemplate(Thread):
     def __init__(self,MainDaemon):
         Thread.__init__(self)
@@ -44,3 +50,29 @@ class ModuleTemplate(Thread):
         self._Thread__stop()
 
         return 
+    
+    ### Common Functions ###
+    #Add here things that we want all plugins to have access to
+    
+    
+    def getServerDependencyMap(self,serverName):   
+        factory = ServerNetworkFactory(self.mainDaemon)
+        serversNetwork=factory.buildNetwork(self.mainDaemon.ETC_DIR)
+        
+        returnValue = {}
+        returnValue['available'] = {}
+        returnValue['disabled'] = {}
+        returnValue['existing'] = {}
+        
+        for possibleServer in serversNetwork.getSortedNodeListIndex():
+            if possibleServer != serverName:
+                returnValue['available'][possibleServer] = iniToDict(os.path.join(self.mainDaemon.SERVERS_DIR,possibleServer + ".ini"))["server"]["comment"]
+                try:
+                    serversNetwork.addDependency(serverName, possibleServer)
+                except DependencyException as e:
+                    returnValue['available'].pop(possibleServer)
+                    returnValue['disabled'][possibleServer] = e.list
+                except AdditionError:
+                    #Happens if dependency already exists
+                    returnValue['existing'][possibleServer] = returnValue['available'].pop(possibleServer)
+        return returnValue

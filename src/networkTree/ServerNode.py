@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+i!/usr/bin/env python
 """ Ockle PDU and servers manager
 A server node is a server with outlets,
 or a service with the list of outlets to its servers that run it
@@ -104,6 +104,14 @@ class ServerNode():
             outlet.setOpState(opState)
         return
     
+    def setControlOpState(self,opState):
+        ''' Set all the controls to a given opState
+        @param opState: The opState to set the control to
+        '''
+        for control in self.controls:
+            control.setOpState(opState)
+        return
+    
     def getNotOutletsOpState(self,opState):
         ''' Returns outlets that don't have a given opState
         @param opState:  
@@ -181,9 +189,10 @@ class ServerNode():
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
+        #TODO: Add controls here
         self.setOpState(ServerNodeOpState.SwitcingOn)
-        self.setOutletsOpState(ServerNodeOpState.SwitcingOn)
-        self.incrementStartAttempt()
+        self.setOutletsOpState(OutletOpState.SwitcingOn)
+        self.setControlOpState(ControllerOpState.SwitcingOn)
         
         nonWorkingOutlets = self.getNotOutletsOpState(OpState.OK)
         outletsFailList=[]
