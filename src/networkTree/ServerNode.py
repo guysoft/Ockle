@@ -45,7 +45,7 @@ class ServerNode():
         #self.setOutletsOpState(OutletOpState.INIT) #server state
         self.setOpState(ServerNodeOpState.INIT)
         self.startAttempts = 0 #reset startup attempts
-        #TODO add shutdown attempts when implementing shutdown
+        self.shutdownAttempts = 0 #reset stop attempts
         
         return
     
@@ -176,8 +176,15 @@ class ServerNode():
         ''' Increment the startup attempt counter
         @return: Number of startup attempts
         '''
-        self.startAttempts = self.startAttempts + 1
+        self.startAttempts += 1
         return self.startAttempts
+    
+    def incrementShutdownAttempt(self):
+        ''' Increment the stop attempt counter
+        @return: Number of shutdown attempts
+        '''
+        self.shutdownAttempts += 1
+        return self.shutdownAttempts
     
     def getStartAttempts(self):
         ''' Get number of startup attempts
@@ -206,35 +213,32 @@ class ServerNode():
         '''
         return self._getServerObjDataLog(self.getOutlets,"outlet")
     
-    def turnOn(self):
-        ''' Turn on the server outlets, and check if all services are in order
-        '''
-        self.incrementStartAttempt()
+    def serverObjSwitch(self,state,sillRunningCallback,objOpState,getNonWorkingObj):
+        nonWorkingObjs = getNonWorkingObj(OpState.OK)
+        failList=[]
+        while sillRunningCallback():
+            for obj in nonWorkingObjs:
+                if not obj.setState(state): 
+                    #Failed, set outlet and server state
+                    failList.append(obj)
+                    obj.setOpState(objOpState.failedToStart)
+                    self.setOpState(ServerNodeOpState.failedToStart)
+                else:
+                    #Failed, set obj state to ok
+                    obj.setOpState(objOpState.OK)
+                    #self.setOpState(ServerNodeOpState.O
+        time.sleep(float(MAX_STARTUP_TIME))
+        return failList
+    
+    def turnAction(self,incrementer):
+        incrementer()
         
-        #TODO: Add controls here
         self.setOpState(ServerNodeOpState.SwitcingOn)
         self.setOutletsOpState(OutletOpState.SwitcingOn)
         self.setControlOpState(ControllerOpState.SwitcingOn)
-       
-        def serverObjSwitchOn(sillRunningCallback,objOpState,getNonWorkingObj):
-            nonWorkingObjs = getNonWorkingObj(OpState.OK)
-            failList=[]
-            while sillRunningCallback():
-                for obj in nonWorkingObjs:
-                    if not obj.setState(True): 
-                        #Failed, set outlet and server state
-                        failList.append(obj)
-                        obj.setOpState(objOpState.failedToStart)
-                        self.setOpState(ServerNodeOpState.failedToStart)
-                    else:
-                        #Failed, set obj state to ok
-                        obj.setOpState(objOpState.OK)
-                        #self.setOpState(ServerNodeOpState.OK
-            time.sleep(float(MAX_STARTUP_TIME))
                 
-        outletsFailList  = serverObjSwitchOn(self.outletsStillStarting,OutletOpState,self.getNotOutletsOpState)
-        controlsFailList = serverObjSwitchOn(self.controlsStillStarting,ControllerOpState,self.getNotControlsOpState)          
-            
+        outletsFailList  = self.serverObjSwitch(True,self.outletsStillStarting,OutletOpState,self.getNotOutletsOpState)
+        controlsFailList = self.serverObjSwitch(True,self.controlsStillStarting,ControllerOpState,self.getNotControlsOpState)          
         
         testersFailedList = []
         for tester in self.getTests():
@@ -257,7 +261,12 @@ class ServerNode():
             self.turnOn()
         else:
             self.turnOff()
-            
+    
+    def turnOn(self):
+        ''' Turn on the server outlets, and check if all services are in order
+        '''
+        return self.turnAction(self.incrementStartAttempt)
+    
     def turnOff(self):
-        pass
+        return self.turnAction()
         
