@@ -246,7 +246,7 @@ class ServerNode():
         return failList
     
     def turnAction(self,incrementer,getActionAttempts,serverDestState,serverInterState,
-                   serverFailState,serverPermanentFailState,
+                   serverFailState,serverPermanentFailState,destObjState,
                    
                    outletDestState, outletInterState,outletFailState,
                    controllerDestState, controlInterState,controllerFailState,runTesters=True):
@@ -256,6 +256,7 @@ class ServerNode():
         @param serverInterState: The intermediate state of the server
         @param serverFailState: What server OpState is should be set if we fail on this action
         @param serverPermanentFailState: the permanent OpState of serverFailState
+        @param destObjState: The destination state for Server Objects
         @param outletDestState: The state the outlet would be set at the end of this action
         @param outletInterState: The outlet intermediate OpState
         @param outletFailState: The fail OpState of the outlet is this action has failed
@@ -269,9 +270,9 @@ class ServerNode():
         self.setOutletsOpState(outletInterState)
         self.setControlOpState(controlInterState)
                
-        outletsFailList  = self.serverObjSwitch(True,self.outletsStillStarting,serverFailState,
+        outletsFailList  = self.serverObjSwitch(destObjState,self.outletsStillStarting,serverFailState,
                                                 OutletOpState.OK,OutletOpState.failedToStart,self.getNotOutletsOpState)
-        controlsFailList = self.serverObjSwitch(True,self.controlsStillStarting,serverFailState,
+        controlsFailList = self.serverObjSwitch(destObjState,self.controlsStillStarting,serverFailState,
                                                 ControllerOpState.OK,ControllerOpState.failedToStart,self.getNotControlsOpState)          
         
         testersFailedList = []
@@ -280,6 +281,7 @@ class ServerNode():
                 tester.test()
                 if tester.getOpState() == TesterOpState.FAILED:
                     testersFailedList.append(tester)
+            
         
         if outletsFailList or testersFailedList or controlsFailList:
             #if we failed to start
@@ -289,7 +291,6 @@ class ServerNode():
                 self.setOpState(serverFailState)
         else:
             self.setOpState(serverDestState)
-            
         return
     
     def action(self,actionString):
@@ -303,7 +304,7 @@ class ServerNode():
         '''
         self.resetShutdownAttempts()
         return self.turnAction(self.incrementStartAttempt,self.getStartAttempts,ServerNodeOpState.OK,ServerNodeOpState.SwitcingOn,
-                               ServerNodeOpState.failedToStart,ServerNodeOpState.permanentlyFailedToStart,
+                               ServerNodeOpState.failedToStart,ServerNodeOpState.permanentlyFailedToStart, True,
                                
                                OutletOpState.OK,OutletOpState.SwitcingOn,OutletOpState.failedToStart,
                                ControllerOpState.OK,ControllerOpState.SwitchingOff,ControllerOpState.failedToStart,True)
@@ -311,7 +312,7 @@ class ServerNode():
     def turnOff(self):
         self.resetShutdownAttempts()
         return self.turnAction(self.incrementShutdownAttempt,self.getShutdownAttempts,ServerNodeOpState.OFF,ServerNodeOpState.SwitchingOff,
-                               ServerNodeOpState.failedToStop,ServerNodeOpState.permanentlyFailedToStop,
+                               ServerNodeOpState.failedToStop,ServerNodeOpState.permanentlyFailedToStop,False,
                                
                                OutletOpState.OFF,OutletOpState.SwitchingOff,OutletOpState.failedToStop,
                                ControllerOpState.OFF,OutletOpState.SwitchingOff,ControllerOpState.failedToStart,False)

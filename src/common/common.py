@@ -32,6 +32,7 @@ COLOR_DICT={
             -1:"black",
             "Did not initiate yet":"black",
             OpState.OK:"green",
+            OpState.OFF:"#969696",
            OpState.failedToStart:"orange",
            OpState.failedToStop:"yellow",
            OpState.SwitcingOn:"grey",

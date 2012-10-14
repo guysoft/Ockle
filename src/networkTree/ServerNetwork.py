@@ -114,29 +114,34 @@ class ServerNetwork():
         '''
         return self.getSortedNodeList()[0]
     
+    
     def isReadyToTurnOn(self,server):
+        return self.__isReadyAction(server,[ServerNodeOpState.permanentlyFailedToStart],self.getDependencies,ServerNodeOpState.OK)
+    
+    def __isReadyAction(self,server,autoFalseOpState,relationCallback,opStateRequiredFromParrent):
         ''' Check if a server dependencies are met and tests are met, and could be turned on
         @param serverName: the server's name 
+        @param autoFalseOpState: OpStates that are automatically considered false
         '''
         serverInstance = self.graph.node_attributes(server)
-        if serverInstance.getOpState() == ServerNodeOpState.permanentlyFailedToStart:
+        if serverInstance.getOpState() in autoFalseOpState:
             return False
-        parrentServersName = self.getDependencies(server)
+        
+        parrentServersName = relationCallback(server)
         for parrentServerName in parrentServersName:
             serverNode = self.graph.node_attributes(parrentServerName)
             #failedOutlets = serverNode.getNotOutletsState(OutletOpState.OK)
-            if serverNode.getOpState() != ServerNodeOpState.OK:
+            if serverNode.getOpState() != opStateRequiredFromParrent:
                 return False
             #failedTests = serverNode.getFailedTests()
             #if not self.isReadyToTurnOn(parrentServerName) or failedOutlets or failedTests:
             #    return False
-            if not self.isReadyToTurnOn(parrentServerName):
+            if not self.__isReadyAction(parrentServerName,autoFalseOpState,relationCallback,opStateRequiredFromParrent):
                 return False
         return True
     
     def isReadyToTurnOff(self,server):
-        #TODO: Write this to finish shutdown sequence
-        return False
+        return self.__isReadyAction(server,[ServerNodeOpState.permanentlyFailedToStop],self.getDependent,ServerNodeOpState.OFF)
     
     def getDependencies(self,server):
         '''
@@ -144,6 +149,13 @@ class ServerNetwork():
         @param server: the server name
         '''
         return self.graph.reverse().neighbors(server)
+    
+    def getDependent(self,server):
+        '''
+        Get a list of servers that are dependent on this server
+        @param server: the server name
+        '''
+        return self.graph.neighbors(server)
     
     def turningOn(self):
         '''
@@ -160,7 +172,6 @@ class ServerNetwork():
         @param serverName: The name of the server node
         @return: The server node
         '''
-        print serverName
         return self.graph.node_attributes(serverName)
         
     def isAllOpState(self,opState):
@@ -177,3 +188,9 @@ class ServerNetwork():
         @param serverName: The server name
         '''
         return self.getServer(serverName).turnOn()
+    
+    def turnOffServer(self,serverName):
+        ''' Turn a server off by name
+        @param serverName: The server name
+        '''
+        return self.getServer(serverName).turnOff()

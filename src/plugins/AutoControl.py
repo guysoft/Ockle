@@ -111,6 +111,13 @@ class AutoControl(ModuleTemplate):
         t1 = FuncThread(self.turnOnSequence)
         t1.start()
         t1.join()
+        print "SHUTTING DOWN!!!!!!!!!!!!!!!!!!!!!"
+        print self.getWorkers()
+        time.sleep(1)
+        self.setEnabled(True)
+        t1 = FuncThread(self.turnOffSequence)
+        t1.start()
+        t1.join() 
                         
         '''
         
@@ -148,7 +155,9 @@ class AutoControl(ModuleTemplate):
         first = True
         attemptsToTurnOn=0#counter to count how many iterations went without turning something on
         #go in the loop and stay until we don't have any servers that are in intermediate states
-        while (first or self.mainDaemon.servers.turningOn()) and self.isEnabled():
+        
+        #TODO: make a better while condition
+        while (first or self.mainDaemon.servers.turningOn()) and self.isEnabled() or self.isEnabled() and action == "off":
             attemptsToTurnOn+=1
             first = False
             for server in self.mainDaemon.servers.getSortedNodeList():
@@ -157,7 +166,7 @@ class AutoControl(ModuleTemplate):
                 #Have we reached an end state?
                 destOpStates = destOpStates + [goalOpState]
                 if server.getOpState() in destOpStates:
-                        pass
+                    pass
                 elif isReadyCallback(serverName) and (not self.isWorker(serverName)):
                     self.debug("Turning "+ action +" " + serverName)
                     
@@ -165,20 +174,20 @@ class AutoControl(ModuleTemplate):
                     if action =="on":
                         self.addWorker(serverName,server.turnOn)
                     elif action == "off":
-                        self.addWorker(serverName,server.turnOff)                    
+                        self.addWorker(serverName,server.turnOff) 
                     #self.addWorker(serverName,server.turnOn)
                     attemptsToTurnOn = 0
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
             self.cleanDoneWorkers()
             
+            
             #Turn off loop
             if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS) or self.mainDaemon.servers.isAllOpState(goalOpState):
                 self.setEnabled(False)
                 self.waitForWorkers()
-                
             time.sleep(float(self.WAIT_TIME))
-            
+            self.waitForWorkers()
             self.runningState = "standby"
         return
     
