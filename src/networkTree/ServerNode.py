@@ -159,7 +159,8 @@ class ServerNode():
         Return true if any outlet is still on SwitcingOn OpState
         '''
         for outlet in self.getOutlets():
-            if outlet.getOpState() == OutletOpState.SwitcingOn:
+            interDict = [OutletOpState.SwitcingOn,OutletOpState.SwitchingOff]
+            if outlet.getOpState() in interDict:
                 return True
         return False
     
@@ -168,7 +169,8 @@ class ServerNode():
         Return true if any control is still on SwitcingOn OpState
         '''
         for control in self.getControls():
-            if control.getOpState() == ControllerOpState.SwitcingOn:
+            interDict = [ControllerOpState.SwitcingOn,ControllerOpState.SwitchingOff]
+            if control.getOpState() in  interDict:
                 return True
         return False
     
@@ -239,6 +241,7 @@ class ServerNode():
                     obj.setOpState(failState)
                     self.setOpState(serverFailState)
                 else:
+                    print "obj " +str(obj.getName()) +" to " + str(state)
                     #Failed, set obj state to ok
                     obj.setOpState(destState)
                     #self.setOpState(ServerNodeOpState.O
@@ -271,9 +274,9 @@ class ServerNode():
         self.setControlOpState(controlInterState)
                
         outletsFailList  = self.serverObjSwitch(destObjState,self.outletsStillStarting,serverFailState,
-                                                OutletOpState.OK,OutletOpState.failedToStart,self.getNotOutletsOpState)
+                                                outletDestState,outletFailState,self.getNotOutletsOpState)
         controlsFailList = self.serverObjSwitch(destObjState,self.controlsStillStarting,serverFailState,
-                                                ControllerOpState.OK,ControllerOpState.failedToStart,self.getNotControlsOpState)          
+                                                controllerDestState,controllerFailState,self.getNotControlsOpState)          
         
         testersFailedList = []
         if runTesters:
