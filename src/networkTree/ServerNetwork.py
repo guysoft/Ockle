@@ -55,6 +55,14 @@ class ServerNetwork():
             raise Exceptions.DependencyException(cycleCheck,"There was a cycle in the server network")
         return
     
+    def removeDependency(self,server,dependency):
+        ''' Remove a dependency from a server
+        @param server: the name of the server
+        @param dependency: the name of the server the former is dependent on  
+        '''
+        self.graph.del_edge(((dependency,server))) #Note this is a turple casting
+        return
+    
     def allOff(self):
         '''Turn all servers off ungracefully
         '''
@@ -128,7 +136,7 @@ class ServerNetwork():
     
     def isReadyToTurnOff(self,server):
         #TODO: Write this to finish shutdown sequence
-        reutnr False
+        return False
     
     def getDependencies(self,server):
         '''

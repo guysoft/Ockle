@@ -55,7 +55,7 @@ class ModuleTemplate(Thread):
     #Add here things that we want all plugins to have access to
     
     
-    def getServerDependencyMap(self,serverName):   
+    def _getServerDependencyMap(self,serverName):   
         factory = ServerNetworkFactory(self.mainDaemon)
         serversNetwork=factory.buildNetwork(self.mainDaemon.ETC_DIR)
         
@@ -75,4 +75,9 @@ class ModuleTemplate(Thread):
                 except AdditionError:
                     #Happens if dependency already exists
                     returnValue['existing'][possibleServer] = returnValue['available'].pop(possibleServer)
+                try:
+                    serversNetwork.removeDependency( possibleServer,serverName )
+                except ValueError:
+                    pass
+        
         return returnValue

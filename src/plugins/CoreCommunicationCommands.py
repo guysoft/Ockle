@@ -168,7 +168,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         @param server: The current server we are looking at
         @return: A dict with the keys available, disabled and existing according to what is possible. The disabled value is the cycle caused by the dependency
         '''
-        return {"dependencyMap": json.dumps(self.getServerDependencyMap(serverName))}
+        return {"dependencyMap": json.dumps(self._getServerDependencyMap(serverName))}
          
     
     def run(self):
@@ -184,7 +184,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerControls",lambda dataDict: self.getAvailableServerControls(dataDict["server"]))
-        self.mainDaemon.communicationHandler.AddCommandToList("getServerDependencyMap",lambda dataDict: self._getServerDependencyMap(dataDict["server"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("getServerDependencyMap",lambda dataDict: self.getServerDependencyMap(dataDict["server"]))
         return 
 
 if __name__ == "__main__":

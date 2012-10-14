@@ -521,10 +521,12 @@ def server_create_view(request):
     
     INIFileDict['server']["tests"] =[]
     INIFileDict['server']["outlets"] =[]
+    INIFileDict['server']["controls"] =[]
     INIFileDict['server']["dependencies"] =[]
     
     multiListChoices = _makeMultichoice("server","tests",lambda: {},INIFileDict)
     multiListChoices = _makeMultichoice("server","outlets",lambda: {},INIFileDict,multiListChoices)
+    multiListChoices = _makeMultichoice("server","controls",lambda: {},INIFileDict,multiListChoices)
     multiListChoices = _makeMultichoice("server","dependencies",lambda: {},INIFileDict,multiListChoices)
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
