@@ -47,7 +47,7 @@ class AutoControl(ModuleTemplate):
         #list of worker threads
         self.workers=[]
         
-        self.setEnabled(True)
+        self.setEnabled(False)
         
         #Add variable to all server Nodes
         for server in self.mainDaemon.servers.getSortedNodeList():
@@ -114,7 +114,6 @@ class AutoControl(ModuleTemplate):
         print "SHUTTING DOWN!!!!!!!!!!!!!!!!!!!!!"
         print self.getWorkers()
         time.sleep(1)
-        self.setEnabled(True)
         t1 = FuncThread(self.turnOffSequence)
         t1.start()
         t1.join() 
@@ -140,7 +139,6 @@ class AutoControl(ModuleTemplate):
         return self.actionSquence("on",self.mainDaemon.servers.turnOnServer,self.mainDaemon.servers.isReadyToTurnOn,destOpStates,ServerNodeOpState.OK)
 
     def turnOffSequence(self):
-        #TODO: write server network functions, IMPORTANT
         destOpStates = [ServerNodeOpState.failedToStop,ServerNodeOpState.SwitcingOn,ServerNodeOpState.SwitchingOff]
         return self.actionSquence("off",self.mainDaemon.servers.turnOffServer,self.mainDaemon.servers.isReadyToTurnOff,destOpStates,ServerNodeOpState.OFF)
     
@@ -151,7 +149,14 @@ class AutoControl(ModuleTemplate):
         @param isReadyCallback: callback to check if we are ready to turn on/off
         @param destOpStates: List of server OpStates that we don't need to run the action on
         @param actionCallback: The action to be performed, takes in the sewer name as a variable
+        @return: False if we are already running, True if ran
         '''
+        
+        if self.isEnabled():
+            return False
+        else:
+            self.setEnabled(True)
+        
         first = True
         attemptsToTurnOn=0#counter to count how many iterations went without turning something on
         #go in the loop and stay until we don't have any servers that are in intermediate states
@@ -189,7 +194,7 @@ class AutoControl(ModuleTemplate):
             time.sleep(float(self.WAIT_TIME))
             self.waitForWorkers()
             self.runningState = "standby"
-        return
+        return True
     
     def getAutoControlStatus(self,dataDict):
         ''' Check if Auto Control is on from the network
