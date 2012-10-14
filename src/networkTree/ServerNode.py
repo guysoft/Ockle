@@ -44,8 +44,8 @@ class ServerNode():
         self.controls = controls #list of controllers to control the server dirctly
         #self.setOutletsOpState(OutletOpState.INIT) #server state
         self.setOpState(ServerNodeOpState.INIT)
-        self.startAttempts = 0 #reset startup attempts
-        self.shutdownAttempts = 0 #reset stop attempts
+        self.resetStartAttempt()
+        self.resetShutdownAttempts()
         
         return
     
@@ -172,6 +172,14 @@ class ServerNode():
                 return True
         return False
     
+    def resetStartAttempt(self):
+        self.startAttempts = 0
+        return
+    
+    def resetShutdownAttempts(self):
+        self.shutdownAttempts = 0
+        return
+    
     def incrementStartAttempt(self):
         ''' Increment the startup attempt counter
         @return: Number of startup attempts
@@ -191,6 +199,12 @@ class ServerNode():
         @return: Number of startup attempts
         '''
         return self.startAttempts
+    
+    def getShutdownAttempts(self):
+        ''' Get number of shutdown attempts
+        @return: Number of shutdown attempts
+        '''
+        return self.shutdownAttempts
     
     def _getServerObjDataLog(self,objCallback,objName):
         ''' get server object data that we can store in the db log
@@ -213,46 +227,68 @@ class ServerNode():
         '''
         return self._getServerObjDataLog(self.getOutlets,"outlet")
     
-    def serverObjSwitch(self,state,sillRunningCallback,objOpState,getNonWorkingObj):
-        nonWorkingObjs = getNonWorkingObj(OpState.OK)
+    def serverObjSwitch(self,state,sillRunningCallback,serverFailState,
+                        destState,failState,getNonWorkingObj):
+        nonWorkingObjs = getNonWorkingObj(destState)
         failList=[]
         while sillRunningCallback():
             for obj in nonWorkingObjs:
                 if not obj.setState(state): 
                     #Failed, set outlet and server state
                     failList.append(obj)
-                    obj.setOpState(objOpState.failedToStart)
-                    self.setOpState(ServerNodeOpState.failedToStart)
+                    obj.setOpState(failState)
+                    self.setOpState(serverFailState)
                 else:
                     #Failed, set obj state to ok
-                    obj.setOpState(objOpState.OK)
+                    obj.setOpState(destState)
                     #self.setOpState(ServerNodeOpState.O
         time.sleep(float(MAX_STARTUP_TIME))
         return failList
     
-    def turnAction(self,incrementer):
+    def turnAction(self,incrementer,getActionAttempts,serverDestState,serverInterState,
+                   serverFailState,serverPermanentFailState,
+                   
+                   outletDestState, outletInterState,outletFailState,
+                   controllerDestState, controlInterState,controllerFailState,runTesters=True):
+        ''' Run an action to turn on or off the server
+        @param incrementer: Used to increment the attempts at the action
+        @param serverDestState: The destination opState of the server
+        @param serverInterState: The intermediate state of the server
+        @param serverFailState: What server OpState is should be set if we fail on this action
+        @param serverPermanentFailState: the permanent OpState of serverFailState
+        @param outletDestState: The state the outlet would be set at the end of this action
+        @param outletInterState: The outlet intermediate OpState
+        @param outletFailState: The fail OpState of the outlet is this action has failed
+        @param controllerDestState: The OpState the control would be set at the end of this action
+        @param controlInterState: The control intermediate OpState
+        @param controllerFailState: The fail OpState of the control is this action has failed
+        '''
         incrementer()
         
-        self.setOpState(ServerNodeOpState.SwitcingOn)
-        self.setOutletsOpState(OutletOpState.SwitcingOn)
-        self.setControlOpState(ControllerOpState.SwitcingOn)
-                
-        outletsFailList  = self.serverObjSwitch(True,self.outletsStillStarting,OutletOpState,self.getNotOutletsOpState)
-        controlsFailList = self.serverObjSwitch(True,self.controlsStillStarting,ControllerOpState,self.getNotControlsOpState)          
+        self.setOpState(serverInterState)
+        self.setOutletsOpState(outletInterState)
+        self.setControlOpState(controlInterState)
+               
+        outletsFailList  = self.serverObjSwitch(True,self.outletsStillStarting,serverFailState,
+                                                OutletOpState.OK,OutletOpState.failedToStart,self.getNotOutletsOpState)
+        controlsFailList = self.serverObjSwitch(True,self.controlsStillStarting,serverFailState,
+                                                ControllerOpState.OK,ControllerOpState.failedToStart,self.getNotControlsOpState)          
         
         testersFailedList = []
-        for tester in self.getTests():
-            tester.test()
-            if tester.getOpState() == TesterOpState.FAILED:
-                testersFailedList.append(tester)
+        if runTesters:
+            for tester in self.getTests():
+                tester.test()
+                if tester.getOpState() == TesterOpState.FAILED:
+                    testersFailedList.append(tester)
+        
         if outletsFailList or testersFailedList or controlsFailList:
             #if we failed to start
-            if MAX_ATTEMPTS != 0 and self.getStartAttempts() >= MAX_ATTEMPTS :
-                self.setOpState(ServerNodeOpState.permanentlyFailedToStart)
+            if MAX_ATTEMPTS != 0 and getActionAttempts() >= MAX_ATTEMPTS :
+                self.setOpState(serverPermanentFailState)
             else:
-                self.setOpState(ServerNodeOpState.failedToStart)
+                self.setOpState(serverFailState)
         else:
-            self.setOpState(ServerNodeOpState.OK)
+            self.setOpState(serverDestState)
             
         return
     
@@ -265,8 +301,18 @@ class ServerNode():
     def turnOn(self):
         ''' Turn on the server outlets, and check if all services are in order
         '''
-        return self.turnAction(self.incrementStartAttempt)
+        self.resetShutdownAttempts()
+        return self.turnAction(self.incrementStartAttempt,self.getStartAttempts,ServerNodeOpState.OK,ServerNodeOpState.SwitcingOn,
+                               ServerNodeOpState.failedToStart,ServerNodeOpState.permanentlyFailedToStart,
+                               
+                               OutletOpState.OK,OutletOpState.SwitcingOn,OutletOpState.failedToStart,
+                               ControllerOpState.OK,ControllerOpState.SwitchingOff,ControllerOpState.failedToStart,True)
     
     def turnOff(self):
-        return self.turnAction()
+        self.resetShutdownAttempts()
+        return self.turnAction(self.incrementShutdownAttempt,self.getShutdownAttempts,ServerNodeOpState.OFF,ServerNodeOpState.SwitchingOff,
+                               ServerNodeOpState.failedToStop,ServerNodeOpState.permanentlyFailedToStop,
+                               
+                               OutletOpState.OFF,OutletOpState.SwitchingOff,OutletOpState.failedToStop,
+                               ControllerOpState.OFF,OutletOpState.SwitchingOff,ControllerOpState.failedToStart,False)
         

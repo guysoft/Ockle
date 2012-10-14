@@ -24,6 +24,7 @@ class OpState:
     SwitcingOn = "Switching on"
     SwitchingOff = "Switching off"
     permanentlyFailedToStart="Permanently failed to start"
+    permanentlyFailedToStop="Permanently failed to Stop"
     forcedOn="Forced on"
     forcedOff="Forced off"
 
@@ -36,6 +37,7 @@ COLOR_DICT={
            OpState.SwitcingOn:"grey",
            OpState.SwitchingOff:"blue",
            OpState.permanentlyFailedToStart:"red",
+           OpState.permanentlyFailedToStop:"darkred",
            }
     
 

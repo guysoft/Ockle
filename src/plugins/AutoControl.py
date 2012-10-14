@@ -55,8 +55,10 @@ class AutoControl(ModuleTemplate):
             server.desiredOpState=ServerNodeOpState.OK
         
         #Communication commands
-        self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",lambda dataDict: self.getAutoControlStatus(dataDict))
-        self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",
+                                                              lambda dataDict: self.getAutoControlStatus(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",
+                                                              lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))
         return
     
     def getWorkers(self):
@@ -145,7 +147,8 @@ class AutoControl(ModuleTemplate):
         '''
         first = True
         attemptsToTurnOn=0#counter to count how many iterations went without turning something on
-        while (first or self.mainDaemon.servers.turningOn()) and self.isEnabled():#go in the loop and stay until we don't have any servers that are in intermediate states
+        #go in the loop and stay until we don't have any servers that are in intermediate states
+        while (first or self.mainDaemon.servers.turningOn()) and self.isEnabled():
             attemptsToTurnOn+=1
             first = False
             for server in self.mainDaemon.servers.getSortedNodeList():

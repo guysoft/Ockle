@@ -126,6 +126,10 @@ class ServerNetwork():
                 return False
         return True
     
+    def isReadyToTurnOff(self,server):
+        #TODO: Write this to finish shutdown sequence
+        reutnr False
+    
     def getDependencies(self,server):
         '''
         Get a list of servers a given server is dependent on (only one level)
