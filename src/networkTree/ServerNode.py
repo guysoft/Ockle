@@ -255,8 +255,9 @@ class ServerNode():
                    serverFailState,serverPermanentFailState,destObjState,
                    
                    outletDestState, outletInterState,outletFailState,
-                   controllerDestState, controlInterState,controllerFailState,runTesters=True):
+                   controllerDestState, controlInterState,controllerFailState,runTesters=True,ignoreDeps=False):
         ''' Run an action to turn on or off the server
+        @param ignoreDeps: Should we ignore failures
         @param incrementer: Used to increment the attempts at the action
         @param serverDestState: The destination opState of the server
         @param serverInterState: The intermediate state of the server
@@ -282,30 +283,32 @@ class ServerNode():
                                                 controllerDestState,controllerFailState,self.getNotControlsOpState)          
         
         testersFailedList = []
-        if runTesters:
+        if runTesters and not ignoreDeps:
             for tester in self.getTests():
                 tester.test()
                 if tester.getOpState() == TesterOpState.FAILED:
                     testersFailedList.append(tester)
             
-        
-        if outletsFailList or testersFailedList or controlsFailList:
-            #if we failed to start
-            if MAX_ATTEMPTS != 0 and getActionAttempts() >= MAX_ATTEMPTS :
-                self.setOpState(serverPermanentFailState)
+        if not ignoreDeps:
+            if outletsFailList or testersFailedList or controlsFailList:
+                #if we failed to start
+                if MAX_ATTEMPTS != 0 and getActionAttempts() >= MAX_ATTEMPTS :
+                    self.setOpState(serverPermanentFailState)
+                else:
+                    self.setOpState(serverFailState)
             else:
-                self.setOpState(serverFailState)
+                self.setOpState(serverDestState)
         else:
             self.setOpState(serverDestState)
         return
     
-    def action(self,actionString):
+    def action(self,actionString,ignoreDeps=False):
         if actionString == "on":
-            self.turnOn()
+            self.turnOn(ignoreDeps)
         else:
-            self.turnOff()
+            self.turnOff(ignoreDeps)
     
-    def turnOn(self):
+    def turnOn(self,ignoreDeps=False):
         ''' Turn on the server outlets, and check if all services are in order
         '''
         self.resetShutdownAttempts()
@@ -313,13 +316,15 @@ class ServerNode():
                                ServerNodeOpState.failedToStart,ServerNodeOpState.permanentlyFailedToStart, True,
                                
                                OutletOpState.OK,OutletOpState.SwitcingOn,OutletOpState.failedToStart,
-                               ControllerOpState.OK,ControllerOpState.SwitchingOff,ControllerOpState.failedToStart,True)
+                               ControllerOpState.OK,ControllerOpState.SwitchingOff,ControllerOpState.failedToStart,True,
+                               ignoreDeps)
     
-    def turnOff(self):
+    def turnOff(self,ignoreDeps=False):
         self.resetShutdownAttempts()
         return self.turnAction(self.incrementShutdownAttempt,self.getShutdownAttempts,ServerNodeOpState.OFF,ServerNodeOpState.SwitchingOff,
                                ServerNodeOpState.failedToStop,ServerNodeOpState.permanentlyFailedToStop,False,
                                
                                OutletOpState.OFF,OutletOpState.SwitchingOff,OutletOpState.failedToStop,
-                               ControllerOpState.OFF,OutletOpState.SwitchingOff,ControllerOpState.failedToStart,False)
+                               ControllerOpState.OFF,OutletOpState.SwitchingOff,ControllerOpState.failedToStart,False,
+                               ignoreDeps)
         

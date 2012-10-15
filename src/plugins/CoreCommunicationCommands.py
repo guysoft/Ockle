@@ -15,6 +15,7 @@ from common.common import iniToDict
 
 from collections import OrderedDict
 
+from networkTree.ServerNode import ServerNodeOpState
 from outlets.OutletTemplate import OutletOpState
 from controllers.ControllerTemplate import ControllerOpState
 
@@ -89,6 +90,24 @@ class CoreCommunicationCommands(ModuleTemplate):
                 "tests" : json.dumps(tests),
                 "StartAttempts" : server.getStartAttempts()
                 }
+    
+    def setServer(self,dataDict):
+        ''' Swtich sever status
+        @param dataDict: A dict with an entry for server and state
+        @return: The opStatus of the server
+        '''
+        serverName = dataDict["server"]
+        
+        serverState = dataDict["state"] == "on" 
+        
+        server = self.mainDaemon.servers.getServer(serverName)
+        server.action(dataDict["state"])
+        
+        if serverState:
+            server.setOpState(ServerNodeOpState.forcedOn)
+        else:
+            server.setOpState(ServerNodeOpState.forcedOff)
+        return {"status" : server.getOpState()}
     
     def switchOutlet(self,dataDict):
         ''' Swtich an outlet on or off
@@ -187,6 +206,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("getTesterDict",lambda dataDict: self.getTesterDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getControllerDict",lambda dataDict: self.getControllerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDict",lambda dataDict: self.getServerDict())
+        self.mainDaemon.communicationHandler.AddCommandToList("setServer",lambda dataDict: self.setServer(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("switchControl",lambda dataDict: self.switchControl(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("runTest",lambda dataDict: self.runTest(dataDict))

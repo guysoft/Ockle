@@ -13,6 +13,7 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client import ClientCalls
 from ockle_client.ClientCalls import getServerTree
+from ockle_client.ClientCalls import setServer
 from ockle_client.ClientCalls import switchOutlet
 from ockle_client.ClientCalls import switchControl
 from ockle_client.ClientCalls import runTest
@@ -45,6 +46,7 @@ from ockle_client.ClientCalls import getServerDependencyMap
 from ockle_client.ClientCalls import serversDependent
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
+from networkTree.ServerNode import ServerNodeOpState
 from common.common import sortDict
 from common.common import slicedict
 from common.common import getINIFolderTemplate
@@ -118,7 +120,8 @@ def server_info_view(request):
         
         #Set the on/of switch
         serverDict["Switch"]=""
-        if serverDict["OpState"] ==  str(OpState.OK) or serverDict["OpState"] == str(OpState.SwitchingOff):
+        onStates = [str(ServerNodeOpState.OK),str(ServerNodeOpState.SwitchingOff),str(ServerNodeOpState.forcedOn)]
+        if serverDict["OpState"] in  onStates:
             serverDict["Switch"]="on"
         else:
             serverDict["Switch"]="off"
@@ -1065,6 +1068,9 @@ def sendOckleCommand(request):
             
     if command == "deleteObject":
         return deleteObject(dataDict)
+    
+    if command == "setServer":
+        return setServer(dataDict)
     
     if command == "switchOutlet":
         return switchOutlet(dataDict)

@@ -259,6 +259,9 @@ def getControllerFolder():
 def getServerFolder():
     return loadINIFileConfig("config.ini")['main']['server_dir']
 
+def setServer(dataDict):
+    return getDataFromServer("setServer",dataDict)
+
 def switchOutlet(dataDict):
     return getDataFromServer("switchOutlet",dataDict)
 

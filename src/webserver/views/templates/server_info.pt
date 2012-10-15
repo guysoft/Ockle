@@ -71,8 +71,31 @@
 		}
 		});
 		
-		function setServer(){
-		serverName = "${server_dict['Name']}";
+		function setServer(state){
+			$('#status_server').show();
+			serverName = "${server_dict['Name']}";
+			
+			if (state){
+				state = "on";
+			} else {
+				state = "off";
+			}
+
+		$.ajax({
+	        'type': 'POST',
+	        'url': "/sendOckleCommand.json",
+	        'contentType': 'application/json',
+	        'data': JSON.stringify({"command": "setServer",
+			"dataDict" : {"server": serverName,
+						  "state" : state
+			}}),
+	        'dataType': 'json',
+	        'success': function(response){
+	        	$('#status_server').hide();
+	        	$('#info_server').html((response["status"]));
+
+			}
+	    });
 		}
 		
 		function setServerObjSwitch(obj,serverObjDict,ockleCommand){
