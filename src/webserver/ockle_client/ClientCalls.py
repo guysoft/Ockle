@@ -264,3 +264,6 @@ def switchOutlet(dataDict):
 
 def switchControl(dataDict):
     return getDataFromServer("switchControl",dataDict)
+
+def runTest(dataDict):
+    return getDataFromServer("runTest",dataDict)

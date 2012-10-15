@@ -1,0 +1,56 @@
+/** Switches **/
+/* Server big switch */
+.iCheckbox_two_container {
+	height:27px;
+	width:94px;
+	position: relative;
+	overflow: hidden;
+}
+.iCheckbox_two_switch {
+	height:27px;
+	width:94px;
+	background-image:url(/static/iPhoneCheckbox/images/iphone_switch.png); /* your actual slider image */
+	background-repeat:none;
+	background-position:0px;
+}
+.iCheckbox_two_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
+}
+
+/* Outlet/Control switches */
+   .iCheckbox_Outlet_container {
+           height:27px;
+           width:94px;
+           position: relative;
+           overflow: hidden;
+   }
+   .iCheckbox_Outlet_switch {
+           height:16px;
+           width:36px;
+           background-image:url(/static/iPhoneCheckbox/images/bpm-lozenge.png); /* your actual slider image */
+           background-repeat:none;
+           background-position:0px;
+   }
+   .iCheckbox_Outlet_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
+   }
+   
+   
+   
+td{
+	height:50px;
+}
+   
+.styled-button
+{
+	 border: solid 1px #85b1de;
+	 background-image: url( '/static/forms/blue_bg.png' );
+	 background-repeat: repeat-x;
+	 background-position: top;
+	 
+		font-family: Arial, Sans-Serif;
+	 font-size: 13px;
+	 margin-bottom: 5px;
+	 margin-right: 5px;
+	 /* display: block; */
+	 padding: 4px;
+	 width: 70px;
+}

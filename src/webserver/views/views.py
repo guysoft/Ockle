@@ -15,6 +15,7 @@ from ockle_client import ClientCalls
 from ockle_client.ClientCalls import getServerTree
 from ockle_client.ClientCalls import switchOutlet
 from ockle_client.ClientCalls import switchControl
+from ockle_client.ClientCalls import runTest
 from ockle_client.ClientCalls import getServerView
 from ockle_client.ClientCalls import getAutoControlStatus
 from ockle_client.ClientCalls import setAutoControlStatus
@@ -1066,10 +1067,13 @@ def sendOckleCommand(request):
         return deleteObject(dataDict)
     
     if command == "switchOutlet":
-        switchOutlet(dataDict)
+        return switchOutlet(dataDict)
         
     if command == "switchControl":
-        switchControl(dataDict)
+        return switchControl(dataDict)
+    
+    if command == "runTest":
+        return runTest(dataDict)
     
     if command == "setAutoControlStatus":
         return setAutoControlStatus(dataDict)

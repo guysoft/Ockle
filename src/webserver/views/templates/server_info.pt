@@ -5,46 +5,11 @@
 
 
 	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-	<style type="text/css">
-	
-	/* Server big switch */
-	.iCheckbox_two_container {
-		height:27px;
-		width:94px;
-		position: relative;
-		overflow: hidden;
-	}
-	.iCheckbox_two_switch {
-		height:27px;
-		width:94px;
-		background-image:url(/static/iPhoneCheckbox/images/iphone_switch.png); /* your actual slider image */
-		background-repeat:none;
-		background-position:0px;
-	}
-	.iCheckbox_two_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
-	}
-	
-	/* Outlet switches */
-    .iCheckbox_Outlet_container {
-            height:27px;
-            width:94px;
-            position: relative;
-            overflow: hidden;
-    }
-    .iCheckbox_Outlet_switch {
-            height:16px;
-            width:36px;
-            background-image:url(/static/iPhoneCheckbox/images/bpm-lozenge.png); /* your actual slider image */
-            background-repeat:none;
-            background-position:0px;
-    }
-    .iCheckbox_Outlet_checkbox { /* this is kinda moot since it gets hidden, but here to let you know it exists */
-    }
-	</style>
 	
 	
 	<script src="/static/iPhoneCheckbox/jquery.iphone-switch.js" type="text/javascript"></script>
-
+	<link rel="stylesheet" type="text/css" href="/static/info_pages/style.css" />
+	
 	<script src="/static/iPhoneCheckbox/jquery.iCheckbox.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	// mimic console log for IE - must be careful what to log
@@ -95,13 +60,20 @@
 
 		
 		var initial_state = "${server_dict['Switch']}";
+		var first=true;
 		var initial_state_outlet = "${server_dict['Switch']}";
 		$('#serverCheckbox').iCheckbox(initial_state, ServerCheckboxOpts );
 		$('#serverCheckbox').change(function(e){
-			if ( $('#serverCheckbox').attr('checked') == true ) {
-				console.log('checkbox two checked: '+$(e.target).attr('checked'));
-			}
+		if (first){
+			first = false;
+		} else {
+			setServer($('#serverCheckbox').attr('checked'));
+		}
 		});
+		
+		function setServer(){
+		serverName = "${server_dict['Name']}";
+		}
 		
 		function setServerObjSwitch(obj,serverObjDict,ockleCommand){
 			for(var outletKey in serverObjDict){
@@ -116,7 +88,7 @@
 						state = document.getElementById(outletID).checked;
 						
 						$('#' + obj +'status_'+ currentOutlet).show();
-						switchServerobj(currentOutlet,serverObjDict,outletID,state,ockleCommand,obj);
+						switchServerobj(currentOutlet,serverObjDict,state,ockleCommand,obj);
 					
 					}
 	
@@ -140,7 +112,7 @@
 		setServerObjButton("test",testsDict);
 	});
 	
-	function switchServerobj(outlet,objDict,elementID,state,ockleCommand,objType){
+	function switchServerobj(outlet,objDict,state,ockleCommand,objType){
 		serverName = "${server_dict['Name']}";
 		//alert(outlet +  state + serverName);
 		if (state){
@@ -161,10 +133,31 @@
 	        'dataType': 'json',
 	        'success': function(response){
 	        	$('#status_'+ outlet).hide();
+	        	$('#info_' + outlet).html((response["status"]));
 
 			}
 	    });
 
+	}
+	
+	function buttonServerobj(test,objDict,ockleCommand,objType){
+		serverName = "${server_dict['Name']}";
+		
+		$.ajax({
+	        'type': 'POST',
+	        'url': "/sendOckleCommand.json",
+	        'contentType': 'application/json',
+	        'data': JSON.stringify({"command": ockleCommand,
+			"dataDict" : {"server": serverName,
+				"obj" : 	objDict[test]["name"]
+			}}),
+	        'dataType': 'json',
+	        'success': function(response){
+	        	$('#status_'+ test).hide();
+	        	$('#info_' + test).html((response["status"]));
+
+			}
+	    });
 	}
 	</script>
 
@@ -181,27 +174,6 @@
 
 
     <div metal:fill-slot="content">
-    <style>
-    td{
-    height:50px;
-    }
-    
-        .styled-button
-        {
-		    border: solid 1px #85b1de;
-		    background-image: url( '/static/forms/blue_bg.png' );
-		    background-repeat: repeat-x;
-		    background-position: top;
-		    
-		   	font-family: Arial, Sans-Serif;
-		    font-size: 13px;
-		    margin-bottom: 5px;
-		    margin-right: 5px;
-		    /* display: block; */
-		    padding: 4px;
-		    width: 70px;
-        }
-    </style>
     
     <p style="float: right;"><a href="/server/${server_dict['Name']}/edit">Edit</a></p>
 		<table class="styled-table" align="center" style="width:90%;">
@@ -213,7 +185,7 @@
 			</tr>
 			<tr>
 		    <td colspan="2">
-		      Server Operation state: ${server_dict["OpState"]}
+		      Server Operation state: <span id="info_server">${server_dict["OpState"]}</span>
 		    </td>
 		    </tr>
 		    
@@ -224,7 +196,7 @@
 		      <div id="status_${outletVar}" style="float : right;"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 		      </td>
 		      <td>
-		      Operation state: ${outlets[outletVar]["OpState"]}
+		      Operation state: <span id="info_${outletVar}">${outlets[outletVar]["OpState"]}</span>
 		      </td>
 		    </tr>
 		    
@@ -235,18 +207,18 @@
 		      <div id="status_${controlVar}" style="float : right;"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 		      </td>
 		      <td>
-		      Operation state: ${controls[controlVar]["OpState"]}
+		      Operation state: <span id="info_${controlVar}">${controls[controlVar]["OpState"]}</span>
 		      </td>
 		    </tr>
 		    
 		<tr tal:condition="len(tests) > 0" class="styled-table-title"><td colspan="2">Tests</td></tr>
 			<tr tal:repeat="testVar tests">
 		      <td>
-		      ${tests[testVar]["name"]} <input type="button" id="button_${testVar}" value="Run" style="float:right;" class="styled-button"/>
+		      ${tests[testVar]["name"]} <input type="button" id="button_${testVar}" value="Run" style="float:right;" class="styled-button" onclick='javascript:buttonServerobj("${testVar}",testsDict,"runTest","test")' />
 		      <div id="status_${testVar}" style="float : right;"><img src="/static/ajax/ajax-smallloader.gif"/></div>
 		      </td>
 		      <td>
-		      Operation state: ${tests[testVar]["OpState"]}
+		      Operation state:<span id="info_${testVar}"> ${tests[testVar]["OpState"]}</span>
 		      </td>
 		    </tr>
 		</table>

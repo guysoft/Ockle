@@ -91,13 +91,10 @@ class CoreCommunicationCommands(ModuleTemplate):
                 }
     
     def switchOutlet(self,dataDict):
-        print dataDict
-        print "weeee"
         ''' Swtich an outlet on or off
         @param dataDict: A dict with an entry for server, outlet and state
-        @return: Empty dict for now
+        @return: The opStatus of the outlet
         '''
-        #TODO: return a success of failed state, so we can move the switch back up in the GUI if failed
         serverName = dataDict["server"]
         outletName = dataDict["obj"]
         
@@ -109,15 +106,14 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlet.setOpState(OutletOpState.forcedOn)
         else:
             outlet.setOpState(OutletOpState.forcedOff)
-        return {}
+        return {"status" : outlet.getOpState()}
     
     #TODO: remove repition: same as switchOutlet, but we need to change getOutletByName to something we can pass
     def switchControl(self,dataDict):
         ''' Swtich an outlet on or off
         @param dataDict: A dict with an entry for server, outlet and state
-        @return: Empty dict for now
+        @return: The opStatus of the control
         '''
-        #TODO: return a success of failed state, so we can move the switch back up in the GUI if failed
         serverName = dataDict["server"]
         outletName = dataDict["obj"]
         
@@ -129,7 +125,19 @@ class CoreCommunicationCommands(ModuleTemplate):
             outlet.setOpState(ControllerOpState.forcedOn)
         else:
             outlet.setOpState(ControllerOpState.forcedOff)
-        return {}
+        return {"status" : outlet.getOpState()}
+    
+    def runTest(self,dataDict):
+        ''' Run a test
+        @param dataDict: A dict with an entry for server, outlet and state
+        @return: Empty dict for now
+        '''
+        serverName = dataDict["server"]
+        testName = dataDict["obj"]
+        
+        test = self.mainDaemon.servers.getServer(serverName).getTestByName(testName)
+        test.test()
+        return {"status" : test.getOpState()}
     
     def _getAvailableServerObjs(self,server,obj):
         returnValue = OrderedDict()
@@ -181,6 +189,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDict",lambda dataDict: self.getServerDict())
         self.mainDaemon.communicationHandler.AddCommandToList("switchOutlet",lambda dataDict: self.switchOutlet(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("switchControl",lambda dataDict: self.switchControl(dataDict))
+        self.mainDaemon.communicationHandler.AddCommandToList("runTest",lambda dataDict: self.runTest(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerOutlets",lambda dataDict: self.getAvailableServerOutlets(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerControls",lambda dataDict: self.getAvailableServerControls(dataDict["server"]))

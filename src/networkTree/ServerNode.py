@@ -76,6 +76,9 @@ class ServerNode():
     def getControlByName(self,controlSearchName):
         return self.__getServerObjByName(controlSearchName,self.getControls())
     
+    def getTestByName(self,TestSearchName):
+        return self.__getServerObjByName(TestSearchName,self.getTests())
+    
     def __getServerObjByName(self,outletSearchName,objs):
         ''' Get an outlet from a server, None if does not exist
         '''
