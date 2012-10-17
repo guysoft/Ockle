@@ -16,26 +16,7 @@ from plugins.ModuleTemplate import ModuleTemplate
 from outlets.OutletTemplate import OutletOpState
 from networkTree.ServerNode import ServerNodeOpState
 
-
-
-import threading
- 
-class FuncThread(threading.Thread):
-    '''
-    A class to make functions threadable
-    '''
-    def __init__(self, target, *args):
-        self._target = target
-        self._args = args
-        threading.Thread.__init__(self)
-        return
- 
-    def run(self):
-        self._target(*self._args)
-        return
-
-ID=0
-THREAD=1
+from common.workerEngine import workerEngine
 
 class AutoControl(ModuleTemplate):
     ''' Automatic on/off Control of servers'''
@@ -43,9 +24,6 @@ class AutoControl(ModuleTemplate):
         ModuleTemplate.__init__(self,MainDaemon)
         self.WAIT_TIME = self.getConfigVar("WAIT_TIME")
         self.MAX_START_ATTEPMTS = self.getConfigVar("MAX_START_ATTEPMTS")
-        
-        #list of worker threads
-        self.workers=[]
         
         self.setEnabled(False)
         
@@ -59,42 +37,9 @@ class AutoControl(ModuleTemplate):
                                                               lambda dataDict: self.getAutoControlStatus(dataDict))
         self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",
                                                               lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))
+        
+        self.workers = workerEngine()
         return
-    
-    def getWorkers(self):
-        return self.workers
-      
-    def addWorker(self,workerID,func):
-        ''' Add a worker thread
-        @param workerID: A unique string for the worker, usually the server name
-        @param func: A function to work on
-        @return: the thread, if needed
-        '''
-        t = FuncThread(func)
-        self.workers.append((workerID,t))
-        t.start()
-        return t
-    
-    def isWorker(self,workerID):
-        for worker in self.getWorkers():
-            if worker[ID] == workerID:
-                return True
-        return False
-    
-    def cleanDoneWorkers(self):
-        ''' Clears done workers and removes them from worker list
-        '''
-        for worker in self.getWorkers():
-            if not worker[THREAD].isAlive():
-                worker[THREAD].join()
-                self.workers.remove(worker)
-                
-    
-    def waitForWorkers(self):
-        ''' Wait for all workers to finish '''
-        for worker in self.getWorkers():
-            worker[THREAD].join()
-        self.workers = []
     
     def setEnabled(self,state):
         ''' Set if the Auto control is turned on
@@ -108,15 +53,12 @@ class AutoControl(ModuleTemplate):
         return self.enabled
     
     def run(self):
-        t1 = FuncThread(self.turnOnSequence)
-        t1.start()
-        t1.join()
+        self.turnOnSequence()
+
         print "SHUTTING DOWN!!!!!!!!!!!!!!!!!!!!!"
-        print self.getWorkers()
+        print self.workers.getWorkers()
         time.sleep(1)
-        t1 = FuncThread(self.turnOffSequence)
-        t1.start()
-        t1.join() 
+        self.turnOffSequence()
                         
         '''
         
@@ -172,27 +114,27 @@ class AutoControl(ModuleTemplate):
                 destOpStates = destOpStates + [goalOpState]
                 if server.getOpState() in destOpStates:
                     pass
-                elif isReadyCallback(serverName) and (not self.isWorker(serverName)):
+                elif isReadyCallback(serverName) and (not self.workers.isWorker(serverName)):
                     self.debug("Turning "+ action +" " + serverName)
                     
                     #TODO: BUG, commented line messes up order
                     if action =="on":
-                        self.addWorker(serverName,server.turnOn)
+                        self.workers.addWorker(serverName,server.turnOn)
                     elif action == "off":
-                        self.addWorker(serverName,server.turnOff) 
+                        self.workers.addWorker(serverName,server.turnOff) 
                     #self.addWorker(serverName,server.turnOn)
                     attemptsToTurnOn = 0
                 else: #server is either on already or is dependent on servers that are not on yet
                     pass
-            self.cleanDoneWorkers()
+            self.workers.cleanDoneWorkers()
             
             
             #Turn off loop
             if  attemptsToTurnOn >= int(self.MAX_START_ATTEPMTS) or self.mainDaemon.servers.isAllOpState(goalOpState):
                 self.setEnabled(False)
-                self.waitForWorkers()
+                self.workers.waitForWorkers()
             time.sleep(float(self.WAIT_TIME))
-            self.waitForWorkers()
+            self.workers.waitForWorkers()
             self.runningState = "standby"
         return True
     

@@ -21,10 +21,14 @@ from controllers.ControllerTemplate import ControllerOpState
 
 import json
 
+from common.workerEngine import workerEngine
+
 class CoreCommunicationCommands(ModuleTemplate):
     ''' Add of basic communication commands'''
     def __init__(self,MainDaemon):
         ModuleTemplate.__init__(self,MainDaemon)
+        
+        self.updateWorkers = workerEngine()
         return
     
     def getDotGraph(self,dataDict):
@@ -196,7 +200,24 @@ class CoreCommunicationCommands(ModuleTemplate):
         @return: A dict with the keys available, disabled and existing according to what is possible. The disabled value is the cycle caused by the dependency
         '''
         return {"dependencyMap": json.dumps(self._getServerDependencyMap(serverName))}
-         
+        
+    
+    def updateNetwork(self):
+        ''' Updates the opstate of all the nodes and their outlets/tests and controllers
+        '''
+        for server in self.mainDaemon.servers.getSortedNodeList():
+            server.update()
+            
+        return
+    
+    def updateNetworkCommand(self):
+        ''' Updates the opstate of all the nodes and their outlets/tests and controllers
+        '''
+        if self.updateWorkers.getWorkerCount() > 0:
+            return {"status" : "busy"}
+        
+        self.updateNetwork()
+        return {"status" : "done"}
     
     def run(self):
         self.debug("\n")
@@ -214,6 +235,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerTesters",lambda dataDict: self.getAvailableServerTesters(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getAvailableServerControls",lambda dataDict: self.getAvailableServerControls(dataDict["server"]))
         self.mainDaemon.communicationHandler.AddCommandToList("getServerDependencyMap",lambda dataDict: self.getServerDependencyMap(dataDict["server"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("updateNetwork",lambda dataDict: self.updateNetworkCommand())
         return 
 
 if __name__ == "__main__":
