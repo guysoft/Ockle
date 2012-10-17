@@ -33,9 +33,9 @@ class TemplateTester(object):
     
     def runTest(self):
         if self.test():
-            self.setOpState(TesterOpState.SUCCEEDED):
+            self.setOpState(TesterOpState.SUCCEEDED)
         else:
-            self.setOpState(TesterOpState.FAILED):
+            self.setOpState(TesterOpState.FAILED)
     
     def setOpState(self,state):
         self.opState=state
