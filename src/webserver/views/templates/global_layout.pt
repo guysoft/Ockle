@@ -23,7 +23,7 @@
 		<h1>${page_title}</h1> <!--  class="primary-4" -->
 	</div>
 	<div metal:define-slot="pre_content"></div>
-	<div style="width: 70%; margin: 20px 200px; min-height:450px;">
+	<div style="width: 70%; margin: 20px 200px; min-height:450px;" align="center">
 	<div metal:define-slot="content"></div>
 	</div>
 	</div>
