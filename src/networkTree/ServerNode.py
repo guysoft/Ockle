@@ -331,44 +331,47 @@ class ServerNode():
     def updateOpState(self,runTests=True):
         ''' Update all the OpStates and run all tests of the server
         '''
-        generalOpSate=True
+        generalOpState=True
         serverOpState=ServerNodeOpState.INIT
         
-        def calcServerOpState(obj,onServerObjOpState,offServerObjOpState):
-            if generalOpSate:
+        def calcServerOpState(obj,onServerObjOpState,offServerObjOpState,serverOpState,generalOpState):
+            if generalOpState:
                 if serverOpState == ServerNodeOpState.INIT:
                     #INIT, set what we have
                     if obj.getOpState() == onServerObjOpState:
                         serverOpState = ServerNodeOpState.OK
                     else:
                         if ServerNodeOpState.OFF:
-                            generalOpSate = offServerObjOpState
+                            generalOpState = offServerObjOpState
                 else:
                     #We have something set
                     if obj.getOpState() == onServerObjOpState or serverOpState != ServerNodeOpState.OK:
-                            generalOpSate = False
+                            generalOpState = False
                             
                     elif obj.getOpState() == offServerObjOpState and serverOpState != ServerNodeOpState.OFF:
                             generalOpSate = False
-            return generalOpSate,serverOpState
+            return generalOpState,serverOpState,serverOpState,generalOpState
         
         #TODO: make this less iffy
         for outlet in self.getOutlets():
             outlet.updateOpState()
-            generalOpSate,serverOpState = calcServerOpState(OutletOpState.OK,OutletOpState.OFF)
+            generalOpSate,serverOpState,serverOpState,generalOpState = calcServerOpState(outlet,OutletOpState.OK,OutletOpState.OFF,serverOpState,generalOpState)
                             
             
         for control in self.getControls():
             control.updateOpState()
-            generalOpSate,serverOpState = calcServerOpState(ControllerOpState.OK,ControllerOpState.OFF)
+            generalOpSate,serverOpState,serverOpState,generalOpState = calcServerOpState(outlet,ControllerOpState.OK,ControllerOpState.OFF,serverOpState,generalOpState)
         
         
         if serverOpState == ServerNodeOpState.OK and generalOpSate and runTests:
             for test in self.getTests():
                 test.runTest()
-                if test.getOpState() == TesterOpState.FAILED:
+                if test.gesetOpStatetOpState() == TesterOpState.FAILED:
                     serverOpState = ServerNodeOpState.failedToStart
                     break
+            
+        if generalOpState:
+            self.setOpState(serverOpState)
 
         return
         

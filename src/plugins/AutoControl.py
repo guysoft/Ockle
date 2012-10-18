@@ -53,24 +53,16 @@ class AutoControl(ModuleTemplate):
         return self.enabled
     
     def run(self):
+        '''
         self.turnOnSequence()
 
         print "SHUTTING DOWN!!!!!!!!!!!!!!!!!!!!!"
         print self.workers.getWorkers()
         time.sleep(1)
         self.turnOffSequence()
+        '''
+        self.mainDaemon.servers.updateNetwork()
                         
-        '''
-        
-        failedOutlets = server.setOutletsState(True)
-
-        if self.mainDaemon.servers.canTurnOn(nextServer):
-            nextServer.turnOn()
-        self.debug("\n")
-        
-        for server in self.mainDaemon.servers.getSortedNodeList():
-            self.startup(server)
-        '''
         return
     
     def startup(self,server):

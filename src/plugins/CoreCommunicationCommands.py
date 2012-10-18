@@ -200,15 +200,6 @@ class CoreCommunicationCommands(ModuleTemplate):
         @return: A dict with the keys available, disabled and existing according to what is possible. The disabled value is the cycle caused by the dependency
         '''
         return {"dependencyMap": json.dumps(self._getServerDependencyMap(serverName))}
-        
-    
-    def updateNetwork(self):
-        ''' Updates the opstate of all the nodes and their outlets/tests and controllers
-        '''
-        for server in self.mainDaemon.servers.getSortedNodeList():
-            server.update()
-            
-        return
     
     def updateNetworkCommand(self):
         ''' Updates the opstate of all the nodes and their outlets/tests and controllers
@@ -216,7 +207,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         if self.updateWorkers.getWorkerCount() > 0:
             return {"status" : "busy"}
         
-        self.updateNetwork()
+        self.mainDaemon.servers.updateNetwork()
         return {"status" : "done"}
     
     def run(self):

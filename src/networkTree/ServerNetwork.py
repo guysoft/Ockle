@@ -194,3 +194,11 @@ class ServerNetwork():
         @param serverName: The server name
         '''
         return self.getServer(serverName).turnOff()
+    
+    def updateNetwork(self):
+        ''' Updates the opstate of all the nodes and their outlets/tests and controllers
+        '''
+        for server in self.getSortedNodeList():
+            server.updateOpState()
+            
+        return
