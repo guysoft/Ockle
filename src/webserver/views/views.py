@@ -13,6 +13,7 @@ from pyramid.response import Response
 #ockle stuff
 from ockle_client import ClientCalls
 from ockle_client.ClientCalls import getServerTree
+from ockle_client.ClientCalls import switchNetwork
 from ockle_client.ClientCalls import setServer
 from ockle_client.ClientCalls import switchOutlet
 from ockle_client.ClientCalls import switchControl
@@ -1083,5 +1084,8 @@ def sendOckleCommand(request):
     
     if command == "setAutoControlStatus":
         return setAutoControlStatus(dataDict)
+    
+    if command == "switchNetwork":
+        return switchNetwork(dataDict)
         
     return dataDict

@@ -51,15 +51,19 @@ class workerEngine(object):
         ''' Clears done workers and removes them from worker list
         '''
         for worker in self.getWorkers():
-            if not worker[THREAD].isAlive():
+            if (not worker[THREAD].isAlive()) and (threading.currentThread() != worker[THREAD]):
                 worker[THREAD].join()
                 self.workers.remove(worker)
                         
     def waitForWorkers(self):
         ''' Wait for all workers to finish '''
+        newWorkers=[]
         for worker in self.getWorkers():
-            worker[THREAD].join()
-        self.workers = []
+            if threading.currentThread() != worker[THREAD]:
+                worker[THREAD].join()
+            else:
+                newWorkers.append(worker)
+        self.workers = newWorkers
     
     def getWorkerCount(self):
         return len(self.workers)

@@ -34,11 +34,13 @@ class AutoControl(ModuleTemplate):
         
         #Communication commands
         self.mainDaemon.communicationHandler.AddCommandToList("getAutoControlStatus",
-                                                              lambda dataDict: self.getAutoControlStatus(dataDict))
+                                                              lambda dataDict: self.getAutoControlStatus())
         self.mainDaemon.communicationHandler.AddCommandToList("setAutoControlStatus",
                                                               lambda dataDict: self.setAutoControlStatusCommand(dataDict["state"]))
+        self.mainDaemon.communicationHandler.AddCommandToList("switchNetwork",lambda dataDict: self.switchNetworkCommand(dataDict["state"]))
         
         self.workers = workerEngine()
+        self.communicationWorker = workerEngine()
         return
     
     def setEnabled(self,state):
@@ -130,7 +132,7 @@ class AutoControl(ModuleTemplate):
             self.runningState = "standby"
         return True
     
-    def getAutoControlStatus(self,dataDict):
+    def getAutoControlStatus(self):
         ''' Check if Auto Control is on from the network
         @param dataDict: The dataDict
         @return: The response dict, answer in value 'status'
@@ -148,6 +150,20 @@ class AutoControl(ModuleTemplate):
         else:
             self.setEnabled(False)
         return {"succeeded" : True,"state": self.isEnabled()}
-
+    
+    def switchNetworkCommand(self,state):
+        ''' Switch the network on or off
+        '''
+        self.communicationWorker.cleanDoneWorkers()
+        if self.isEnabled():
+            return {"status" : "busy"} 
+        
+        if state.lower() == "true":
+            self.communicationWorker.addWorker("AutoControl",self.turnOnSequence)
+            return {"status" : "OK, switching on"}
+        else:
+            self.communicationWorker.addWorker("AutoControl",self.turnOffSequence)
+            return {"status" : "OK, switching off"}
+        return {"status" : "error"}
 if __name__ == "__main__":
     a = AutoControl(None)

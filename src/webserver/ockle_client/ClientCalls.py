@@ -262,6 +262,9 @@ def getServerFolder():
 def setServer(dataDict):
     return getDataFromServer("setServer",dataDict)
 
+def switchNetwork(dataDict):
+    return _getDataFromServerWithFail("switchNetwork",dataDict,{"status":"N/A"}) 
+
 def switchOutlet(dataDict):
     return getDataFromServer("switchOutlet",dataDict)
 

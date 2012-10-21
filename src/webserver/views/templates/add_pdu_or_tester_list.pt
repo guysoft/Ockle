@@ -12,7 +12,7 @@
 	    </div>
 	</div>
 
-    <div metal:fill-slot="content"  class="secondary-a-6">
+    <div metal:fill-slot="content"  class="secondary-a-6" align="left">
     <p>Select ${TypeCreateName}</p>
 	    <div id="inputArea">
 			<ol>

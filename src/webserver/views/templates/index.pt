@@ -3,7 +3,8 @@
  <tal:block metal:fill-slot="head_content">
 	<meta name="MSSmartTagsPreventParsing" content="true" />
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="/static/canviz/styles_inner.css" />
+	<link rel="stylesheet" type"text/css" href="/static/canviz/styles_inner.css" />
+	<link rel="stylesheet" type="text/css" href="/static/info_pages/style.css" />
 	<!--[if IE]><script type="text/javascript" src="/static/canviz/excanvas/excanvas.js"></script><![endif]-->
 	
 	<script src="/static/prototype_iPhoneCheckbox/prototype/prototype.js" type="text/javascript" charset="utf-8"></script>
@@ -38,36 +39,56 @@
 	</script>
   	
    <script type="text/javascript" charset="utf-8">
+   autoChange=false;
    switch_settings = {
 		   statusChange: function(){
-			   $('autoControlLoader').show();
-			   $('autoControlStatus').hide();
-				var url = '/sendOckleCommand.json';
-				// notice the use of a proxy to circumvent the Same Origin Policy.
-
-				state = $("autoControl").checked;
-				new Ajax.Request(url, {
-				  method: 'PSOT',
-				  contentType:'application/json',
-				  postBody: JSON.stringify({"command": "setAutoControlStatus",
-						"dataDict" : {"server": "",
-							"state" : state
-				}}),
-				  onSuccess: function(transport) {
-					  var response = transport.responseText || "no response text";
-					  $('autoControlLoader').hide();
-					  $('autoControlStatus').show();
-					  
-					  responseState = JSON.parse(response)["state"]
-					  if (responseState == "True"){
-						  responseState = "On"
-					  } else {
-						  responseState = "Off"
-					  }
-					  $('autoControlStatus').update(responseState);
-				  }
-				});
-
+			   if (!autoChange){
+				   $('autoControlLoader').show();
+				   $('autoControlStatus').hide();
+					// notice the use of a proxy to circumvent the Same Origin Policy.
+	
+					state = $("autoControl").checked;
+					question="";
+					if (state){
+						question="Are you sure you want to switch network on?";
+					} else{
+						question = "Are you sure you want to switch network off?";
+					}
+					
+					if (confirm(question)){
+						new Ajax.Request('/sendOckleCommand.json', {
+						  method: 'POST',
+						  contentType:'application/json',
+						  postBody: JSON.stringify({"command": "switchNetwork",
+								"dataDict" : {"server": "",
+									"state" : state
+						}}),
+						  onSuccess: function(transport) {
+							  var response = transport.responseText || "no response text";
+							  $('autoControlLoader').hide();
+							  $('autoControlStatus').show();
+							  
+							  responseState = JSON.parse(response)["status"]
+							  
+							  /*
+							  if (responseState == "busy"){
+								  //TODO: CHANGE SWITCH HERE
+							  }
+							  */
+							  $('autoControlStatus').update(responseState);
+						  }
+						});
+					} else {
+						$("autoControl").writeAttribute('checked', !$("autoControl").checked);
+						autoChange=true;
+						$("autoControl").change();
+						$('autoControlLoader').hide();
+						$('autoControlStatus').show();
+					}
+			
+			   } else {
+				   autoChange=false;
+			   }
 		   }
 		 };
    document.observe("dom:loaded", function() {
@@ -91,11 +112,18 @@
 	     	<div id="canviz"></div>
 	     </div>
 		</td></tr>
-		<tr><td class="autoControl_switch" style="min-width:200px;"> 
-      	<label for="on_off_on">Auto Control Status:</label>
-      	<div id="autoControlLoader" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div><div style="float : right" id="autoControlStatus"></div>
-      	<input type="checkbox" tal:attributes='checked python: autoControlStatus == "on"' id="autoControl"/>
-		</td></tr>
+		<tr class="styled-table-title"><td align="center" colspan="2">Auto Control</td></tr>
+		<tr>
+			<td>Network master switch</td>
+			<td class="autoControl_switch" style="min-width:200px;"> 
+		      	<input type="checkbox" tal:attributes='checked python: autoControlStatus == "on"' id="autoControl"/>
+		      	<label for="on_off_on">Auto Control response:</label><div id="autoControlLoader" style="float : right"><img src="/static/ajax/ajax-smallloader.gif"/></div><div style="float : right" id="autoControlStatus"></div>
+			</td>
+		</tr>
+		<tr>
+				<td align="center">Auto Control Status</td>
+				<td><p id="autoControlState"></p></td>
+		</tr>
 		</table>
 		
 		<div id="debug_output"></div>

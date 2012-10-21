@@ -307,6 +307,7 @@
 		
 		<table>
 		<tr><td>
+		<!--
 		<p>Server data that would go in to a nice table:</p>
 		</td></tr>
 		<tr tal:repeat="serverVar server_dict">
@@ -315,7 +316,8 @@
 		      <td><p tal:replace="server_dict[serverVar]"></p></td>
 		   </tr>
 		</table>
-		${server_dict['outlets']}
+		 ${server_dict['outlets']}
+		 -->
    </div>	
    
 </tal:block>

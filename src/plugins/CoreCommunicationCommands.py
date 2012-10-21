@@ -105,7 +105,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         serverState = dataDict["state"] == "on" 
         
         server = self.mainDaemon.servers.getServer(serverName)
-        server.action(dataDict["state"])
+        server.action(dataDict["state"],True)
         
         if serverState:
             server.setOpState(ServerNodeOpState.forcedOn)

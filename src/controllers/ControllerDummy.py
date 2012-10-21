@@ -19,7 +19,7 @@ class Dummy(ControllerTemplate):
     
     def setState(self,state):
         self.state=True
-        return
+        return True
     
     def getState(self):
         try:
