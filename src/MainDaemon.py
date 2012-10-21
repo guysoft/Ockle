@@ -90,7 +90,7 @@ class MainDaemon(object):
         #main loop
         try:
             while self.running:
-                self.debug("In main loop")
+                #self.debug("In main loop")
                 time.sleep(10)
         except KeyboardInterrupt:
             self.debug("Got KeyboardInterrupt, exiting")
