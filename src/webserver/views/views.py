@@ -43,7 +43,7 @@ from ockle_client.ClientCalls import getPDUFolder
 from ockle_client.ClientCalls import getTesterFolder
 from ockle_client.ClientCalls import getControllerFolder
 from ockle_client.ClientCalls import getServerFolder
-from ockle_client.ClientCalls import getServerDependencyMap
+from ockle_client.ClientCalls import getServerAvilableDependencies
 from ockle_client.ClientCalls import serversDependent
 from ockle_client.DBCalls import getServerStatistics
 from common.common import OpState
@@ -256,7 +256,7 @@ def server_edit_view(request):
     multiListChoices = _makeMultichoice("server","outlets",lambda: getAvailableServerOutlets(serverName),INIFileDict,multiListChoices)
     multiListChoices = _makeMultichoice("server","controls",lambda: getAvailableServerControls(serverName),INIFileDict,multiListChoices)
     
-    multiListChoices = _makeMultichoice("server","dependencies",lambda: getServerDependencyMap(serverName),INIFileDict,multiListChoices)
+    multiListChoices = _makeMultichoice("server","dependencies",lambda: getServerAvilableDependencies(serverName),INIFileDict,multiListChoices)
     
     #multiListChoices = _makeSelectMulitChoice(testerType,"tester",getAvailableTestersList)
 

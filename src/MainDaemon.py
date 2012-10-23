@@ -31,6 +31,8 @@ pluginList= json.loads(config.get("plugins","pluginList"))
 
 
 class MainDaemon(object):
+    ''' The Main Daemon runs the Ockle Core, and controls the Server network,
+    It loads the plugins which decide what the network behavior should be'''
     def debug(self,message):
         self.f = codecs.open(LOG_FILE_PATH,'a')
         print "DEBUG: " + str(message)

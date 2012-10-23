@@ -35,7 +35,8 @@ CONTROLLERS_PACKAGE="controllers"
 class ServerNetworkFactory(object):
     '''
     A class to take the config file folder and turn it in to a server network
-    @param MainDaemon: the singletron, only used for debug output
+    
+    :param MainDaemon: the :doc:`MainDaemon` singletron, only used for debug output
     '''
     def __init__(self,MainDaemon,reportDependencyexceptions=True):
         '''
@@ -66,9 +67,10 @@ class ServerNetworkFactory(object):
             
             def buildServerObj(objNames,builderCallback):
                 ''' Parse the serverObj field
-                @param objNames: the name of the field we are parsing
-                @param builderCallback: The function that takes the server config and name, building the object
-                @return: A list of the server objects 
+                
+                :param objNames: the name of the field we are parsing
+                :param builderCallback: The function that takes the server config and name, building the object
+                :return: A list of the server objects 
                 '''
                 #Handle a list or single string outlet
                 try:
@@ -119,10 +121,11 @@ class ServerNetworkFactory(object):
     
     def __makeServerObj(self,objGeneratorName,objGeneratorFolder,objGeneratorPackageName,objGeneratorSubclass,objGeneratorNotFoundException,serverConfig,objSection,serverConfigPath):
         ''' Make an objSection from the config file path of an objSection, and the required socket
-        @param serverConfig config ini path to the socket
-        @param objSection a string to get the objSection objSection
-        @param serverConfigPath:
-        @returns an objSection type socket
+        
+        :param serverConfig config ini path to the socket
+        :param objSection a string to get the objSection objSection
+        :param serverConfigPath:
+        :returns an objSection type socket
         '''
         
         #get server specific config for objSection (socket number etc)
@@ -150,9 +153,10 @@ class ServerNetworkFactory(object):
     
     def _getClassDictIndex(self,package,subclass):
         ''' Get a list of modules
-        @param package: The package path to search
-        @param subclass: The subclass to search for 
-        @return: A list of the names of the classes ''' 
+        
+        :param package: The package path to search
+        :param subclass: The subclass to search for 
+        :return: A list of the names of the classes ''' 
         classTypeDict = {}
         outlets = load(package,subclasses=subclass)
         for outletClass in outlets:
@@ -161,12 +165,24 @@ class ServerNetworkFactory(object):
         return classTypeDict
     
     def getOutletsDictIndex(self):
+        ''' Get the index of available PDU types
+        
+        :return: A list of strings of PDU type names
+        '''
         return self._getClassDictIndex(OUTLETS_PACKAGE,OutletTemplate)
 
     def getTestersDictIndex(self):
+        ''' Get the index of available testers types
+        
+        :return: A list of strings of tester type names
+        '''
         return self._getClassDictIndex(TESTERS_PACKAGE,TemplateTester)
     
     def getControllersDictIndex(self):
+        ''' Get the index of available controller types
+        
+        :return: A list of strings of controller type names
+        '''
         return self._getClassDictIndex(CONTROLLERS_PACKAGE,ControllerTemplate)
     
     def __makeOutlet(self,serverConfig,outlet,serverConfigPath):

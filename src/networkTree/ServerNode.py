@@ -22,10 +22,11 @@ class ServerNodeOpState(OpState):
     INIT="Did not initiate yet"# Did not start yet
 
 class ServerNode():
-    '''
-    This class represents a PC in the network
+    ''' This class represents a PC in the network
     '''
     def setName(self,name):
+        ''' Set the name of the Server
+        :param name: The name ot be set '''
         self.name = name
         
     def getName(self):
@@ -34,9 +35,9 @@ class ServerNode():
     def __init__(self,name,outlets=[],tests=[],controls=[]):
         '''Constructor
         
-        @param name: node name (string)
-        @param outlets: a list of Outlet classes
-        @param tests: a list of test classes
+        :param name: node name (string)
+        :param outlets: a list of Outlet classes
+        :param tests: a list of test classes
         '''
         self.setName(name)
         self.outlets = outlets #list of outlets types for the server
@@ -52,15 +53,17 @@ class ServerNode():
     def setState(self,state):
         '''
         Set server state
-        @param state: server state type
+        
+        :param state: server state type
         '''
         self.state = state
         return
         
     def getOutlet(self,number):
         ''' Get an outlet from the outlet list
-        @param number outlet number in the list
-        @return: an outlet type that is in the given place
+        
+        :param number outlet number in the list
+        :return: an outlet type that is in the given place
         '''
         return self.outlets[number]
     
@@ -89,8 +92,9 @@ class ServerNode():
     
     def setOutletsState(self,state):
         ''' Sets the outlets all to a given state by force
-        @param state: set the outlets to state (boolean)
-        @return: A list of outlets the failed (note: you can check with "if not" to see if there was no failure
+        
+        :param state: set the outlets to state (boolean)
+        :return: A list of outlets the failed (note: you can check with "if not" to see if there was no failure
         '''
         outletFailList=[]
         for outlet in self.outlets:
@@ -101,7 +105,8 @@ class ServerNode():
     
     def setOutletsOpState(self,opState):
         ''' Set all the outlets to a given opState
-        @param opState: The opState to set the outlets to
+        
+        :param opState: The opState to set the outlets to
         '''
         for outlet in self.outlets:
             outlet.setOpState(opState)
@@ -109,7 +114,8 @@ class ServerNode():
     
     def setControlOpState(self,opState):
         ''' Set all the controls to a given opState
-        @param opState: The opState to set the control to
+        
+        :param opState: The opState to set the control to
         '''
         for control in self.controls:
             control.setOpState(opState)
@@ -117,8 +123,9 @@ class ServerNode():
     
     def getNotOutletsOpState(self,opState):
         ''' Returns outlets that don't have a given opState
-        @param opState:  
-        @return: outlets that don't have a given state
+        
+        :param opState:  
+        :return: outlets that don't have a given state
         '''
         notOutletState = []
         for outlet in self.getOutlets():
@@ -128,8 +135,9 @@ class ServerNode():
 
     def getNotControlsOpState(self,opState):
         ''' Returns controls that don't have a given opState
-        @param opState:  
-        @return: controls that don't have a given state
+        
+        :param opState:  
+        :return: controls that don't have a given state
         '''
         notControlState = []
         for control in self.getControls():
@@ -187,34 +195,39 @@ class ServerNode():
     
     def incrementStartAttempt(self):
         ''' Increment the startup attempt counter
-        @return: Number of startup attempts
+        
+        :return: Number of startup attempts
         '''
         self.startAttempts += 1
         return self.startAttempts
     
     def incrementShutdownAttempt(self):
         ''' Increment the stop attempt counter
-        @return: Number of shutdown attempts
+        
+        :return: Number of shutdown attempts
         '''
         self.shutdownAttempts += 1
         return self.shutdownAttempts
     
     def getStartAttempts(self):
         ''' Get number of startup attempts
-        @return: Number of startup attempts
+        
+        :return: Number of startup attempts
         '''
         return self.startAttempts
     
     def getShutdownAttempts(self):
         ''' Get number of shutdown attempts
-        @return: Number of shutdown attempts
+        
+        :return: Number of shutdown attempts
         '''
         return self.shutdownAttempts
     
     def _getServerObjDataLog(self,objCallback,objName):
         ''' get server object data that we can store in the db log
-        @param objCallback: A callback that gets the server object data
-        @return: a dict for the logger
+        
+        :param objCallback: A callback that gets the server object data
+        :return: a dict for the logger
         '''
         returnValue = {}
         for serverObj in objCallback():
@@ -223,12 +236,17 @@ class ServerNode():
         return returnValue
     
     def getControlsDataDict(self):
+        ''' Get the data dict of all the controls
+        
+        :returns: the controls data dict
+        '''
         return self._getServerObjDataLog(self.getControls,"control") 
     
     def getOutletsDataDict(self):
         ''' Returns a dict that holds all the outlets and their data dict.
         This gets sent to the logger
-        @return: A dict with each outlet name, and a dict of its data
+        
+        :return: A dict with each outlet name, and a dict of its data
         '''
         return self._getServerObjDataLog(self.getOutlets,"outlet")
     
@@ -251,25 +269,26 @@ class ServerNode():
         time.sleep(float(MAX_STARTUP_TIME))
         return failList
     
-    def turnAction(self,incrementer,getActionAttempts,serverDestState,serverInterState,
+    def _turnAction(self,incrementer,getActionAttempts,serverDestState,serverInterState,
                    serverFailState,serverPermanentFailState,destObjState,
                    
                    outletDestState, outletInterState,outletFailState,
                    controllerDestState, controlInterState,controllerFailState,runTesters=True,ignoreDeps=False):
         ''' Run an action to turn on or off the server
-        @param ignoreDeps: Should we ignore failures
-        @param incrementer: Used to increment the attempts at the action
-        @param serverDestState: The destination opState of the server
-        @param serverInterState: The intermediate state of the server
-        @param serverFailState: What server OpState is should be set if we fail on this action
-        @param serverPermanentFailState: the permanent OpState of serverFailState
-        @param destObjState: The destination state for Server Objects
-        @param outletDestState: The state the outlet would be set at the end of this action
-        @param outletInterState: The outlet intermediate OpState
-        @param outletFailState: The fail OpState of the outlet is this action has failed
-        @param controllerDestState: The OpState the control would be set at the end of this action
-        @param controlInterState: The control intermediate OpState
-        @param controllerFailState: The fail OpState of the control is this action has failed
+        
+        :param ignoreDeps: Should we ignore failures
+        :param incrementer: Used to increment the attempts at the action
+        :param serverDestState: The destination opState of the server
+        :param serverInterState: The intermediate state of the server
+        :param serverFailState: What server OpState is should be set if we fail on this action
+        :param serverPermanentFailState: the permanent OpState of serverFailState
+        :param destObjState: The destination state for Server Objects
+        :param outletDestState: The state the outlet would be set at the end of this action
+        :param outletInterState: The outlet intermediate OpState
+        :param outletFailState: The fail OpState of the outlet is this action has failed
+        :param controllerDestState: The OpState the control would be set at the end of this action
+        :param controlInterState: The control intermediate OpState
+        :param controllerFailState: The fail OpState of the control is this action has failed
         '''
         incrementer()
         
@@ -303,6 +322,11 @@ class ServerNode():
         return
     
     def action(self,actionString,ignoreDeps=False):
+        ''' Execute an on/off action on the server
+        
+        :param actionString: Either "on" or "off"
+        :param ignoreDeps: True if you want to ignore other server dependencies
+        '''
         if actionString == "on":
             self.turnOn(ignoreDeps)
         else:
@@ -310,9 +334,11 @@ class ServerNode():
     
     def turnOn(self,ignoreDeps=False):
         ''' Turn on the server outlets, and check if all services are in order
+        
+        :param ignoreDeps: True if you want to ignore other server dependencies
         '''
         self.resetShutdownAttempts()
-        return self.turnAction(self.incrementStartAttempt,self.getStartAttempts,ServerNodeOpState.OK,ServerNodeOpState.SwitcingOn,
+        return self._turnAction(self.incrementStartAttempt,self.getStartAttempts,ServerNodeOpState.OK,ServerNodeOpState.SwitcingOn,
                                ServerNodeOpState.failedToStart,ServerNodeOpState.permanentlyFailedToStart, True,
                                
                                OutletOpState.OK,OutletOpState.SwitcingOn,OutletOpState.failedToStart,
@@ -321,7 +347,7 @@ class ServerNode():
     
     def turnOff(self,ignoreDeps=False):
         self.resetShutdownAttempts()
-        return self.turnAction(self.incrementShutdownAttempt,self.getShutdownAttempts,ServerNodeOpState.OFF,ServerNodeOpState.SwitchingOff,
+        return self._turnAction(self.incrementShutdownAttempt,self.getShutdownAttempts,ServerNodeOpState.OFF,ServerNodeOpState.SwitchingOff,
                                ServerNodeOpState.failedToStop,ServerNodeOpState.permanentlyFailedToStop,False,
                                
                                OutletOpState.OFF,OutletOpState.SwitchingOff,OutletOpState.failedToStop,

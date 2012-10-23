@@ -36,8 +36,9 @@ class ServerNetwork():
         
     def addServer(self,node,dependencies=[]):
         '''Add a server to the network
-        @param node a server in the network
-        @param dependencies list of the server names this sever is dependent on
+        
+        :param node: a server in the network
+        :param dependencies: list of the server names this sever is dependent on
         '''
         self.graph.add_node(node.getName(), node)
         for dep in dependencies:
@@ -45,9 +46,10 @@ class ServerNetwork():
         return
     def addDependency(self,server,dependency):
         ''' Add a dependency to a server
-        @param server: the name of the server
-        @param dependency: the name of the server the former is dependent on  
-        @raise DependencyException: Will raise an exception if there was a cycle in the server network
+        
+        :param server: the name of the server
+        :param dependency: the name of the server the former is dependent on  
+        :raise DependencyException: Will raise an exception if there was a cycle in the server network
         '''
         self.graph.add_edge(((dependency,server))) #Note this is a turple casting
         cycleCheck = find_cycle(self.graph)
@@ -57,8 +59,9 @@ class ServerNetwork():
     
     def removeDependency(self,server,dependency):
         ''' Remove a dependency from a server
-        @param server: the name of the server
-        @param dependency: the name of the server the former is dependent on  
+        
+        :param server: the name of the server
+        :param dependency: the name of the server the former is dependent on  
         '''
         self.graph.del_edge(((dependency,server))) #Note this is a turple casting
         return
@@ -85,6 +88,8 @@ class ServerNetwork():
     def getSortedNodeList(self):
         '''
         returns a list of the nodes topologically sorted
+        
+        :return: a list of the nodes topologically sorted
         '''
         nodeList = topological_sorting(self.graph)
         servers=[]
@@ -94,8 +99,9 @@ class ServerNetwork():
     
     def getServer(self,serverNameSearch):
         ''' Get a server by name
-        @param serverNameSearch: The server to search for
-        @return: The server class, None if not found
+        
+        :param serverNameSearch: The server to search for
+        :return: The server class, None if not found
         '''
         for server in self.getSortedNodeList():
             if server.getName() == serverNameSearch:
@@ -104,24 +110,30 @@ class ServerNetwork():
     
     def getSortedNodeListIndex(self):
         ''' returns a list of the node names topologically sorted
-        @return: a list of the node names topologically sorted
+        
+        :return: a list of the node names topologically sorted
         '''
         return topological_sorting(self.graph)
     
     def getRoot(self):
         ''' Gets the root server of the tree
-        @return: the root server
+        
+        :return: the root server
         '''
         return self.getSortedNodeList()[0]
     
     
     def isReadyToTurnOn(self,server):
+        ''' Is a server ready to be turned on?
+        
+        :return: True if the server is ready to be turned on '''
         return self.__isReadyAction(server,[ServerNodeOpState.permanentlyFailedToStart],self.getDependencies,ServerNodeOpState.OK)
     
     def __isReadyAction(self,server,autoFalseOpState,relationCallback,opStateRequiredFromParrent):
         ''' Check if a server dependencies are met and tests are met, and could be turned on
-        @param serverName: the server's name 
-        @param autoFalseOpState: OpStates that are automatically considered false
+        
+        :param serverName: the server's name 
+        :param autoFalseOpState: OpStates that are automatically considered false
         '''
         serverInstance = self.graph.node_attributes(server)
         if serverInstance.getOpState() in autoFalseOpState:
@@ -146,20 +158,23 @@ class ServerNetwork():
     def getDependencies(self,server):
         '''
         Get a list of servers a given server is dependent on (only one level)
-        @param server: the server name
+        
+        :param server: the server name
         '''
         return self.graph.reverse().neighbors(server)
     
     def getDependent(self,server):
         '''
         Get a list of servers that are dependent on this server
-        @param server: the server name
+        
+        :param server: the server name
         '''
         return self.graph.neighbors(server)
     
     def turningOn(self):
         '''
-        @return: true if we have any servers that are in intermediate states
+        
+        :return: true if we have any servers that are in intermediate states
         '''
         nodeList = self.getSortedNodeList()
         for server in nodeList:
@@ -169,14 +184,16 @@ class ServerNetwork():
     
     def getServernode(self,serverName):
         ''' Get a server node by name
-        @param serverName: The name of the server node
-        @return: The server node
+        
+        :param serverName: The name of the server node
+        :return: The server node
         '''
         return self.graph.node_attributes(serverName)
         
     def isAllOpState(self,opState):
         ''' Check if all servers are ok
-        @return: True if all servers are on
+        
+        :return: True if all servers are on
         '''
         for server in self.getSortedNodeList():
             if server.getOpState() != opState:
@@ -185,13 +202,15 @@ class ServerNetwork():
     
     def turnOnServer(self,serverName):
         ''' Turn a server on by name
-        @param serverName: The server name
+        
+        :param serverName: The server name
         '''
         return self.getServer(serverName).turnOn()
     
     def turnOffServer(self,serverName):
         ''' Turn a server off by name
-        @param serverName: The server name
+        
+        :param serverName: The server name
         '''
         return self.getServer(serverName).turnOff()
     
