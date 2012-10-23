@@ -1,14 +1,29 @@
-[main]
-PLUGIN_DIR=plugins
-SERVER_DIR=servers
-#SERVER_DIR=dummyservers
-OUTLET_DIR=outlets
+[plugins.AutoControl]
+wait_time = 2
+max_start_attepmts = 10
 
-[plugins]
-pluginList=["SocketListener","PowerTester","AutoControl"]
-
+[plugins.Logger]
+log_resolution = 10
+log_db = sqlite:////~~HOME~~logger.db
 
 [plugins.SocketListener]
-LISTENER_PORT = 8088
-MAX_CONNECTIONS = 5
-MAX_RCV_SIZE =1024
+socket_timeout = 5
+listener_port = 8088
+max_rcv_size = 1024
+max_connections = 5
+
+[servers]
+max_startup_time = 2
+max_attempts = 3
+
+[plugins]
+pluginlist = ["AutoControl", "Logger", "CoreCommunicationCommands", "SocketListener", "EditingCommunicationCommands"]
+
+[main]
+outlet_dir = outlets
+plugin_dir = plugins
+tester_dir = testers
+log_file_path = log.txt
+server_dir = servers
+controller_dir = controllers
+
