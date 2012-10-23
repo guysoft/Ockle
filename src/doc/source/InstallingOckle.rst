@@ -1,7 +1,7 @@
 Installing Ockle
 ================
 
-.. note:: It is recommended to run Ockle in a virtualenv. This is to upgrades of the system won't break your control over the servers. So first make sure you have it.
+.. note:: It is recommended to run Ockle in a virtualenv. This is so upgrades of your system won't break any control over your servers. So first make sure you have it.
 
 - Installing virtualenv:
 .. code-block:: bash
@@ -12,12 +12,14 @@ Installing Ockle
 Set up the python environment
 -----------------------------
 
-- In order to compile some of the python module you will need to install the following packages (or your distro's equivelent)
+- In order to compile some of the python modules you will need to install the following packages (or your distro's equivalent)
 .. code-block:: bash
 
   apt-get install libxslt1-dev libxml2-dev libgraphviz-dev
 
-- Run the following commands to get a python environment with the correct versions of software. (you can change *~/pythonenv* to any path that suits you ):
+- Run the following commands to get a python environment with the correct modules and version. 
+
+.. note:: you can change *~/pythonenv* to any path that suits you
 
 .. code-block:: bash
 
@@ -38,7 +40,7 @@ Set up the python environment
   ~/pythonenv/bin/easy_install paramiko
 
 - Edit the setup.py file ~/pythonenv/downloads/pygraphviz/setup.py
-and add replace the following lines:
+and add/replace the following lines:
 
 .. code-block:: python
 
@@ -54,7 +56,7 @@ Installing Ockle's GUI
 ----------------------
 
 Ockle's web-based GUI uses Pyramid_, a python-based web development framework.
-You can either deploy a pyramid app on a apache/nginx webserver, or you can run it on a standalone webserver.
+You can either deploy the pyramid app on a apache/nginx webserver, or you can run it on a standalone webserver.
 To run it on a standalone webserer you can run the supplied script:
 
 .. code-block:: bash

@@ -10,7 +10,7 @@ Welcome to Ockle's documentation!
    :alt: Ockle
 
 Ockle is a tool which lets you control a group of power distribution units (PDUs_) and the servers which connected to them.
-Servers can be dependent on each other Ockle can determine which servers should be turned on according to those dependencies. After servers were turned on Ockle can run automated tests to make sure they indeed provide the services that are required by the servers.
+Servers can be dependent on each other, and Ockle can then determine which servers should be turned on according to those dependencies. After server is turned on Ockle can run automated tests to make sure they indeed provide the services that are required by the servers.
 
 Design principles in Ockle
 --------------------------

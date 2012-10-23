@@ -1,7 +1,7 @@
 The Communication Client
 ========================
 
-The communication is a python library that lets you send commands to Ockle from a python shell.
+The communication is a python library that lets you send commands to Ockle from a python shell using an external program.
 
 .. automodule:: ockle_client.ClientCalls
    :members: 
