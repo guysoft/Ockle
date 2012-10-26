@@ -69,15 +69,18 @@ class ModuleTemplate(Thread):
                 returnValue['available'][possibleServer] = iniToDict(os.path.join(self.mainDaemon.SERVERS_DIR,possibleServer + ".ini"))["server"]["comment"]
                 try:
                     serversNetwork.addDependency(serverName, possibleServer)
+                    
+                    #if all went well, remove dependency
+                    try:
+                        serversNetwork.removeDependency( possibleServer,serverName )
+                    except ValueError:
+                        pass
                 except DependencyException as e:
                     returnValue['available'].pop(possibleServer)
                     returnValue['disabled'][possibleServer] = e.list
                 except AdditionError:
                     #Happens if dependency already exists
                     returnValue['existing'][possibleServer] = returnValue['available'].pop(possibleServer)
-                try:
-                    serversNetwork.removeDependency( possibleServer,serverName )
-                except ValueError:
-                    pass
+
         
         return returnValue
