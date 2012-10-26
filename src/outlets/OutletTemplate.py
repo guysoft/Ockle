@@ -11,9 +11,12 @@ class OutletOpState(OpState):
 
     
 class OutletTemplate(object):
-    '''
-    @param outletConfigDict: a dictionary with the params specified in the ini config file, sections. Its a dict of sections with a dict of variables
-    @param outletParams: A dictionary of the server-specific params specified in the outlet section on the server config file
+    ''' Template for an outlet object that all other outlets extend'''
+    
+    ''' Constructor Class
+    
+    :param outletConfigDict: a dictionary with the params specified in the ini config file, sections. Its a dict of sections with a dict of variables
+    :param outletParams: A dictionary of the server-specific params specified in the outlet section on the server config file
     '''
     def __init__(self,name,outletConfigDict={},outletParams={}):
         self.data={} #data information from the port
@@ -24,28 +27,41 @@ class OutletTemplate(object):
         return
     
     def getName(self):
+        ''' Get outlet's name
+        
+        :return: the outlets name
+        '''
         return self.name
     
     def setName(self,name):
+        ''' Get outlet's name
+        
+        :param name: The outlets name to be set
+        '''
         self.name = name
     
     def _setOutletState(self,state):
+        ''' To be implemented by the child, sets the outlet's sate 
+        
+        :param bool state: The state to set '''
         pass
     
     def updateOpState(self):
         ''' Update the op state to on or off according to the on/off state of the outlet
-        @return: the new opState
+        
+        :return: the new opState
         '''
         if self.getState():
             self.setOpState(OutletOpState.OK)
         else:
             self.setOpState(OutletOpState.OFF)
-        return
+        return self.getState()
     
     def setState(self,state):
-        ''' To be Implemented in the child
-        @param state: The state of the outlet to set
-        @return: True if the setting was successful 
+        ''' To be Implemented in the child, set the current OpState
+        
+        :param state: The state of the outlet to set
+        :return: True if the setting was successful 
         '''
         pass
     

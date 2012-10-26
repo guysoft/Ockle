@@ -24,5 +24,36 @@ Plugin ini template files
 
 If you want the configuration variable to be changeable at the webserver GUI, you must provide a template ini file in the src/config/plugins folder.
 
+The section should be named plugins.<plugin name> .
+Should include the variable name as items, and a json formatted list with the type followed by a default variables. 
 
-TODO: ADD EXAMPLE HERE
+Current types supported:
+
++---------------------+-------------------------------------------+--------------------------------+
+|Type                 |Field                                      |Example                         |
++=====================+===========================================+================================+
+| string              | default                                   | ["string","yay"]               |
++---------------------+-------------------------------------------+--------------------------------+
+| int                 + default                                   | ["int",1]                      |
++---------------------+-------------------------------------------+--------------------------------+
+| bool                + default                                   | ["bool",true]                  |
++---------------------+-------------------------------------------+--------------------------------+
+| intrange            + default, range                            | ["intrange",1,"1-8"]           |
++---------------------+-------------------------------------------+--------------------------------+
+| select :sup:`*`     + select disabled?                          | ["select",false]               |
++---------------------+-------------------------------------------+--------------------------------+
+| multilist :sup:`*`  + ordered? , sorted?, Url Pattern :sup:`**` | ["multilist",true,"~~name~~"]  |
++---------------------+-------------------------------------------+--------------------------------+
+
+| :sup:`*` These require the mulichoice variable to be defined
+| :sup:`**` ~~name~~ string would be replaced by the multichoice's value
+
+Example
+~~~~~~~
+An example would look like this:
+
+.. code:: python
+  
+  [plugins.AutoControl]
+  WAIT_TIME=["int",1]
+  MAX_START_ATTEPMTS=["int",10]

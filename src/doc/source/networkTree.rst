@@ -17,5 +17,10 @@ Currently server objects are: Outlets, Controls and Tests.
 
 .. autoclass:: networkTree.ServerNode.ServerNode
    :members:   
+
+Related Topics
+--------------
+.. toctree::
+   ServerNetworkFactory
    
 .. _pygraph: http://pygraphlib.sourceforge.net/doc/public/pygraphlib.pygraph.DGraph-class.html

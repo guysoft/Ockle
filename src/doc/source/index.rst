@@ -65,6 +65,12 @@ Libraries used (learned?)
 - `prototype.js <http://prototypejs.org>`_ - The main page requires prototype for Canvoiz to work
 - `sphinx <http://sphinx.pocoo.org>`_ - Documentation
 
+Project
+=======
+.. toctree::
+   FutureWork
+   :maxdepth: 3
+
 Indices and tables
 ==================
 

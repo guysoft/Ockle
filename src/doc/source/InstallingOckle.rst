@@ -4,6 +4,7 @@ Installing Ockle
 .. note:: It is recommended to run Ockle in a virtualenv. This is so upgrades of your system won't break any control over your servers. So first make sure you have it.
 
 - Installing virtualenv:
+
 .. code-block:: bash
 
     apt-get install python-virtualenv
@@ -13,6 +14,7 @@ Set up the python environment
 -----------------------------
 
 - In order to compile some of the python modules you will need to install the following packages (or your distro's equivalent)
+
 .. code-block:: bash
 
   apt-get install libxslt1-dev libxml2-dev libgraphviz-dev
@@ -40,6 +42,7 @@ Set up the python environment
   ~/pythonenv/bin/easy_install paramiko
 
 - Edit the setup.py file ~/pythonenv/downloads/pygraphviz/setup.py
+
 and add/replace the following lines:
 
 .. code-block:: python
