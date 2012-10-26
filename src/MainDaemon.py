@@ -54,6 +54,16 @@ class MainDaemon(object):
         SERVER_DIR = config.get('main', 'SERVER_DIR')
         self.SERVERS_DIR = os.path.join(ETC_DIR,SERVER_DIR)
         
+        def makeSureDirExists(path):
+            if not os.path.isdir(path):
+                os.mkdir(path)
+            return
+        
+        makeSureDirExists(self.OUTLETS_DIR)
+        makeSureDirExists(self.CONTROLLERS_DIR)
+        makeSureDirExists(self.TESTERS_DIR)
+        makeSureDirExists(self.SERVERS_DIR)
+        
         #config framework
         self.config = config #get it from the global
         
