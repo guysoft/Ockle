@@ -76,7 +76,7 @@ class SocketListener(ModuleTemplate):
                         #client.send(xml)
                         client.sendall(str(len(xml)) +":" +  xml)
                     except:
-                        traceback.print_exc(file=sys.stdout)
+                        traceback.print_exc(file=sys.stderr)
                         self.debug("Got a bad message class, returning error")
                         client.send(MessageServerError().toxml())
                     client.close()
