@@ -8,11 +8,11 @@ Server/Outlet/control OpStates
 .. autoclass:: common.common.OpState
    :members:
 
-   .. autoattribute::
+   .. autoattribute:: common.common.OpState
 
 Test OpStates
 -------------
 .. autoclass:: testers.TemplateTester.TesterOpState
    :members:
 
-   .. autoattribute::
+   .. autoattribute:: testers.TemplateTester.TesterOpState

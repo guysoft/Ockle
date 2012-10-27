@@ -17,11 +17,11 @@ class Dummy(ControllerTemplate):
     def updateData(self):
         pass
     
-    def setState(self,state):
+    def _setControlState(self,state):
         self.state=True
         return True
     
-    def getState(self):
+    def _getControlState(self):
         try:
             return self.state
         except:

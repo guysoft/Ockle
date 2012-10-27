@@ -14,3 +14,4 @@ What could be added:
 #. Support more types of databases in the logger
 #. Get canviz to work with jquery and drop the need for prototype.js
 #. Better installer, have a nice bootstrap with main setup options
+#. Add more standard methods to pull config variables in the server objects (instead of doing things like ``self.state = json.loads(testerParams["succeed"])`` ).

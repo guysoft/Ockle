@@ -7,7 +7,7 @@ Created on Mar 7, 2012
 """
 from common.common import OpState
 class OutletOpState(OpState):
-    INIT=-1# Did not start yet
+    INIT=-1 #: Did not start yet
 
     
 class OutletTemplate(object):
@@ -86,9 +86,9 @@ class OutletTemplate(object):
         pass
     
     def setOpState(self,state):
-        self.OutletOpState=state
+        self.opState=state
     def getOpState(self):
-        return self.OutletOpState
+        return self.opState
     
     def getOutletType(self):
         ''' Returns the type name of the outlet

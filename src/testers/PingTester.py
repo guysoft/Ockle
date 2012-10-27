@@ -10,7 +10,6 @@ Created on Apr 25, 2012
 import subprocess
 import os
 from TemplateTester import TemplateTester
-from TemplateTester import TesterOpState
 
 def ping(ip):
     ''' subprocess ping
@@ -31,13 +30,10 @@ class Ping(TemplateTester):
         self.hostname = testerParams["hostname"]
         return
     
-    def test(self):
-        '''
-        Runs the test
+    def _test(self):
+        '''Runs the test
+        
+        :return: Return True if succeeded
         '''
         state = ping(self.hostname)
-        if state:
-            self.setOpState(TesterOpState.SUCCEEDED)
-        else:
-            self.setOpState(TesterOpState.FAILED)
         return state

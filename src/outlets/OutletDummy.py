@@ -21,7 +21,7 @@ class Dummy(OutletTemplate):
         return
     
     def updateState(self):
-        self.state=self._getOuteletState()
+        self.state=self._getOutletState()
         
     def _getOutletState(self):
         try:

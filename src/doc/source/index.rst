@@ -28,7 +28,11 @@ You can download it by cloning it:
 .. code-block:: bash
 
   git clone https://github.com/guysoft/Ockle.git
-  
+
+Ockle is Free Software
+~~~~~~~~~~~~~~~~~~~~~~
+
+This software is distributed under the `GNU General Public License, version 2 <https://www.gnu.org/licenses/gpl-2.0.html>`_
  
 User Manual
 ===========
@@ -44,7 +48,7 @@ Developer Manual
 .. toctree::
    core
    plugins
-   webserver
+   Webserver
    OckleClient
    ServerObjects
    INITemplates

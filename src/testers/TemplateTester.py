@@ -25,14 +25,17 @@ class TemplateTester(object):
     def setName(self,name):
         self.name = name
     
-    def test(self):
+    def _test(self):
+        '''To be implemented by the child, runs the test
+        
+        :return: Return True if succeeded
         '''
-        Runs the test
-        '''
-        return
+        pass
     
     def runTest(self):
-        if self.test():
+        ''' Use this method to run a test, updates the OpState
+        ''' 
+        if self._test():
             self.setOpState(TesterOpState.SUCCEEDED)
         else:
             self.setOpState(TesterOpState.FAILED)

@@ -159,7 +159,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         testName = dataDict["obj"]
         
         test = self.mainDaemon.servers.getServer(serverName).getTestByName(testName)
-        test.test()
+        test.runTest()
         return {"status" : test.getOpState()}
     
     def _getAvailableServerObjs(self,server,obj):

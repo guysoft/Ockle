@@ -304,7 +304,7 @@ class ServerNode():
         testersFailedList = []
         if runTesters and not ignoreDeps:
             for tester in self.getTests():
-                tester.test()
+                tester.runTest()
                 if tester.getOpState() == TesterOpState.FAILED:
                     testersFailedList.append(tester)
             

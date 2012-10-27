@@ -14,7 +14,7 @@ The python file containing the class should be placed in the ``src/outlets`` pac
 Here are the methods you should implement when writing a new PDU class:
 
 .. autoclass:: outlets.OutletTemplate.OutletTemplate
-   :members: _setOutletState, _getOuteletState, updateData
+   :members: _setOutletState, _getOutletState, updateData
 
 Example Dummy Outlet
 ~~~~~~~~~~~~~~~~~~~~

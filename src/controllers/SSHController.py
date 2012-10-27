@@ -38,7 +38,7 @@ class SSHController(ControllerTemplate):
     def updateData(self):
         pass
     
-    def setSate(self,state):
+    def _setControlState(self,state):
         if state == False:
             client = SSHClient()
             client.load_system_host_keys()
