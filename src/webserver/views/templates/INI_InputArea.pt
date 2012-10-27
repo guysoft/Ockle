@@ -9,7 +9,6 @@
 	<script type="text/javascript" src="/static/noty/themes/default.js"></script>
 	<link rel="stylesheet" type="text/css" href="/static/noty/buttons.css"/>
 	
-	<script src="/static/ajax/save_call.js"></script>
 	<link href="/static/forms/input_style.css" rel="stylesheet" type="text/css" />
 	
 	<script type="text/javascript" src="/static/jquery-sortable/jquery-ui-1.7.1.custom.min.js"></script>
