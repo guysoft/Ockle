@@ -9,7 +9,7 @@ There are a few helper functions for the view's page
 Helper fuctions for generating multi-choice config pages
 --------------------------------------------------------
 
-When creating config pages with multi choice fields, you *must* populate the ``multiListChoices`` variable and pass it to the temlate, this can be done using the :mod:`views.multiChoiceGenerators` module:
+When creating config pages with multi choice fields, you *must* populate the ``multiListChoices`` variable and pass it to the template, this can be done using the :mod:`views.multiChoiceGenerators` module:
 
 .. automodule:: views.multiChoiceGenerators
    :members:

@@ -25,6 +25,6 @@ You should see the following page:
    :align: center
    :alt: How ockle should look after being installed
 
-This it not much, since there are no servers configured yet. You will need to enter the 'configuraton' section at the top of the page and add servers to the server network.
+This it not much, since there are no servers configured yet. You will need to enter the 'configuration' section at the top of the page and add servers to the server network.
 
 

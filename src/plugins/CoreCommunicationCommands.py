@@ -23,6 +23,42 @@ import json
 
 from common.workerEngine import workerEngine
 
+from networkTree.ServerNetworkFactory import ServerNetworkFactory
+from networkTree.Exceptions import DependencyException
+from pygraph.classes.exceptions import AdditionError
+from common.common import iniToDict
+import os.path
+
+def getServerDependencyMap(plugin,serverName):   
+    factory = ServerNetworkFactory(plugin.mainDaemon)
+    serversNetwork=factory.buildNetwork(plugin.mainDaemon.ETC_DIR)
+    
+    returnValue = {}
+    returnValue['available'] = {}
+    returnValue['disabled'] = {}
+    returnValue['existing'] = {}
+    
+    for possibleServer in serversNetwork.getSortedNodeListIndex():
+        if possibleServer != serverName:
+            returnValue['available'][possibleServer] = iniToDict(os.path.join(plugin.mainDaemon.SERVERS_DIR,possibleServer + ".ini"))["server"]["comment"]
+            try:
+                serversNetwork.addDependency(serverName, possibleServer)
+                
+                #if all went well, remove dependency
+                try:
+                    serversNetwork.removeDependency( possibleServer,serverName )
+                except ValueError:
+                    pass
+            except DependencyException as e:
+                returnValue['available'].pop(possibleServer)
+                returnValue['disabled'][possibleServer] = e.list
+            except AdditionError:
+                #Happens if dependency already exists
+                returnValue['existing'][possibleServer] = returnValue['available'].pop(possibleServer)
+
+    
+    return returnValue
+
 class CoreCommunicationCommands(ModuleTemplate):
     ''' Add of basic communication commands'''
     def __init__(self,MainDaemon):
@@ -199,7 +235,7 @@ class CoreCommunicationCommands(ModuleTemplate):
         @param server: The current server we are looking at
         @return: A dict with the keys available, disabled and existing according to what is possible. The disabled value is the cycle caused by the dependency
         '''
-        return {"dependencyMap": json.dumps(self._getServerDependencyMap(serverName))}
+        return {"dependencyMap": json.dumps(getServerDependencyMap(self,serverName))}
     
     def updateNetworkCommand(self):
         ''' Updates the opstate of all the nodes and their outlets/tests and controllers

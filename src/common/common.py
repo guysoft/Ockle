@@ -145,7 +145,6 @@ def dictToConfig(d):
 
 def _appendTemplateDIR(path):
     CONFIG_TEMPLATE_DIR= appendProjectPath(os.path.join("src","config"))
-    print CONFIG_TEMPLATE_DIR
     return os.path.join(CONFIG_TEMPLATE_DIR,path)
 
 def getINITemplate(paths):

@@ -41,6 +41,7 @@ User Manual
    InstallingOckle
    WebserverUser
    UsingOckle
+   PluginsUser
 
 Developer Manual
 ================
