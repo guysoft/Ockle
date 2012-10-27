@@ -224,8 +224,8 @@
 	        			
 	        			<td tal:case="'bool'" class="styled-select">
 		        			 <select name="${section}$${item}" style="width:70px;">
-							  <option value="true"  tal:attributes='selected python: INIFileDict[section][item] == "true"'>True</option>
-							  <option value="false" tal:attributes='selected python: INIFileDict[section][item] != "true"'>False</option>
+							  <option value="true"  tal:attributes='selected python: INIFileDict[section][item]'>True</option>
+							  <option value="false" tal:attributes='selected python: not INIFileDict[section][item]'>False</option>
 							</select>
 	        			</td>
 	        			
