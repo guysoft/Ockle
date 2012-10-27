@@ -1,8 +1,10 @@
-'''
+"""  Ockle PDU and servers manager
+Page macros for the Ockle GUI
+
 Created on Aug 24, 2012
 
-@author: guy
-'''
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
+"""
 
 #pyramid stuff
 from pyramid.renderers import get_renderer

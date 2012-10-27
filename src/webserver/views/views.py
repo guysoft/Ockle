@@ -57,10 +57,19 @@ from plugins.Log import DATA_NAME_TO_UNITS_NAME
 #macros
 from macros import site_layout,config_sidebar_head,config_sidebar_body,INI_InputArea_head,INI_InputArea_body
 
-#config stuff
-from ConfigParser import SafeConfigParser
-from StringIO import StringIO
-from common.common import getINIstringtoDict
+#View Helper functions
+from ConfigParsingHelperFunctions import __fillINIwithTemplate
+from ConfigParsingHelperFunctions import _loadPDUINITemplate
+from ConfigParsingHelperFunctions import _loadTesterINITemplate
+from ConfigParsingHelperFunctions import _loadControllerINITemplate
+from ConfigParsingHelperFunctions import _loadServerINITemplate
+from ConfigParsingHelperFunctions import _loadPDUConfig
+from ConfigParsingHelperFunctions import _loadTesterConfig
+from ConfigParsingHelperFunctions import _loadControllerConfig
+from ConfigParsingHelperFunctions import _loadServerConfig
+from ConfigParsingHelperFunctions import _getServerConfigPath
+from multiChoiceGenerators import _makeSelectMulitChoice
+from multiChoiceGenerators import _makeMultichoice
 
 #graphviz
 import pygraphviz as pgv
@@ -79,23 +88,25 @@ def server_info_view(request):
     '''
     def unix2javascript(time):
         ''' Convert a unix timestamp to a javascript timestamp
-        @param time: Unix timestamp
-        @return: Javascript timestamp
+        :param time: Unix timestamp
+        :return: Javascript timestamp
         '''
         return time*1000.0
     
     def javascript2unix(time):
         ''' Convert a javascript timestamp to a unix timestamp
-        @param time: Javascript timestamp
-        @return: Unix timestamp
+        
+        :param time: Javascript timestamp
+        :return: Unix timestamp
         '''
         return time/1000
     
     def getMinMaxListofLists(l,key):
         ''' Get the min and max of a list of lists, takes a list and the key value
-        @param l: a list of lists, or list of dicts
-        @param key: the key number of the list
-        @return: tuple of the min and max values
+        
+        :param l: a list of lists, or list of dicts
+        :param key: the key number of the list
+        :return: tuple of the min and max values
         '''
         try:
             Min = l[0][key]
@@ -278,8 +289,7 @@ def server_edit_view(request):
 
 @view_config(renderer="templates/index.pt")
 def index_view(request):
-    '''
-    View of the server network
+    ''' View of the server network
     '''
     #get Dot data
     dot= getServerTree()
@@ -369,7 +379,7 @@ def servers_view(request):
             "AddURL" : "/server_add",
             "ObjectURLCallback" : _objectEditUrl,
             "page_title": "Servers"}
-    
+
 
 def _servers_obj_add_list_view(request,obj,objDict,objGenerator):
     serverName = request.matchdict['serverName']
@@ -399,20 +409,6 @@ def servers_test_add_list_view(request):
 def servers_control_add_list_view(request):
     return _servers_obj_add_list_view(request,"control",getControllerDict(),"controller")
 
-def __fillINIwithTemplate(INIFileTemplate,INIFileDict={}):
-    ''' Fill missing values in an INI config file with ones that exist in the template
-    @param INIFileTemplate: The config template as a dict
-    @param INIFileDict: The config file dict
-    @return: The new INIFileDict with the missing fields
-    '''
-    for section in INIFileTemplate.keys():
-        if section not in INIFileDict.keys():
-            INIFileDict[section] = {}
-        for item in INIFileTemplate[section].keys():
-            if item not in INIFileDict[section]:
-                INIFileDict[section][item] =  INIFileTemplate[section][item][1]
-    return INIFileDict
-
 def _obj_add_list_view(request,objGenerator,TypeList):
     return {"layout": site_layout(),
             "config_sidebar_head" : config_sidebar_head(),
@@ -435,39 +431,16 @@ def testers_add_list_view(request):
 @view_config(renderer="templates/add_pdu_or_tester_list.pt", name="controllers_add_list")
 def controllers_add_list_view(request):
     return _obj_add_list_view(request,"controller",sortDict(getAvailableControllersList()))
-
-def _makeSelectMulitChoice(existingType,objectType,item,getObjectDict,multiListChoices=None):
-    ''' Make a multi select option for the select type
-    @param existingType: The selected option
-    @param objectType: The section to build
-    @param item: The item to build
-    @param getObjectCallback: the Dict holding the select list 
-    @param multiListChoices: an existing multiListChoices dict (optional)
-    @return: The updated multiListChoices dict
-    '''
-    #Create a multi-choice box for the outlets
-    if multiListChoices == None:
-        multiListChoices={}
-    if not objectType in multiListChoices:
-        multiListChoices[objectType]=OrderedDict()
-    multiListChoices[objectType][item]=OrderedDict()
-    #getAvailableOutletsList
-    for slectionName in getObjectDict().keys():
-        multiListChoices[objectType][item][slectionName]={}
-    
-    for slectionName in multiListChoices[objectType][item].keys():
-        multiListChoices[objectType][item][slectionName]["selected"] = (slectionName == existingType)
-        
-    return multiListChoices
  
 def _objGenerator_create(request,objName,objGenerator,loadObjGeneratorTemplate,getAvailableObjGeneratorsList,getObjGeneretorFolder):
     ''' Create a dict for an object Generator page
-    @param objName: The name of the Server Object
-    @param objGenerator: The name of the Server Object Generator
-    @param loadObjGeneratorTemplate:  a callback to get the template of the object Generator
-    @param getAvailableObjGeneratorsList: Get a list of the object generators
-    @param getObjGeneretorFolder: Get the folder of the object generator
-    @return: a dict ready to be rendered
+    
+    :param objName: The name of the Server Object
+    :param objGenerator: The name of the Server Object Generator
+    :param loadObjGeneratorTemplate:  a callback to get the template of the object Generator
+    :param getAvailableObjGeneratorsList: Get a list of the object generators
+    :param getObjGeneretorFolder: Get the folder of the object generator
+    :return: a dict ready to be rendered
     '''
     PDUType = request.matchdict[objGenerator.lower() + 'Type']
     INIFileTemplate = loadObjGeneratorTemplate(PDUType)
@@ -609,14 +582,15 @@ def _server_obj_create(request,obj,objGenerator,objGeneratorConfigCallback,objGe
 
 def _server_obj_edit_view(request,obj,objGenerator,objGeneratorConfigCallback,getObjGeneratorsCallback,objGeneratorTemplateCallback):
     ''' Get the edit dict of a server object (like outlet, tester, etc)
-    @param obj: the name of the object in the server (eg. outlet)
-    @param objName: The name of the object
-    @param objGenerator: the name of the object generator (eg. pdu)
-    @param objGeneratorConfigCallback: a callback the returns the object's config dict 
-    @param getObjGeneratorsCallback: A callback that gets the available object generators
-    @param objGeneratorTemplateCallback: A callback that gets the template dict of the object generator
-    @param existingOBJJavascriptCallback: The ockle javascript command to check if 
-    @return: dict for the edit view
+    
+    :param obj: the name of the object in the server (eg. outlet)
+    :param objName: The name of the object
+    :param objGenerator: the name of the object generator (eg. pdu)
+    :param objGeneratorConfigCallback: a callback the returns the object's config dict 
+    :param getObjGeneratorsCallback: A callback that gets the available object generators
+    :param objGeneratorTemplateCallback: A callback that gets the template dict of the object generator
+    :param existingOBJJavascriptCallback: The ockle javascript command to check if 
+    :return: dict for the edit view
     '''
     serverName = request.matchdict['serverName']
     objName = request.matchdict[obj]
@@ -698,59 +672,18 @@ def server_test_create_view(request):
 def server_control_create_view(request):
     return _server_obj_create(request,"control","controller",_loadControllerConfig,_loadControllerINITemplate,getControllerDict,"checkExistingServerControls")
 
-def _loadPDUINITemplate(outletType):
-    ''' Get the outlet type template
-    @param outletType: The type of the outlet 
-    @return: Outlet ini template dict'''
-    return loadINIFileTemplate(['conf_outlets/' + outletType + '.ini'] + ["outlets.ini"])
-
-def _loadTesterINITemplate(testerType):
-    ''' Get the outlet type template
-    @param outletType: The type of the tester
-    @return: Tester ini template dict'''
-    return loadINIFileTemplate(['conf_testers/' + testerType + '.ini'] + ["testers.ini"])
-
-def _loadControllerINITemplate(controllerType):
-    ''' Get the outlet type template
-    @param outletType: The type of the tester
-    @return: Tester ini template dict'''
-    return loadINIFileTemplate(['conf_controllers/' + controllerType + '.ini'] + ["controllers.ini"])
-
-def _loadServerINITemplate():
-    ''' Get the serverNode template
-    @return: Server ini template dict'''
-    return loadINIFileTemplate("serverNodes.ini")
-
-def _loadPDUConfig(PDUName):
-    configPath= os.path.join(getPDUFolder() , PDUName + '.ini')
-    return loadINIFileConfig(configPath)
-
-def _loadTesterConfig(testerName):
-    configPath= os.path.join(getTesterFolder() , testerName + '.ini')
-    return loadINIFileConfig(configPath)
-
-def _loadControllerConfig(controllerName):
-    configPath= os.path.join(getControllerFolder() , controllerName + '.ini')
-    return loadINIFileConfig(configPath)
-
-def _getServerConfigPath(serverName):
-    return os.path.join(getServerFolder() , serverName + '.ini')
-
-def _loadServerConfig(serverName):
-    configPath= _getServerConfigPath(serverName)
-    return loadINIFileConfig(configPath)
-
 def _objGenerator_edit_view(request,objName,objGenerator,objURLName,getObjGenertorFolderCallback,objGeneratorConfigCallback,objGeneratorTemplateCallback,getAvilableObjGenetorsList):   
     ''' Make an edit view for an object generator (like a PDU or tester)
-    @param request: The request from pyramid
-    @param objName: the object name
-    @param objGenerator: The name of the object generator
-    @param objURLName: The url name that holds the name of the current object we are editing
-    @param getObjGenertorFolderCallback: A function that returns the path of the object generator folder
-    @param objGeneratorConfigCallback: A function the returns the object generator config
-    @param objGeneratorTemplateCallback: A function that returns the template of the current object generator
-    @param getAvilableObjGenetorsList: A callback that returns the current available object generators
-    @return: A ready to render dict for the edit page
+    
+    :param request: The request from pyramid
+    :param objName: the object name
+    :param objGenerator: The name of the object generator
+    :param objURLName: The url name that holds the name of the current object we are editing
+    :param getObjGenertorFolderCallback: A function that returns the path of the object generator folder
+    :param objGeneratorConfigCallback: A function the returns the object generator config
+    :param objGeneratorTemplateCallback: A function that returns the template of the current object generator
+    :param getAvilableObjGenetorsList: A callback that returns the current available object generators
+    :return: A ready to render dict for the edit page
     '''
     PDUName = request.matchdict[objURLName]
     
@@ -798,40 +731,6 @@ def tester_edit_view(request):
 def controller_edit_view(request):
     return _objGenerator_edit_view(request,"control","Controller",'controllerName',getControllerFolder,_loadControllerConfig,_loadControllerINITemplate,getAvailableControllersList)
 
-def _makeMultichoice(section,option,multiListChoicesCallback,INIFileDict,multiListChoices=None):
-    ''' Generate a multilist format for a template. So it can be rendered on a template
-    @param section: The option section in the ini file
-    @param option: The name of the option in the ini file
-    @param multiListChoicesCallback: a callback function the returns a dict of the available options
-    @param INIFileDict: An INI file dict that holds the list of selected choices
-    @param multiListChoices: If there is a multiListChoices dict you want to append the existing configuration to
-    @return: a multiListChoices dict ready to be rendred in a template
-    '''
-    if multiListChoices == None:
-        multiListChoices = OrderedDict()
-    
-    if not section in multiListChoices.keys():
-        multiListChoices[section]=OrderedDict()
-    
-    #build list of checked plugins multilist
-    selectedPlugins = []
-    try:
-        selectedPlugins = json.loads(INIFileDict[section][option])
-    except:
-        selectedPlugins = [INIFileDict[section][option]]
-
-    
-    multiListChoices[section][option]=multiListChoicesCallback()
-    for key in multiListChoices[section][option].keys():
-        multiListChoices[section][option][key] = { "doc" : multiListChoices[section][option][key] }
-    
-    for pluginName in multiListChoices[section][option].keys():
-        if pluginName in selectedPlugins:
-            multiListChoices[section][option][pluginName]["checked"]=True
-        else:
-            multiListChoices[section][option][pluginName]["checked"]=False
-    return multiListChoices
-
 @view_config(renderer="templates/config.pt", name="config")
 def config_view(request):
     
@@ -855,9 +754,10 @@ def config_view(request):
             "configPath" : configPath,
             "multiListChoices" : multiListChoices}
 
-
 @view_config(renderer="json", name="configSend.json")
 def updates_view(request):
+    ''' This view takes a rendered INI config page and parses it back to an INI file
+    '''
     rawiniDict={}
     iniDict={}
     
@@ -974,7 +874,6 @@ def _serverObjectDelete(objectType,name,objectName,path):
         return "Please uncheck " + objectType + " in server before deleting."
     return True
 
-
 def serverOutletDelete(name,objectName,path):
     return _serverObjectDelete("outlet",name,objectName,path)
 
@@ -985,6 +884,10 @@ def serverControlDelete(name,objectName,path):
     return _serverObjectDelete("control",name,objectName,path)
 
 def deleteObject(dataDict):
+    ''' The command takes a dataDict of an object we want to delete in the browser and runs the correct delete method'
+    
+    :param dataDict: the dataDict recived from the browser
+    :return a reply from the server '''
     DELETE_CALLBACK = {"server": serverDelete,
                        "pdu"   : pduDelete,
                        "tester": testerDelete,
@@ -1016,9 +919,10 @@ def deleteObject(dataDict):
                 returnValue["message"] = "Can't delete, unknown error"
     return returnValue
 
-
 @view_config(renderer="json", name="sendOckleCommand.json")
 def sendOckleCommand(request):
+    ''' The function explicitly lists the commands we accept from the browser and then pass to Ockle as real commands
+    '''
     command = request.json_body["command"]
     
     dataDict = {}

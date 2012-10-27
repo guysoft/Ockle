@@ -1,3 +1,10 @@
+"""  Ockle PDU and servers manager
+An executable script to run Ockle's GUI on a standalone server
+
+Created on Aug 24, 2012
+
+@author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
+"""
 from wsgiref.simple_server import make_server
 
 from pyramid.config import Configurator
