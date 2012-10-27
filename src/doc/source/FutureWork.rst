@@ -3,6 +3,7 @@ Future Work
 What could be added:
 
 #. Add option to rename server on the webserver
+#. Make group webserver functions in to an object-oriented structure.
 #. Support to turn on and off a specific server and all its dependents
 #. Change Message class to work with json and not xml (so the javascript calls won't hold a mixture of json and xml)
 #. Add more generic controllers and testers
@@ -15,3 +16,4 @@ What could be added:
 #. Get canviz to work with jquery and drop the need for prototype.js
 #. Better installer, have a nice bootstrap with main setup options
 #. Add more standard methods to pull config variables in the server objects (instead of doing things like ``self.state = json.loads(testerParams["succeed"])`` ).
+

@@ -12,7 +12,6 @@ import os,sys
 
 from common.common import loadConfig
 from common.common import appendProjectPath
-from daemon import Daemon
 
 from networkTree.ServerNetwork import *
 
