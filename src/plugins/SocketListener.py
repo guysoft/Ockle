@@ -14,7 +14,7 @@ sys.path.insert(0, p)
 from common.CommunicationMessage import *
 
 import socket
-
+import traceback
 from plugins.ModuleTemplate import ModuleTemplate
 
 from common.CommunicationMessage import MessageServerError
@@ -70,14 +70,15 @@ class SocketListener(ModuleTemplate):
                     message= Message(data,self)
                     #TODO add here for debug what message we got
                     message = message.parse(data,self)
-                    #try:
-                    xml = self.mainDaemon.communicationHandler.handleMessage(message).toxml()
-                    self.debug("Sending XML:" + str(xml))
-                    #client.send(xml)
-                    client.sendall(str(len(xml)) +":" +  xml)
-                    #except:
-                    #    self.debug("Got a bad message class, returning error")
-                    #    client.send(MessageServerError().toxml())
+                    try:
+                        xml = self.mainDaemon.communicationHandler.handleMessage(message).toxml()
+                        self.debug("Sending XML:" + str(xml))
+                        #client.send(xml)
+                        client.sendall(str(len(xml)) +":" +  xml)
+                    except:
+                        traceback.print_exc(file=sys.stdout)
+                        self.debug("Got a bad message class, returning error")
+                        client.send(MessageServerError().toxml())
                     client.close()
 
             except socket.timeout:
