@@ -22,35 +22,15 @@ The plugin also gets access to all the functions defined in the plugin template 
 Plugin ini template files
 -------------------------
 
-If you want the configuration variable to be changeable at the webserver GUI, you must provide a template ini file in the src/config/plugins folder.
+If you want the configuration variable to be changeable at the webserver GUI, you must provide a template ini file in the ``src/config/plugins`` folder. The files should have the name of the plugin class proceeded with the .ini ending.
 
-The section should be named plugins.<plugin name> .
-Should include the variable name as items, and a json formatted list with the type followed by a default variables. 
+The section should be named ``plugins.<plugin name>`` .
 
-Current types supported:
-
-+---------------------+-------------------------------------------+--------------------------------+
-|Type                 |Field                                      |Example                         |
-+=====================+===========================================+================================+
-| string              | default                                   | ["string","yay"]               |
-+---------------------+-------------------------------------------+--------------------------------+
-| int                 + default                                   | ["int",1]                      |
-+---------------------+-------------------------------------------+--------------------------------+
-| bool                + default                                   | ["bool",true]                  |
-+---------------------+-------------------------------------------+--------------------------------+
-| intrange            + default, range                            | ["intrange",1,"1-8"]           |
-+---------------------+-------------------------------------------+--------------------------------+
-| select :sup:`*`     + select disabled?                          | ["select",false]               |
-+---------------------+-------------------------------------------+--------------------------------+
-| multilist :sup:`*`  + ordered? , sorted?, Url Pattern :sup:`**` | ["multilist",true,"~~name~~"]  |
-+---------------------+-------------------------------------------+--------------------------------+
-
-| :sup:`*` These require the mulichoice variable to be defined
-| :sup:`**` ~~name~~ string would be replaced by the multichoice's value
+These template files follow Ockle's :doc:`INITemplates` .
 
 Example
 ~~~~~~~
-An example would look like this:
+For example, the AutoControl class would have a file named ``src/config/plugins/AutoContro.ini``. This file would contain the following text:
 
 .. code:: python
   

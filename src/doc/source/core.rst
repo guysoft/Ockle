@@ -7,7 +7,7 @@ These are objects that are in the core of Ockle
    MainDaemon
    networkTree
    CommunicationHandler
-   :maxdepth: 2
+   :maxdepth: 4
 
 Ockle's Diagram
 ---------------

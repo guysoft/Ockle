@@ -14,19 +14,18 @@ import json
 from collections import OrderedDict
 
 class OpState:
+    ''' Operation state enum, that all other operation states enums extend
     '''
-    Operation state enum, that all other operation states enums extend
-    '''
-    OK="OK"
-    OFF="OFF"
-    failedToStart="Failed to start"
-    failedToStop="Failed to stop"
-    SwitcingOn = "Switching on"
-    SwitchingOff = "Switching off"
-    permanentlyFailedToStart="Permanently failed to start"
-    permanentlyFailedToStop="Permanently failed to Stop"
-    forcedOn="Forced on"
-    forcedOff="Forced off"
+    OK="OK"                                                #: Outlet/Control/server are on and running
+    OFF="OFF"                                              #: Outlet/Control/server are off
+    failedToStart="Failed to start"                        #: Outlet/Control/server failed to start
+    failedToStop="Failed to stop"                          #: Outlet/Control/server failed to stop
+    SwitcingOn = "Switching on"                            #: Outlet/Control/server is switching on
+    SwitchingOff = "Switching off"                         #: Outlet/Control/server is switching off
+    permanentlyFailedToStart="Permanently failed to start" #: Outlet/Control/server has permanently failed to start
+    permanentlyFailedToStop="Permanently failed to Stop"   #: Outlet/Control/server has permanently failed to stop
+    forcedOn="Forced on"                                   #: Outlet/Control/server if forced on
+    forcedOff="Forced off"                                 #: Outlet/Control/server if forced off
 
 COLOR_DICT={
             -1:"black",
@@ -46,7 +45,8 @@ COLOR_DICT={
 
 def loadConfig():
     ''' Get the config file and folder
-    @return: a tuple with a config parser to config.ini and the etc folder'''
+    
+    :return: a tuple with a config parser to config.ini and the etc folder'''
     config = SafeConfigParser()
     ETC_DIR= appendProjectPath("etc")
     config.read(os.path.join(ETC_DIR,"config.ini"))
@@ -54,16 +54,18 @@ def loadConfig():
 
 def appendProjectPath(path=""):
     ''' Appends the project path to a relative path
-    @param path: the internal path
-    @return: the relative path 
+    
+    :param path: the internal path
+    :return: the relative path 
     '''
     return os.path.join(os.path.dirname(os.path.dirname(__file__)),'..',path)
 
 def turpleList2Dict(tupleList):
     ''' Convert a tuple list to a dict. For easy and saner access
     Used in this project because config parser returns a list of tuples
-    @param tupleList the list of tuples
-    @return: a dict with lists for each variable
+    
+    :param tupleList the list of tuples
+    :return: a dict with lists for each variable
     '''
     returnDict={}
     for turple in tupleList:
@@ -78,8 +80,9 @@ def trimOneObjectListsFromDict(d):
     ''' There is some strange bug in the xml dict recovery,
     Some strings return as lists with a single element,
     This is a workaround
-    @param d: A dict containing some single element lists
-    @return: The dict with the lists removed and replaced by the element
+    
+    :param d: A dict containing some single element lists
+    :return: The dict with the lists removed and replaced by the element
     '''
     for key in d.iterkeys():
         try:
@@ -89,17 +92,19 @@ def trimOneObjectListsFromDict(d):
     return d
 
 def slicedict(d, s):
-    ''' Slice a dict according to a prefix in the key 
-    @param d: a dict
-    @param s: The prefix
-    @return: The sliced dict
+    ''' Slice a dict according to a prefix in the key
+     
+    :param d: a dict
+    :param s: The prefix
+    :return: The sliced dict
     '''
     return {k:v for k,v in d.iteritems() if k.startswith(s)}
 
 def configToDict(config):
     ''' Get a configuration dictionary from a config parser
-    @param config: A config file handler
-    @return: A dict of the sections and the variables in it
+    
+    :param config: A config file handler
+    :return: A dict of the sections and the variables in it
     '''
     returnValue=OrderedDict()
     
@@ -112,8 +117,9 @@ def configToDict(config):
 
 def iniToDict(path):
     ''' Read an ini path in to a dict
-    @param path: Path to file
-    @return: a dict of that path
+    
+    :param path: Path to file
+    :return: a dict of that path
     ''' 
     config = SafeConfigParser()
     config.read(path)
@@ -121,8 +127,9 @@ def iniToDict(path):
 
 def dictToConfig(d):
     ''' Get a config parser from a config dictionary
-    @param d: a dictionary
-    @return: a config parser file handler
+    
+    :param d: a dictionary
+    :return: a config parser file handler
     '''
     config = SafeConfigParser()
     
@@ -143,8 +150,9 @@ def _appendTemplateDIR(path):
 
 def getINITemplate(paths):
     ''' Get an INI template as a dict
-    @param path: relative path in the src tree
-    @return: a dict of the config template
+    
+    :param path: relative path in the src tree
+    :return: a dict of the config template
     '''
     if type(paths) == str:
         paths = [paths]
@@ -166,8 +174,9 @@ def getINIFolderTemplate(path):
 
 def getINITemplateFolder(path):
     ''' Get an INI template of a all INI files in a folder
-    @param path: relative path in the src tree
-    @return: a dict of the config template
+    
+    :param path: relative path in the src tree
+    :return: a dict of the config template
     '''
     returnValue={}
     config = SafeConfigParser()
@@ -178,8 +187,9 @@ def getINITemplateFolder(path):
 
 def getINIstringtoDict(iniString):
     ''' Take an ini file as as string, and convert it to a dict
-    @param iniString: ini file as string
-    @return: a dict of that ini file
+    
+    :param iniString: ini file as string
+    :return: a dict of that ini file
     ''' 
     print iniString
     iniFile = StringIO(iniString)
@@ -189,15 +199,17 @@ def getINIstringtoDict(iniString):
 
 def mergeDicts(a,b):
     ''' Merges two dicts, second should overwrite the first
-    @param a: a dict
-    @param b: a dict, should overwrite a
-    @return: a merged dict, second dict overwrites the first
+    
+    :param a: a dict
+    :param b: a dict, should overwrite a
+    :return: a merged dict, second dict overwrites the first
     '''
     return dict(a.items() + b.items())
 
 def sortDict(d):
     ''' Takes a normal unsorted dict, and returns an alphabetically ordered dict
-    @param d: An unsorted dict
-    @return: An ordered dict, sorted
+    
+    :param d: An unsorted dict
+    :return: An ordered dict, sorted
     '''
     return OrderedDict(sorted(d.items(), key=lambda t: t[0])) 

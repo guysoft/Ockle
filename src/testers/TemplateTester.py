@@ -9,8 +9,8 @@ Created on Apr 25, 2012
 
 class TesterOpState():
     INIT=-1# Did not start yet
-    SUCCEEDED="SUCCEEDED"
-    FAILED="FAILED"
+    SUCCEEDED="SUCCEEDED" #: Test has succeeded
+    FAILED="FAILED"       #: Test has failed
     
 
 class TemplateTester(object):

@@ -7,7 +7,6 @@ Created on Mar 7, 2012
 @author: Guy Sheffer <guy.sheffer at mail.huji.ac.il>
 """
 from OutletTemplate import OutletTemplate
-import time
 
 class Dummy(OutletTemplate):
     ''' A dummy outlet, useful for testing
@@ -21,19 +20,10 @@ class Dummy(OutletTemplate):
         self.state = state
         return
     
-    def setState(self,state):
-        self._setOutletState(state)
-        #time.sleep(0.3)
-        self.updateState()
-        return True
-    
-    def getState(self):
-        return self.state
-    
     def updateState(self):
         self.state=self._getOuteletState()
         
-    def _getOuteletState(self):
+    def _getOutletState(self):
         try:
             self.state
         except AttributeError:

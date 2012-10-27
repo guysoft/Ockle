@@ -22,5 +22,6 @@ Related Topics
 --------------
 .. toctree::
    ServerNetworkFactory
+   OpStates
    
 .. _pygraph: http://pygraphlib.sourceforge.net/doc/public/pygraphlib.pygraph.DGraph-class.html

@@ -11,7 +11,9 @@ class OutletOpState(OpState):
 
     
 class OutletTemplate(object):
-    ''' Template for an outlet object that all other outlets extend'''
+    ''' Template for an outlet object that all other outlets extend
+    
+    :ivar data: Holds a dict of the data from the outlet'''
     
     ''' Constructor Class
     
@@ -41,7 +43,7 @@ class OutletTemplate(object):
         self.name = name
     
     def _setOutletState(self,state):
-        ''' To be implemented by the child, sets the outlet's sate 
+        ''' To be implemented by the child, sets the outlet's state 
         
         :param bool state: The state to set '''
         pass
@@ -58,20 +60,29 @@ class OutletTemplate(object):
         return self.getState()
     
     def setState(self,state):
-        ''' To be Implemented in the child, set the current OpState
+        '''set the current OpState
         
         :param state: The state of the outlet to set
         :return: True if the setting was successful 
         '''
-        pass
+        self._setOutletState(state)
+        self.updateState()
+        #TODO: make this more robust?
+        if self.getState() == state:
+            return True
+        else:
+            return False
     
     def getState(self):
         return self.state
     
     def updateState(self):
-        pass
+        self.state=self._getOutletState()
         
-    def _getOuteletState(self):
+    def _getOutletState(self):
+        ''' To be implemented by the child, sets the outlet's state
+        
+        :return: The current outlet state ''' 
         pass
     
     def setOpState(self,state):
@@ -81,7 +92,7 @@ class OutletTemplate(object):
     
     def getOutletType(self):
         ''' Returns the type name of the outlet
-        @return: The outlet type name
+        :return: The outlet type name
         '''
         return self.__class__.__name__
     
@@ -90,4 +101,6 @@ class OutletTemplate(object):
         return self.data
     
     def updateData(self):
+        '''To  be Implemented in the child, updates the ``self.data`` variable
+        '''
         pass

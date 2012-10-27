@@ -100,15 +100,6 @@ class Raritan(OutletTemplate):
         self._snmpSet((1,3,6,1,4,1,13742,4,1,2,2,1,3,self.outletNumber), rfc1902.Integer(value))
         return
     
-    def setState(self,state):
-        self._setOutletState(state)
-        self.updateState()
-        #TODO: make this more robust?
-        if self.getState() == state:
-            return True
-        else:
-            return False
-    
     def _snmpSet(self,OID,Value):
         '''
         SNMP set call
@@ -142,13 +133,8 @@ class Raritan(OutletTemplate):
                     print '%s = %s' % (name.prettyPrint(), val.prettyPrint())
             '''
         return
-    def getState(self):
-        return self.state
-    
-    def updateState(self):
-        self.state=self._getOuteletState()
         
-    def _getOuteletState(self):
+    def _getOutletState(self):
         '''
         Get the state of an outlet in the PDU
         returns 0 for off, 1 for on

@@ -47,6 +47,7 @@ Developer Manual
    webserver
    OckleClient
    ServerObjects
+   INITemplates
    :maxdepth: 4
 
 Libraries used (learned?)
