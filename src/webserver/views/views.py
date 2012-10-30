@@ -986,6 +986,9 @@ def sendOckleCommand(request):
     if command == "runTest":
         return runTest(dataDict)
     
+    if command == "getAutoControlStatus":
+        return getAutoControlStatus()
+    
     if command == "setAutoControlStatus":
         return setAutoControlStatus(dataDict)
     
