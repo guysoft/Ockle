@@ -29,8 +29,18 @@ config = SafeConfigParser()
 ETC_DIR= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','..','..',"etc")
 #print os.path.join(ETC_DIR,"config.ini")
 config.read(os.path.join(ETC_DIR,"config.ini"))
-PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
-SOCKET_TIMEOUT = config.getint('plugins.SocketListener', 'SOCKET_TIMEOUT')
+
+PORT = 8088
+try:
+    PORT = config.getint('plugins.SocketListener', 'LISTENER_PORT')
+except:
+    pass
+
+SOCKET_TIMEOUT = 5
+try:
+    SOCKET_TIMEOUT = config.getint('plugins.SocketListener', 'SOCKET_TIMEOUT')
+except:
+    pass
 OCKLE_SERVER_HOSTNAME="127.0.0.1"
 
 def getDataFromServer(command,paramsDict={},noReturn=False):
