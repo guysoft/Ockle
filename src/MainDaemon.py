@@ -23,10 +23,27 @@ from common.CommunicationHandler import CommunicationHandler
 
 config,ETC_DIR = loadConfig()
 
-PLUGIN_DIR =config.get('main', 'PLUGIN_DIR')
-LOG_FILE_PATH = appendProjectPath(config.get('main', 'LOG_FILE_PATH'))
-#pluginList=["webserver"]
-pluginList= json.loads(config.get("plugins","pluginList"))
+
+
+
+
+PLUGIN_DIR = "plugins"
+try:
+    PLUGIN_DIR =config.get('main', 'PLUGIN_DIR')
+except:
+    pass
+
+LOG_FILE_PATH = "log.txt"
+try:
+    LOG_FILE_PATH = appendProjectPath(config.get('main', 'LOG_FILE_PATH'))
+except:
+    pass
+
+pluginList=[]
+try:
+    pluginList= json.loads(config.get("plugins","pluginList"))
+except:
+    pass
 
 
 class MainDaemon(object):
