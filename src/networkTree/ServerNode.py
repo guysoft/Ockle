@@ -15,8 +15,14 @@ from testers.TemplateTester import TesterOpState
 from controllers.ControllerTemplate import ControllerOpState
 
 config,ETC_DIR = loadConfig()
-MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
-MAX_ATTEMPTS = int(config.get('servers', 'MAX_ATTEMPTS'))
+
+MAX_STARTUP_TIME = 60
+MAX_ATTEMPTS = 3
+try:
+    MAX_STARTUP_TIME = config.get('servers', 'MAX_STARTUP_TIME')
+    MAX_ATTEMPTS = int(config.get('servers', 'MAX_ATTEMPTS'))
+except:
+    pass
 
 class ServerNodeOpState(OpState):
     INIT="Did not initiate yet"# Did not start yet
