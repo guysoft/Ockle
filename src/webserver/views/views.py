@@ -209,7 +209,7 @@ def server_info_view(request):
         outletsServerDict = json.loads(serverDict[objs])
         for outlet in outletsServerDict:
             outlets[outlet] ={}
-            outlets[outlet]["name"] = dataDictHead[outlet]["name"]
+            outlets[outlet]["name"] = outletsServerDict[outlet]["name"]
             outlets[outlet]["OpState"] = outletsServerDict[outlet]["OpState"]
             
             onOpStates = [OpState.OK,OpState.SwitchingOff,OpState.forcedOn]
