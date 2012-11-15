@@ -1,9 +1,24 @@
 <!DOCTYPE html>
 <div metal:use-macro="layout">
-<tal:block metal:fill-slot="head_content">
-</tal:block>
+	<tal:block metal:fill-slot="head_content">
+	</tal:block>
 
-    <div metal:fill-slot="content">
-        <p>Bla bla Ockle</p>
-    </div>
+	<div metal:fill-slot="content">
+	<span style="text-align:left">
+	<div id="fancy"><p>What is Ockle?</p></div>	
+	<p>
+	Ockle is a tool which lets you control a group of power distribution units (PDUs) and the servers which connected to them.
+	Servers can be dependent on each other, and Ockle can then determine which servers should be turned on according to those dependencies.
+	After server is turned on Ockle can run automated tests to make sure they indeed provide the services that are required by the servers.
+	</p>
+	<div id="fancy"><p>Where to get Ockle?</p></div>	
+	<p>Ockle is available at <a href="https://github.com/guysoft/Ockle">GitHub</a>.</p>
+	<div id="fancy"><p>Documentation</p></div>
+	<p>	
+	Documentation is available at <a href="http://ockle.readthedocs.org">ockle.readthedocs.org</a>
+	<br/>
+	or <a href="http://www.cs.huji.ac.il/~guys05/ockle/">mirror here from Guy Sheffer's huji page</a>.
+	</p>
+	</span>
+	</div>
 </div>
