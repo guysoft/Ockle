@@ -28,7 +28,7 @@ pyramid-handlers==0.5
 repoze.lru==0.5
 translationstring==1.1
 venusian==1.0a6
-waitress==0.8.1
+waitress==1.4.0
 wsgiref==0.1.2
 zope.component==3.12.1
 zope.deprecation==4.0.0
